@@ -103,12 +103,33 @@ elif mode == "Trade multiple mochis":
 
     if input_text:
         try:
-            entries = [x.strip() for x in input_text.split(",")]
-            rarities = [get_rarity_by_name(e) if not re.match(r"^\d+(\.\d+)?$", e) else float(e) for e in entries]
+            entries = [x.strip().lower() for x in input_text.split(",")]
+            rarities = [
+                get_rarity_by_name(e) if not re.match(r"^\d+(\.\d+)?$", e) else float(e)
+                for e in entries
+            ]
             rarities = [r for r in rarities if r and r > 0]
-            total_value = sum(1 / r for r in rarities)
-            result = 1 / total_value
-            st.success(f"With mochis {rarities}, you can trade for one of rarity **~{result:.2f}**")
+
+            if rarities:
+                total_value = sum(1 / r for r in rarities)
+                exact_result = 1 / total_value
+                rounded_result = math.ceil(exact_result * 100) / 100  # round up to nearest 0.01
+
+                # Suggest closest mochis
+                exact_suggestion = min(
+                    mochi_rarities.items(), key=lambda x: abs(x[1] - exact_result)
+                )
+                rounded_suggestion = min(
+                    mochi_rarities.items(), key=lambda x: abs(x[1] - rounded_result)
+                )
+
+                st.success(
+                    f"With mochis `{entries}`, your trade value is:\n\n"
+                    f"- Exact: **{exact_result:.2f}** → Closest mochi: **{exact_suggestion[0].title()}** (rarity {exact_suggestion[1]})\n"
+                    f"- Rounded Up: **{rounded_result:.2f}** → Closest mochi: **{rounded_suggestion[0].title()}** (rarity {rounded_suggestion[1]})"
+                )
+            else:
+                st.warning("No valid rarities found.")
         except:
             st.error("Please enter valid mochi names or numbers only.")
 
@@ -127,7 +148,7 @@ elif mode == "Event Mochi Section":
 
 
 elif mode == "Value from Counts":
-    input_text = st.text_area("Enter your mochis as 'amount x rarity/name', comma-separated (e.g. 20x5, 3xjapan):")
+    input_text = st.text_area("Enter your mochis as 'rarityOrName x amount', comma-separated (e.g. japan x 20, 5 x 5):")
 
     if input_text:
         try:
@@ -135,15 +156,18 @@ elif mode == "Value from Counts":
             total_value = 0
             invalids = []
             for item in items:
-                item = item.strip().lower().replace(" ", "")
+                item = item.strip().lower()
                 if "x" in item:
-                    amount_str, rarity_str = item.split("x")
-                    amount = float(amount_str)
+                    part, amount_str = map(str.strip, item.split("x", 1))
                     try:
-                        rarity = float(rarity_str)
-                    except:
-                        rarity = get_rarity_by_name(rarity_str)
-                    if rarity and rarity > 0:
+                        rarity = float(part)
+                    except ValueError:
+                        rarity = get_rarity_by_name(part)
+                    try:
+                        amount = float(amount_str)
+                    except ValueError:
+                        amount = None
+                    if rarity and amount:
                         total_value += amount / rarity
                     else:
                         invalids.append(item)
@@ -155,7 +179,8 @@ elif mode == "Value from Counts":
             else:
                 st.warning("No valid values found.")
         except:
-            st.error("Invalid format. Please use 'amount x name/rarity' like '20xjapan, 3x2'.")
+            st.error("Invalid format. Please use 'mochi x amount' like 'japan x 20, 5 x 5'.")
+
 
 # Footer
 st.markdown("---")
