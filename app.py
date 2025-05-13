@@ -10,7 +10,7 @@ MOCHI_DATA = {
     0.6: ["allied powers", "allies", "allie"],
     0.7: ["bad friends trio", "bad friend trio", "bad friends trios", "bft"],
     0.8: ["axis powers", "axis"],
-    0.9: ["franco-british union","fbu"],
+    0.9: ["franco-british union", "fbu"],
     1: ["america", "holy roman empire", "holy rome", "ottoman empire", "america's daddy", "daddy", "hre"],
     2: ["ancient rome", "rome", "grandpa rome", "roman empire", "england", "polish-lithuanian commonwealth", "plc", "tibet"],
     2.5: ["2p japan"],
@@ -61,21 +61,24 @@ MOCHI_DATA = {
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"]
 }
 
-# Precompute reverse lookup for performance
-NAME_TO_RARITY = {}
-for rarity, names in MOCHI_DATA.items():
-    for name in names:
-        NAME_TO_RARITY[re.sub(r"[.’'–—]", "", name.lower().replace("-", " ").replace("!", " ").strip())] = rarity
-
-# Flatten rarity-name map for suggestions
-mochi_rarities = {name: rarity for rarity, names in MOCHI_DATA.items() for name in names}
-
-
 def normalize_name(name):
-    return re.sub(r"[.’'–—]", "", name.lower().replace("-", " ").replace("!", " ").strip())
+    name = name.lower()
+    name = re.sub(r"[.’'–—]", "", name)
+    name = name.replace("-", " ").replace("!", " ")
+    return name.strip()
 
 def get_rarity_by_name(name):
-    return NAME_TO_RARITY.get(normalize_name(name))
+    name = normalize_name(name)
+    for rarity, names in MOCHI_DATA.items():
+        if name in [normalize_name(n) for n in names]:
+            return rarity
+    return None
+
+def round_to_nearest_half(n):
+    return round(n * 2) / 2
+
+def get_all_mochis_at_rarity(r):
+    return [name.title() for rar, names in MOCHI_DATA.items() if rar == r for name in names]
 
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Event Mochi Section", "Value from Counts"])
 
@@ -115,21 +118,27 @@ elif mode == "Trade multiple mochis":
                     rarities.append(float(e))
                 else:
                     rarity = get_rarity_by_name(e)
-                    if rarity:
+                    if rarity and rarity > 0:
                         rarities.append(rarity)
 
             if rarities:
                 total_value = sum(1 / r for r in rarities)
                 exact_result = 1 / total_value
-                rounded_result = math.ceil(exact_result * 100) / 100
+                rounded_result = round_to_nearest_half(exact_result)
 
-                exact_suggestion = min(mochi_rarities.items(), key=lambda x: abs(x[1] - exact_result))
-                rounded_suggestion = min(mochi_rarities.items(), key=lambda x: abs(x[1] - rounded_result))
+                rounded_mochis = get_all_mochis_at_rarity(rounded_result)
+                formatted_entries = ", ".join([e.title() for e in entries])
 
                 st.success(
-                    f"**Exact trade value**: `{exact_result:.2f}` → Suggested: **{exact_suggestion[0].title()}**\n"
-                    f"**Rounded-up value**: `{rounded_result:.2f}` → Suggested: **{rounded_suggestion[0].title()}**"
+                    f"**Your mochis**: {formatted_entries}\n\n"
+                    f"- **Exact trade value**: `{exact_result:.2f}`\n"
+                    f"- **Rounded to nearest 0.5**: `{rounded_result}`\n"
                 )
+                if rounded_mochis:
+                    st.markdown(f"**Suggested mochis at rarity {rounded_result}:**")
+                    st.markdown(", ".join(rounded_mochis))
+                else:
+                    st.info("No mochis found at that rounded rarity.")
             else:
                 st.warning("No valid rarities or mochi names were recognized.")
         except Exception as e:
@@ -139,8 +148,8 @@ elif mode == "Event Mochi Section":
     mochi_input = st.text_input("Enter your event mochi's name or rarity:")
 
     if mochi_input:
+        rarity = get_rarity_by_name(mochi_input)
         try:
-            rarity = get_rarity_by_name(mochi_input)
             if rarity is None:
                 rarity = float(mochi_input)
             adjusted = rarity / 2
@@ -182,6 +191,5 @@ elif mode == "Value from Counts":
         except:
             st.error("Invalid format. Please use 'mochi x amount' like 'japan x 20, 5 x 5'.")
 
-# Footer
 st.markdown("---")
 st.markdown("Calculator created by **Howo Chernenko**")
