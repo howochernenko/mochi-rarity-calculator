@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("🌟 Mochi Rarity Trade Calculator")
+st.title("🌟 Mochi Trade Calculator")
 
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Event Mochi Section"])
 
