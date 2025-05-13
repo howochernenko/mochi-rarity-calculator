@@ -91,9 +91,9 @@ if mode == "Compare two mochis":
     if rarity_have and rarity_want:
         ratio = rarity_want / rarity_have
         if ratio < 1:
-            st.success(f"You need **{1/ratio:.2f}** of their mochis for a fair trade.")
+            st.success(f"You need **{1/ratio:.2f}** mochis for a fair trade.")
         else:
-            st.success(f"They need **{ratio:.2f}** of your mochis for a fair trade.")
+            st.success(f"They need **{ratio:.2f}** mochis for a fair trade.")
     else:
         if name_or_rarity_have or name_or_rarity_want:
             st.warning("Could not identify mochi name or rarity. Please double-check spelling.")
