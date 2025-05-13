@@ -9,7 +9,7 @@ MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
     0.6: ["allied powers", "allies", "allie"],
-    0.7: ["bad friends trio", "bad friend trio", "bad friends trios" "bft"],
+    0.7: ["bad friends trio", "bad friend trio", "bad friends trios", "bft"],
     0.8: ["axis powers", "axis"],
     0.9: ["franco-british union","fbu"],
     1: ["america", "holy roman empire", "holy rome", "ottoman empire", "america's daddy", "daddy", "hre"],
@@ -134,5 +134,5 @@ elif mode == "Event Mochi Section":
 
 # Footer
 st.markdown("---")
-st.markdown("Created by **Howo Chernenko**")
+st.markdown("Calculator created by **Howo Chernenko**")
 
