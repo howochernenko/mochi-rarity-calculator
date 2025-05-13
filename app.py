@@ -127,7 +127,7 @@ elif mode == "Event Mochi Section":
 
 
 elif mode == "Value from Counts":
-    input_text = st.text_area("Enter your mochis as 'amount x rarityOrName', comma-separated (e.g. 20x5, 3xjapan):")
+    input_text = st.text_area("Enter your mochis as 'amount x rarity/name', comma-separated (e.g. 20x5, 3xjapan):")
 
     if input_text:
         try:
