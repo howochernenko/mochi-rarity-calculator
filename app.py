@@ -26,7 +26,7 @@ MOCHI_DATA = {
     7.2: ["domain and realms of the shadows and the darkness", "drsd"],
     8: ["poland", "neko romano", "romacat", "nyo spain", "nyo russia"],
     8.24: ["portugal"],
-    9: ["uncensored china", "china", "nyo canada", "russia", "prussia"],
+    9: ["uncensored china", "nyo canada", "russia", "prussia"],
     10: ["italy", "north italy", "germany", "spain"],
     11: ["france", "romano", "south italy", "nyo america"],
     12: ["wales", "germania", "germanic tribes", "canada"],
