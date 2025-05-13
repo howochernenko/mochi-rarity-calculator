@@ -177,14 +177,34 @@ elif mode == "Value from Counts":
                     else:
                         invalids.append(item)
             if total_value > 0:
+                # Calculate the result
                 result = 1 / total_value
-                st.success(f"These mochis can be traded for one mochi of rarity **~{result:.2f}**.")
+                
+                # Round based on custom rules
+                rounded_result = round_to_nearest_custom(result)
+                
+                # Get mochis that match the rounded rarity
+                rounded_mochis = get_all_mochis_at_rarity(rounded_result)
+
+                if not rounded_mochis:
+                    closest_rarity = get_closest_rarity(rounded_result)
+                    rounded_result = closest_rarity
+                    rounded_mochis = get_all_mochis_at_rarity(closest_rarity)
+                
+                st.success(f"These mochis can be traded for one mochi of rarity **~{result:.2f}**.\n\n")
+                st.markdown(f"**Rounded to:** `{rounded_result}`")
+
+                if rounded_mochis:
+                    st.markdown(f"**Suggested mochis at rarity {rounded_result}:**")
+                    st.markdown(", ".join(rounded_mochis))
+
                 if invalids:
                     st.warning(f"Some items couldn't be processed: {', '.join(invalids)}")
             else:
                 st.warning("No valid values found.")
         except:
             st.error("Invalid format. Please use 'mochi/rarity x amount' like 'Ukraine x 20, 5 x 5'.")
+
 
 st.markdown("---")
 st.markdown("Calculator created by **Howo Chernenko**")
