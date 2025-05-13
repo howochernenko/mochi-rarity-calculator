@@ -80,7 +80,7 @@ def get_rarity_by_name(name):
     return None
 
 # Main mode selection
-mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Event Mochi Section"])
+mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Event Mochi Section", "Value from Counts"])
 
 if mode == "Compare two mochis":
     name_or_rarity_have = st.text_input("Your mochi (name or rarity):")
@@ -131,6 +131,30 @@ elif mode == "Event Mochi Section":
             st.success(f"An event mochi with base rarity {rarity} is worth the equivalent of **~{adjusted:.2f}**.")
         except:
             st.error("Could not process the input. Please enter a number or known mochi name.")
+
+elif mode == "Value from Counts":
+    input_text = st.text_area("Enter your mochis as 'amount x rarity', comma-separated (e.g. 20x5, 3x2):")
+
+    if input_text:
+        try:
+            items = input_text.split(",")
+            total_value = 0
+            for item in items:
+                item = item.strip().lower().replace(" ", "").replace("\u2019", "'")  # Normalize spaces and apostrophes
+                if "x" in item:
+                    amount_str, rarity_str = item.split("x")
+                    amount = float(amount_str)
+                    rarity = float(rarity_str)
+                    if rarity > 0:
+                        total_value += amount / rarity
+            if total_value > 0:
+                result = 1 / total_value
+                st.success(f"These mochis can be traded for one mochi of rarity **~{result:.2f}**.")
+            else:
+                st.warning("No valid values found.")
+        except:
+            st.error("Invalid format. Please use 'amount x rarity' format like '20x5, 3x2'.")
+
 
 # Footer
 st.markdown("---")
