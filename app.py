@@ -156,3 +156,7 @@ elif mode == "Value from Counts":
                 st.warning("No valid values found.")
         except:
             st.error("Invalid format. Please use 'amount x name/rarity' like '20xjapan, 3x2'.")
+
+# Footer
+st.markdown("---")
+st.markdown("Calculator created by **Howo Chernenko**")
