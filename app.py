@@ -103,17 +103,21 @@ elif mode == "Trade multiple mochis":
 
     if input_text:
         try:
-            entries = [x.strip().lower() for x in input_text.split(",")]
-            rarities = [
-                get_rarity_by_name(e) if not re.match(r"^\d+(\.\d+)?$", e) else float(e)
-                for e in entries
-            ]
-            rarities = [r for r in rarities if r and r > 0]
+            entries = [x.strip() for x in input_text.split(",") if x.strip()]
+            rarities = []
+
+            for e in entries:
+                if re.match(r"^\d+(\.\d+)?$", e):
+                    rarities.append(float(e))
+                else:
+                    rarity = get_rarity_by_name(e)
+                    if rarity and rarity > 0:
+                        rarities.append(rarity)
 
             if rarities:
                 total_value = sum(1 / r for r in rarities)
                 exact_result = 1 / total_value
-                rounded_result = math.ceil(exact_result * 100) / 100  # round up to nearest 0.01
+                rounded_result = math.ceil(exact_result * 100) / 100  # Round up to nearest 0.01
 
                 # Suggest closest mochis
                 exact_suggestion = min(
@@ -123,15 +127,18 @@ elif mode == "Trade multiple mochis":
                     mochi_rarities.items(), key=lambda x: abs(x[1] - rounded_result)
                 )
 
+                formatted_entries = ", ".join([e.title() for e in entries])
+
                 st.success(
-                    f"With mochis `{entries}`, your trade value is:\n\n"
-                    f"- Exact: **{exact_result:.2f}** → Closest mochi: **{exact_suggestion[0].title()}** (rarity {exact_suggestion[1]})\n"
-                    f"- Rounded Up: **{rounded_result:.2f}** → Closest mochi: **{rounded_suggestion[0].title()}** (rarity {rounded_suggestion[1]})"
+                    f"**Your mochis**: {formatted_entries}\n\n"
+                    f"- **Exact trade value**: `{exact_result:.2f}` → Suggested mochi: **{exact_suggestion[0].title()}** (rarity {exact_suggestion[1]})\n"
+                    f"- **Rounded-up value**: `{rounded_result:.2f}` → Suggested mochi: **{rounded_suggestion[0].title()}** (rarity {rounded_suggestion[1]})"
                 )
             else:
-                st.warning("No valid rarities found.")
-        except:
-            st.error("Please enter valid mochi names or numbers only.")
+                st.warning("No valid rarities or mochi names were recognized.")
+        except Exception as e:
+            st.error(f"Error: {e}\n\nPlease enter valid mochi names or rarity numbers.")
+
 
 elif mode == "Event Mochi Section":
     mochi_input = st.text_input("Enter your event mochi's name or rarity:")
