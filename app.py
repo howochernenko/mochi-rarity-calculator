@@ -2,18 +2,18 @@ import streamlit as st
 import re
 
 # Title
-st.title("🌟 Mochi Trade Calculator")
+st.title("🌟 Mochis Trade Calculator")
 
 # Mochi name-to-rarity dictionary with aliases
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
-    0.6: ["allied powers", "allies"],
-    0.7: ["bad friends trio"],
+    0.6: ["allied powers", "allies", "allie"],
+    0.7: ["bad friends trio", "bad friend trio", "bad friends trios" "bft"],
     0.8: ["axis powers", "axis"],
-    0.9: ["franco-british union"],
-    1: ["america", "holy roman empire", "holy rome", "ottoman empire", "america's daddy", "daddy"],
-    2: ["ancient rome", "rome", "grandpa rome", "roman empire", "england", "polish-lithuanian commonwealth", "tibet"],
+    0.9: ["franco-british union","fbu"],
+    1: ["america", "holy roman empire", "holy rome", "ottoman empire", "america's daddy", "daddy", "hre"],
+    2: ["ancient rome", "rome", "grandpa rome", "roman empire", "england", "polish-lithuanian commonwealth", "plc", "tibet"],
     2.5: ["2p japan"],
     3: ["nyo japan", "knights templar", "house of habsburg", "habsburg", "hapsburg", "neko england"],
     3.14: ["ancient greece", "mama greece", "hellas"],
@@ -131,3 +131,8 @@ elif mode == "Event Mochi Section":
             st.success(f"An event mochi with base rarity {rarity} is worth the equivalent of **~{adjusted:.2f}**.")
         except:
             st.error("Could not process the input. Please enter a number or known mochi name.")
+
+# Footer
+st.markdown("---")
+st.markdown("Created by **Howo Chernenko**")
+
