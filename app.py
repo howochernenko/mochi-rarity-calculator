@@ -153,38 +153,38 @@ elif mode == "Trade multiple mochis":
             st.warning(f"Something went wrong: {e}")
 
 elif mode == "Value from Counts":
-    input_text = st.text_input("Enter mochis counts (e.g., 20x5, 3x2):")
+    input_text = st.text_area("Enter your mochis as 'rarity/mochi x amount', comma-separated (e.g. ukraine x 20, 5 x 5):")
+
     if input_text:
         try:
-            counts = [x.strip() for x in input_text.split(",") if x.strip()]
+            items = input_text.split(",")
             total_value = 0
-            for count in counts:
-                mochi, count_value = count.split("x")
-                count_value = int(count_value)
-                mochi_rarity = get_rarity_by_name(mochi)
-                if mochi_rarity:
-                    total_value += mochi_rarity * count_value
-
-            if total_value:
-                exact_result = 1 / total_value
-                rounded_result = round_to_nearest_custom(exact_result)
-
-                rounded_mochis = get_all_mochis_at_rarity(rounded_result)
-
-                if not rounded_mochis:
-                    closest_rarity = get_closest_rarity(rounded_result)
-                    rounded_result = closest_rarity
-                    rounded_mochis = get_all_mochis_at_rarity(closest_rarity)
-
-                st.success(
-                    f"These mochis can be traded for one mochi of rarity **~{exact_result:.2f}**.\n\n"
-                    f"**Rounded to:** `{rounded_result}`"
-                )
-                if rounded_mochis:
-                    st.markdown(f"**Suggested mochis at rarity {rounded_result}:**")
-                    st.markdown(", ".join(rounded_mochis))
-        except Exception as e:
-            st.warning(f"Something went wrong: {e}")
+            invalids = []
+            for item in items:
+                item = item.strip().lower()
+                if "x" in item:
+                    part, amount_str = map(str.strip, item.split("x", 1))
+                    try:
+                        rarity = float(part)
+                    except ValueError:
+                        rarity = get_rarity_by_name(part)
+                    try:
+                        amount = float(amount_str)
+                    except ValueError:
+                        amount = None
+                    if rarity and amount:
+                        total_value += amount / rarity
+                    else:
+                        invalids.append(item)
+            if total_value > 0:
+                result = 1 / total_value
+                st.success(f"These mochis can be traded for one mochi of rarity **~{result:.2f}**.")
+                if invalids:
+                    st.warning(f"Some items couldn't be processed: {', '.join(invalids)}")
+            else:
+                st.warning("No valid values found.")
+        except:
+            st.error("Invalid format. Please use 'mochi/rarity x amount' like 'Ukraine x 20, 5 x 5'.")
 
 st.markdown("---")
 st.markdown("Calculator created by **Howo Chernenko**")
