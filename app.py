@@ -75,7 +75,56 @@ def get_rarity_by_name(name):
 
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Event Mochi Section", "Value from Counts"])
 
-# ... other modes unchanged ...
+if mode == "Compare two mochis":
+    name_or_rarity_have = st.text_input("Your mochi (name or rarity):")
+    name_or_rarity_want = st.text_input("Their mochi (name or rarity):")
+
+    def parse_input(val):
+        try:
+            return float(val)
+        except:
+            return get_rarity_by_name(val)
+
+    rarity_have = parse_input(name_or_rarity_have)
+    rarity_want = parse_input(name_or_rarity_want)
+
+    if rarity_have and rarity_want:
+        ratio = rarity_want / rarity_have
+        if ratio < 1:
+            st.success(f"You need **{1/ratio:.2f}** of their mochis for a fair trade.")
+        else:
+            st.success(f"They need **{ratio:.2f}** of your mochis for a fair trade.")
+    else:
+        if name_or_rarity_have or name_or_rarity_want:
+            st.warning("Could not identify mochi name or rarity. Please double-check spelling.")
+
+elif mode == "Trade multiple mochis":
+    input_text = st.text_input("Enter your mochis (comma separated, names or rarities):")
+
+    if input_text:
+        try:
+            entries = [x.strip() for x in input_text.split(",")]
+            rarities = [get_rarity_by_name(e) if not re.match(r"^\d+(\.\d+)?$", e) else float(e) for e in entries]
+            rarities = [r for r in rarities if r and r > 0]
+            total_value = sum(1 / r for r in rarities)
+            result = 1 / total_value
+            st.success(f"With mochis {rarities}, you can trade for one of rarity **~{result:.2f}**")
+        except:
+            st.error("Please enter valid mochi names or numbers only.")
+
+elif mode == "Event Mochi Section":
+    mochi_input = st.text_input("Enter your event mochi's name or rarity:")
+
+    if mochi_input:
+        rarity = get_rarity_by_name(mochi_input)
+        try:
+            if rarity is None:
+                rarity = float(mochi_input)
+            adjusted = rarity / 2
+            st.success(f"An event mochi with base rarity {rarity} is worth the equivalent of **~{adjusted:.2f}**.")
+        except:
+            st.error("Could not process the input. Please enter a number or known mochi name.")
+
 
 elif mode == "Value from Counts":
     input_text = st.text_area("Enter your mochis as 'amount x rarityOrName', comma-separated (e.g. 20x5, 3xjapan):")
