@@ -1,8 +1,8 @@
 import streamlit as st
 
-# Sample rarity data
+# rarity data
 MOCHI_DATA = {
-     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
+    0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
     0.6: ["allied powers", "allies", "allie"],
     0.7: ["bad friends trio", "bad friend trio", "bad friends trios", "bft"],
@@ -30,7 +30,7 @@ MOCHI_DATA = {
     14: ["neko austria", "ancient egypt", "mama egypt", "kemet", "czechoslovakia", "waiter"],
     15: ["sweden", "nyo belarus", "nyo germany"],
     16: ["neko hungary", "nyo finland", "quebec"],
-    17: ["nyo italy", "Serbia"],
+    17: ["nyo italy", "serbia"],
     18: ["south africa", "pictonian"],
     19: ["nyo prussia"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
@@ -56,7 +56,6 @@ MOCHI_DATA = {
     120: ["kugelmugel", "india", "monaco", "egypt"],
     125: ["thailand", "hutt river", "cuba", "cameroon"],
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"]
-}
 }
 
 # Flatten and normalize MOCHI_DATA
@@ -132,7 +131,7 @@ elif mode == "Value from Counts":
                     continue
                 value = amt / rarity
                 total_value += value
-        except Exception as e:
+        except Exception:
             error = True
 
     if not error and total_value > 0:
@@ -155,6 +154,9 @@ elif mode == "List by Rarity":
     else:
         st.warning("No exact match found. Showing closest available:")
         closest_r = min(MOCHI_DATA.keys(), key=lambda x: abs(x - input_rarity))
+        st.markdown(f"**Closest Rarity: {closest_r}** ({rarity_label(closest_r)}):")
+        st.write(", ".join(sorted(set(MOCHI_DATA[closest_r]))))
+
         st.markdown(f"**Closest Rarity: {closest_r}** ({rarity_label(closest_r)}):")
         st.write(", ".join(sorted(set(MOCHI_DATA[closest_r]))))
 
