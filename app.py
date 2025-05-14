@@ -3,7 +3,7 @@ import re
 
 # Sample rarity data (simplified)
 MOCHI_DATA = {
-     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
+    0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
     0.6: ["allied powers", "allies", "allie"],
     0.7: ["bad friends trio", "bad friend trio", "bad friends trios", "bft"],
@@ -66,22 +66,22 @@ for rarity, names in MOCHI_DATA.items():
         normalized = name.lower().replace("-", " ").replace("!", "").strip()
         MOCHI_LOOKUP[normalized] = rarity
 
-# Helper: normalize mochi name
+# Normalize name
 def normalize_name(name):
     return name.lower().replace("-", " ").replace("!", "").strip()
 
-# Helper: get rarity from name
-def get_rarity(mochi_name):
-    return MOCHI_LOOKUP.get(normalize_name(mochi_name), None)
+# Get rarity
+def get_rarity(name):
+    return MOCHI_LOOKUP.get(normalize_name(name), None)
 
-# Helper: calculate the value of a mochi (1/rareness)
-def get_value(mochi_name):
-    rarity = get_rarity(mochi_name)
+# Get value (1/rarity)
+def get_value(name):
+    rarity = get_rarity(name)
     if rarity:
         return 1 / rarity
-    return 0  # If rarity is not found
+    return 0
 
-# Helper: parse entry for "mochi x amount" or rarity
+# Parse entry
 def parse_entry(entry):
     entry = entry.strip().lower()
     if "x" in entry:
@@ -96,35 +96,29 @@ def parse_entry(entry):
             rarity = get_rarity(entry)
             return 1 / rarity if rarity else None
 
-# Main app
+# --- Streamlit App ---
 st.title("🐾 Mochi Trade Calculator")
 
 mode = st.radio("Select mode:", ["Compare two mochis", "Trade multiple mochis", "Calculate how many mochis for a fair trade"])
 
 if mode == "Calculate how many mochis for a fair trade":
-    # Example input scenario
     have_input = st.text_input("Your mochis (e.g., '1 pierre, 1 scotland, 5 new zealands'):")
     want_input = st.text_input("Their mochis (e.g., '15 ukraines'):")
 
     if have_input and want_input:
         try:
-            # Parse the 'have' mochis (your mochis)
             have_entries = [x.strip() for x in have_input.split(",") if x.strip()]
-            have_values = [get_value(e) for e in have_entries]
-            total_have_value = sum(have_values)
-
-            # Parse the 'want' mochis (their mochis)
             want_entries = [x.strip() for x in want_input.split(",") if x.strip()]
+            have_values = [get_value(e) for e in have_entries]
             want_values = [get_value(e) for e in want_entries]
+            total_have_value = sum(have_values)
             total_want_value = sum(want_values)
-
-            # Calculate how many New Zealands are needed
-            new_zealand_value = get_value("new zealand")
-            # Find the difference in value
             difference = total_want_value - total_have_value
+
+            new_zealand_value = get_value("new zealand")
             if difference > 0:
-                required_new_zealands = difference / new_zealand_value
-                st.success(f"You need **{required_new_zealands:.2f} New Zealands** to balance the trade.")
+                required = difference / new_zealand_value
+                st.success(f"You need **{required:.2f} New Zealands** to balance the trade.")
             else:
                 st.success("Your mochis are worth more than their mochis! The trade is already fair.")
         except Exception as e:
@@ -141,11 +135,11 @@ elif mode == "Compare two mochis":
         if val_have and val_want:
             ratio = val_want / val_have
             if ratio < 1:
-                st.success(f"You need **{1/ratio:.2f}** mochis for a fair trade.")
+                st.success(f"You need **{1/ratio:.2f}** of your mochi to match theirs.")
             else:
-                st.success(f"They need **{ratio:.2f}** mochis for a fair trade.")
+                st.success(f"They need **{ratio:.2f}** of their mochi to match yours.")
         else:
-            st.warning("Could not interpret one or both entries. Please check format (e.g., `ukraine x 20`, `5`, or `russia`).")
+            st.warning("Could not interpret one or both entries. Try using formats like `ukraine x 20`, `5`, or `russia`.")
 
 elif mode == "Trade multiple mochis":
     input_text = st.text_input("Enter your mochis (comma separated, names or rarities):")
@@ -165,13 +159,19 @@ elif mode == "Trade multiple mochis":
             if rarities:
                 total = sum(1 / r for r in rarities)
                 exact = 1 / total
-                rounded = round(exact * 2) / 2  # Round to nearest .5
-                mochis = [mochi for rarity, names in MOCHI_DATA.items() for mochi in names if rarity == rounded]
+                rounded = round(exact, 1 if exact < 1 else 0.5)
+                if rounded >= 1:
+                    rounded = round(rounded * 2) / 2  # Nearest .5 for >= 1
+                else:
+                    rounded = round(rounded, 1)       # Nearest .1 for < 1
 
-                st.success(f"These mochis can be traded for one mochi of rarity **~{exact:.2f}**.")
-                st.markdown(f"**Rounded to:** `{rounded}`")
+                mochis = [mochi for rarity, names in MOCHI_DATA.items() for mochi in names if round(rarity, 2) == round(rounded, 2)]
+
                 if mochis:
-                    st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
+                    st.success(f"Your mochis are roughly worth one of rarity **~{exact:.2f}**, rounded to **{rounded}**.\n\nMochis at that rarity: {', '.join(mochis)}")
+                else:
+                    st.info(f"Closest rarity to your mochis: **~{exact:.2f}**, rounded to **{rounded}**, but no exact match was found.")
+            else:
+                st.warning("Could not recognize any valid mochi names or rarities.")
         except Exception as e:
             st.warning(f"Error: {e}")
-
