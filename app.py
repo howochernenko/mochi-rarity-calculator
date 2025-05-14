@@ -90,17 +90,47 @@ def get_all_mochis_at_rarity(r):
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts"])
 
 if mode == "Compare two mochis":
-    name_or_rarity_have = st.text_input("Your mochi (name or rarity):")
-    name_or_rarity_want = st.text_input("Their mochi (name or rarity):")
+    name_or_rarity_have = st.text_input("Your mochi (name, rarity, or `mochi x amount`):")
+    name_or_rarity_want = st.text_input("Their mochi (name, rarity, or `mochi x amount`):")
 
-    def parse_input(val):
-        try:
-            return float(val)
-        except:
-            return get_rarity_by_name(val)
+    def parse_count_or_rarity(entry):
+        entry = entry.strip().lower()
+        if "x" in entry:
+            part, amount_str = map(str.strip, entry.split("x", 1))
+            try:
+                rarity = float(part)
+            except ValueError:
+                rarity = get_rarity_by_name(part)
+            try:
+                amount = float(amount_str)
+            except ValueError:
+                amount = None
+            if rarity and amount:
+                return amount / rarity
+            else:
+                return None
+        else:
+            try:
+                return 1 / float(entry)
+            except ValueError:
+                rarity = get_rarity_by_name(entry)
+                if rarity:
+                    return 1 / rarity
+            return None
 
-    rarity_have = parse_input(name_or_rarity_have)
-    rarity_want = parse_input(name_or_rarity_want)
+    value_have = parse_count_or_rarity(name_or_rarity_have)
+    value_want = parse_count_or_rarity(name_or_rarity_want)
+
+    if value_have and value_want:
+        ratio = value_want / value_have
+        if ratio < 1:
+            st.success(f"You need **{1/ratio:.2f}** mochis for a fair trade.")
+        else:
+            st.success(f"They need **{ratio:.2f}** mochis for a fair trade.")
+    else:
+        if name_or_rarity_have or name_or_rarity_want:
+            st.warning("Could not interpret one or both entries. Please check format (e.g., `ukraine x 20`, `5`, or `russia`).")
+
 
     if rarity_have and rarity_want:
         ratio = rarity_want / rarity_have
@@ -204,7 +234,3 @@ elif mode == "Value from Counts":
                 st.warning("No valid values found.")
         except:
             st.error("Invalid format. Please use 'mochi/rarity x amount' like 'Ukraine x 20, 5 x 5'.")
-
-
-st.markdown("---")
-st.markdown("Calculator created by **Howo Chernenko**")
