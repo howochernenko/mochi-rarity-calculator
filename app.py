@@ -59,7 +59,6 @@ MOCHI_DATA = {
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"],
 }
 
-# Flatten and normalize MOCHI_DATA
 MOCHI_LOOKUP = {}
 for rarity, names in MOCHI_DATA.items():
     for name in names:
@@ -112,9 +111,9 @@ if mode == "Compare two mochis":
         if val_have and val_want:
             ratio = val_want / val_have
             if ratio < 1:
-                st.success(f"They need **{1/ratio:.2f}** mochis for a fair trade.")
+                st.success(f"You need **{1/ratio:.2f}** mochis for a fair trade.")
             else:
-                st.success(f"You need **{ratio:.2f}** mochis for a fair trade.")
+                st.success(f"They need **{ratio:.2f}** mochis for a fair trade.")
         else:
             st.warning("Could not interpret one or both entries. Please check format (e.g., `ukraine x 20`, `5`, or `russia`).")
 
@@ -145,3 +144,4 @@ elif mode == "Trade multiple mochis":
                     st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
         except Exception as e:
             st.warning(f"Error: {e}")
+
