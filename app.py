@@ -59,6 +59,7 @@ MOCHI_DATA = {
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"],
 }
 
+# Flatten and normalize MOCHI_DATA
 MOCHI_LOOKUP = {}
 for rarity, names in MOCHI_DATA.items():
     for name in names:
@@ -98,9 +99,38 @@ def parse_entry(entry):
 # Main app
 st.title("🐾 Mochi Trade Calculator")
 
-mode = st.radio("Select mode:", ["Compare two mochis", "Trade multiple mochis"])
+mode = st.radio("Select mode:", ["Compare two mochis", "Trade multiple mochis", "Calculate how many mochis for a fair trade"])
 
-if mode == "Compare two mochis":
+if mode == "Calculate how many mochis for a fair trade":
+    # Example input scenario
+    have_input = st.text_input("Your mochis (e.g., '1 pierre, 1 scotland, 5 new zealands'):")
+    want_input = st.text_input("Their mochis (e.g., '15 ukraines'):")
+
+    if have_input and want_input:
+        try:
+            # Parse the 'have' mochis (your mochis)
+            have_entries = [x.strip() for x in have_input.split(",") if x.strip()]
+            have_values = [get_value(e) for e in have_entries]
+            total_have_value = sum(have_values)
+
+            # Parse the 'want' mochis (their mochis)
+            want_entries = [x.strip() for x in want_input.split(",") if x.strip()]
+            want_values = [get_value(e) for e in want_entries]
+            total_want_value = sum(want_values)
+
+            # Calculate how many New Zealands are needed
+            new_zealand_value = get_value("new zealand")
+            # Find the difference in value
+            difference = total_want_value - total_have_value
+            if difference > 0:
+                required_new_zealands = difference / new_zealand_value
+                st.success(f"You need **{required_new_zealands:.2f} New Zealands** to balance the trade.")
+            else:
+                st.success("Your mochis are worth more than their mochis! The trade is already fair.")
+        except Exception as e:
+            st.warning(f"Error: {e}")
+
+elif mode == "Compare two mochis":
     have = st.text_input("Your mochi (name, rarity, or `mochi x amount`):")
     want = st.text_input("Their mochi (name, rarity, or `mochi x amount`):")
 
