@@ -138,9 +138,9 @@ if mode == "Compare two mochis":
         if val_have is not None and val_want is not None:
             ratio = val_want / val_have
             if ratio < 1:
-                st.success(f"You need **{1/ratio:.2f}** mochis for a fair trade.")
+                st.success(f"They need **{1/ratio:.2f}** of that for a fair trade.")
             else:
-                st.success(f"They need **{ratio:.2f}** mochis for a fair trade.")
+                st.success(f"You need **{ratio:.2f}** of that for a fair trade.")
         else:
             st.warning("Could not interpret one or both entries. Please check the format (e.g., `ukraine x 20`, `5`, or `russia`).")
 
