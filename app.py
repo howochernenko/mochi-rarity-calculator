@@ -1,5 +1,9 @@
 import streamlit as st
+import re
 
+st.title("🌟 Mochis Trade Calculator")
+
+# Mochi rarity data (rarity: [aliases])
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
@@ -57,108 +61,118 @@ MOCHI_DATA = {
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"]
 }
 
-# Build alias-to-rarity dictionary
-NAME_TO_RARITY = {}
-for rarity, names in MOCHI_DATA.items():
-    for name in names:
-        NAME_TO_RARITY[name.lower()] = rarity
+def normalize_name(name):
+    name = name.lower()
+    name = re.sub(r"[.’'–—]", "", name)
+    name = name.replace("-", " ").replace("!", " ")
+    return name.strip()
 
-def normalize(name):
-    return name.lower().replace("-", " ").replace("!", "").strip()
-
-def get_rarity(name, is_event=False):
-    name = normalize(name)
-    rarity = NAME_TO_RARITY.get(name)
-    if rarity is not None:
-        return rarity * (2 if is_event else 1)
+def get_rarity_by_name(name):
+    name = normalize_name(name)
+    for rarity, aliases in MOCHI_DATA.items():
+        if name in [normalize_name(alias) for alias in aliases]:
+            return rarity
     return None
 
-def value_from_count_input(count_input: str):
-    total = 0
-    for part in count_input.split(','):
-        if 'x' in part:
-            qty, val = part.lower().split('x')
-            total += int(qty.strip()) * float(val.strip())
-        else:
-            total += float(part.strip())
-    return total
+def round_to_nearest_custom(n):
+    return round(n, 1) if n < 1 else round(n * 2) / 2
 
-def find_closest_mochis(target_rarity):
-    closest_diff = float('inf')
-    closest_rarity = None
-    for rarity in MOCHI_DATA:
-        diff = abs(rarity - target_rarity)
-        if diff < closest_diff:
-            closest_diff = diff
-            closest_rarity = rarity
-    return closest_rarity, MOCHI_DATA[closest_rarity]
+def get_closest_rarity(target):
+    return min(MOCHI_DATA.keys(), key=lambda r: abs(r - target))
 
-# Streamlit UI
-st.title("🌸 Mochi Rarity & Trade Calculator")
+def get_all_mochis_at_rarity(rarity):
+    return [name.title() for r, names in MOCHI_DATA.items() if r == rarity for name in names]
 
-option = st.radio("Choose a feature:", [
-    "Find rarity of a mochi",
-    "Compare two mochis",
-    "Compare two mochi groups",
-    "Find total value from counts (e.g., 20x5, 3x2)",
-])
-
-if option == "Find rarity of a mochi":
-    name = st.text_input("Enter mochi name:")
-    is_event = st.checkbox("Is this an event mochi?", value=False)
-    if name:
-        rarity = get_rarity(name, is_event)
-        if rarity is not None:
-            st.success(f"'{name}' has a rarity of {rarity}")
-        else:
-            st.error("Mochi not found.")
-
-elif option == "Compare two mochis":
-    m1 = st.text_input("Mochi 1:")
-    m2 = st.text_input("Mochi 2:")
-    if m1 and m2:
-        r1, r2 = get_rarity(m1), get_rarity(m2)
-        if r1 is not None and r2 is not None:
-            if r1 < r2:
-                st.write(f"**{m1}** is rarer than **{m2}**")
-            elif r1 > r2:
-                st.write(f"**{m2}** is rarer than **{m1}**")
-            else:
-                st.write("They are equally rare.")
-        else:
-            st.error("One or both mochis not found.")
-
-elif option == "Compare two mochi groups":
-    g1 = st.text_area("Group 1 mochis (comma-separated):")
-    g2 = st.text_area("Group 2 mochis (comma-separated):")
-    if g1 and g2:
-        group1 = g1.split(',')
-        group2 = g2.split(',')
-        total1 = sum(get_rarity(m.strip()) or 0 for m in group1)
-        total2 = sum(get_rarity(m.strip()) or 0 for m in group2)
-        st.write(f"Group 1 total rarity: {total1}")
-        st.write(f"Group 2 total rarity: {total2}")
-        if total1 < total2:
-            st.success("Group 1 is rarer overall.")
-        elif total1 > total2:
-            st.success("Group 2 is rarer overall.")
-        else:
-            st.info("Both groups are equally rare.")
-
-elif option == "Find total value from counts (e.g., 20x5, 3x2)":
-    count_input = st.text_input("Enter counts (e.g., 20x5, 3x2):")
-    if count_input:
+def parse_entry(entry):
+    entry = entry.strip().lower()
+    if "x" in entry:
+        part, amount_str = map(str.strip, entry.split("x", 1))
+        rarity = get_rarity_by_name(part) or (float(part) if re.match(r"^\d+(\.\d+)?$", part) else None)
         try:
-            result = value_from_count_input(count_input)
-            st.write(f"Total value: {result}")
-            rounded = round(result * 2) / 2 if result >= 1 else round(result, 1)
-            st.write(f"Rounded: {rounded}")
-            matching = MOCHI_DATA.get(rounded)
-            if matching:
-                st.write(f"Mochis with rarity {rounded}: {', '.join(matching)}")
-            else:
-                closest_rarity, names = find_closest_mochis(rounded)
-                st.write(f"No exact match. Closest rarity: {closest_rarity}")
-                st.write(f"Mochis: {', '.join(names)}")
+            amount = float(amount_str)
         except:
-            st.error("Invalid input format.")
+            amount = None
+        if rarity and amount:
+            return amount / rarity
+    else:
+        if re.match(r"^\d+(\.\d+)?$", entry):
+            try:
+                rarity = float(entry)
+                return 1 / rarity
+            except:
+                return None
+        else:
+            rarity = get_rarity_by_name(entry)
+            if rarity:
+                return 1 / rarity
+    return None
+
+mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts"])
+
+if mode == "Compare two mochis":
+    have = st.text_input("Your mochi (name, rarity, or `mochi x amount`):")
+    want = st.text_input("Their mochi (name, rarity, or `mochi x amount`):")
+
+    if have and want:
+        val_have = parse_entry(have)
+        val_want = parse_entry(want)
+
+        if val_have is not None and val_want is not None:
+            ratio = val_want / val_have
+            if ratio < 1:
+                st.success(f"They need **{1/ratio:.2f}** of that for a fair trade.")
+            else:
+                st.success(f"You need **{ratio:.2f}** of that for a fair trade.")
+        else:
+            st.warning("Could not interpret one or both entries. Please check the format (e.g., `ukraine x 20`, `5`, or `russia`).")
+
+elif mode == "Trade multiple mochis":
+    input_text = st.text_input("Enter your mochis (comma separated, names or rarities):")
+
+    if input_text:
+        try:
+            entries = [x.strip() for x in input_text.split(",") if x.strip()]
+            rarities = []
+            for e in entries:
+                if re.match(r"^\d+(\.\d+)?$", e):
+                    rarities.append(float(e))
+                else:
+                    r = get_rarity_by_name(e)
+                    if r:
+                        rarities.append(r)
+
+            if rarities:
+                total = sum(1 / r for r in rarities)
+                exact = 1 / total
+                rounded = round_to_nearest_custom(exact)
+                mochis = get_all_mochis_at_rarity(rounded) or get_all_mochis_at_rarity(get_closest_rarity(rounded))
+
+                st.success(f"These mochis can be traded for one mochi of rarity **~{exact:.2f}**.")
+                st.markdown(f"**Rounded to:** `{rounded}`")
+                if mochis:
+                    st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
+        except Exception as e:
+            st.warning(f"Error: {e}")
+
+elif mode == "Value from Counts":
+    input_text = st.text_area("Enter your mochis as 'rarity/mochi x amount', comma-separated (e.g. ukraine x 20, 5 x 5):")
+
+    if input_text:
+        try:
+            entries = [x.strip() for x in input_text.split(",") if x.strip()]
+            total = 0
+            for entry in entries:
+                val = parse_entry(entry)
+                if val:
+                    total += val
+            if total:
+                exact = 1 / total
+                rounded = round_to_nearest_custom(exact)
+                mochis = get_all_mochis_at_rarity(rounded) or get_all_mochis_at_rarity(get_closest_rarity(rounded))
+
+                st.success(f"Your total value is equivalent to a mochi of rarity **~{exact:.2f}**.")
+                st.markdown(f"**Rounded to:** `{rounded}`")
+                if mochis:
+                    st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
+        except Exception as e:
+            st.warning(f"Error: {e}")
