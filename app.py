@@ -175,3 +175,6 @@ elif mode == "Value from Counts":
                     st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
         except Exception as e:
             st.warning(f"Error: {e}")
+
+st.markdown("---")
+st.markdown("Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
