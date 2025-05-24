@@ -177,4 +177,4 @@ elif mode == "Value from Counts":
             st.warning(f"Error: {e}")
 
 st.markdown("---")
-st.markdown("Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
+st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
