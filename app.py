@@ -116,13 +116,12 @@ if mode == "Compare two mochis":
     if have and want:
         val_have = parse_entry(have)
         val_want = parse_entry(want)
-
         if val_have is not None and val_want is not None:
             ratio = val_want / val_have
             if ratio < 1:
-                st.success(f"They need **{1/ratio:.2f}** of that for a fair trade.")
+                st.success(f"They need **{1/ratio:.2f}** times that for a fair trade, for example they entered four iceland and it says 5 so it would be 4 x 5 which is 20 icelands")
             else:
-                st.success(f"You need **{ratio:.2f}** of that for a fair trade.")
+                st.success(f"You need **{ratio:.2f}** times that for a fair trade, for example you entered four iceland and it says 5 so it would be 4 x 5 which is 20 icelands")
         else:
             st.warning("Could not interpret one or both entries. Please check the format (e.g., `ukraine x 20`, `5`, or `russia`).")
 
