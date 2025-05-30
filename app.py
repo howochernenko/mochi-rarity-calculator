@@ -128,7 +128,7 @@ def parse_entry(entry, mochi_type):
 
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
-mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts"])
+mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts", "Value Converter"])
 
 if mode == "Compare two mochis":
     col1, col2 = st.columns(2)
@@ -221,6 +221,75 @@ elif mode == "Value from Counts":
             
             if suggestions:
                 st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
+
+elif mode == "Value Converter":
+    mochi_value_converter()
+
+def mochi_value_converter():
+    st.subheader("🔁 Mochi Value Converter")
+    
+    # Input section
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        input_mochis = st.text_input(
+            "Your mochis:", 
+            placeholder="e.g. '5 russia, 1 ukraine' or 'russia x5, ukraine x1'"
+        )
+    with col2:
+        target_mochi = st.text_input(
+            "Value in:", 
+            placeholder="e.g. 'belarus'"
+        )
+    
+    if input_mochis and target_mochi:
+        # Parse input mochis
+        total_value = 0
+        invalid_entries = []
+        
+        # Handle both comma and newline separation
+        entries = []
+        for line in input_mochis.split(","):
+            entries.extend([x.strip() for x in line.split("\n") if x.strip()])
+        
+        for entry in entries:
+            # Support both "5 russia" and "russia x5" formats
+            if "x" in entry:
+                val = parse_entry(entry, mochi_type.lower())
+            else:
+                # Handle "5 russia" format
+                parts = entry.split()
+                if len(parts) >= 2 and parts[0].isdigit():
+                    val = parse_entry(f"{' '.join(parts[1:])} x {parts[0]}", mochi_type.lower())
+                else:
+                    val = None
+            
+            if val:
+                total_value += val
+            else:
+                invalid_entries.append(entry)
+        
+        # Parse target mochi
+        if "x" in target_mochi:
+            target_val = parse_entry(target_mochi, mochi_type.lower())
+        else:
+            target_val = parse_entry(f"{target_mochi} x 1", mochi_type.lower())
+        
+        # Display results
+        if invalid_entries:
+            st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
+        
+        if total_value and target_val:
+            equivalent_amount = total_value / target_val
+            st.success(f"""
+                **Equivalent Value:**  
+                {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}**
+            """)
+            
+            # Show breakdown
+            with st.expander("📊 Breakdown"):
+                st.write(f"Total value of your mochis: **{total_value:.4f}**")
+                st.write(f"Value of 1 {target_mochi}: **{target_val:.4f}**")
+                st.write(f"Calculation: {total_value:.4f} ÷ {target_val:.4f} = {equivalent_amount:.2f}")
 
 st.markdown("---")
 st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
