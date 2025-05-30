@@ -149,13 +149,28 @@ if mode == "Compare two mochis":
         val_want = parse_entry(want)
         if val_have is not None and val_want is not None:
             ratio = val_want / val_have
-            # Latviaverse detection
+            # Latviaverse detection - fixed version
             lv_note = ""
             have_name = have.split("x")[0].strip() if "x" in have else have
             want_name = want.split("x")[0].strip() if "x" in want else want
-            if any(normalize_name(have_name) in [normalize_name(alias) for aliases in LATVIAVERSE_DATA.values() for alias in aliases]):
+            
+            # Check if have_name is in Latviaverse
+            have_lv = any(
+                normalize_name(have_name) == normalize_name(alias)
+                for aliases in LATVIAVERSE_DATA.values()
+                for alias in aliases
+            )
+            
+            # Check if want_name is in Latviaverse
+            want_lv = any(
+                normalize_name(want_name) == normalize_name(alias)
+                for aliases in LATVIAVERSE_DATA.values()
+                for alias in aliases
+            )
+            
+            if have_lv:
                 lv_note += " (Your mochi is from Latviaverse)"
-            if any(normalize_name(want_name) in [normalize_name(alias) for aliases in LATVIAVERSE_DATA.values() for alias in aliases]):
+            if want_lv:
                 lv_note += " (Their mochi is from Latviaverse)"
             
             if ratio < 1:
