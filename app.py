@@ -61,6 +61,93 @@ MOCHI_DATA = {
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"]
 }
 
+# Add this to your existing MOCHI_DATA
+LATVIAVERSE_DATA = {
+    0.5: ["rainbow latvia"],
+    1.0: ["latvian empire", "kingdom of latvia", "main character latvia"],
+    2.0: ["magical girl latvia", "spring god latvia", "mother ocean latvia"],
+    3.0: ["roman latvia", "pirate latvia", "latvialoid"],
+    4.0: ["muscular latvia", "british latvia", "l4t-v14"],
+    5.0: ["neko latvia", "latvian soviet socialist republic", "award-winning latvia"],
+    6.0: ["polish-lithuanian latvia", "cuirassier latvia", "yugoslatvia"],
+    7.0: ["nova letônia", "zombie latvia", "alien latvia"],
+    8.0: ["8-bit latvia"],
+    9.0: ["viking latvia", "german latvia", "vampire latvia"],
+    10.0: ["livonian order", "jibaro latvia", "apocalyptic latvia"],
+    11.0: ["guerrilla latvia", "decora latvia", "goth latvia"],
+    12.0: ["ladybug latvia", "grape latvia", "drunken latvia"],
+    13.0: ["minimum wage latvia"],
+    14.0: ["green latvia", "red latvia", "blue latvia", "orange latvia", "yellow latvia", "purple latvia", "pink latvia"],
+    15.0: ["gray latvia"]
+}
+
+# Update get_rarity_by_name to check both datasets
+def get_rarity_by_name(name):
+    name = normalize_name(name)
+    # Check regular mochis first
+    for rarity, aliases in MOCHI_DATA.items():
+        if name in [normalize_name(alias) for alias in aliases]:
+            return (rarity, "regular")  # Return (rarity, type)
+    # Check Latviaverse mochis
+    for rarity, aliases in LATVIAVERSE_DATA.items():
+        if name in [normalize_name(alias) for alias in aliases]:
+            return (rarity, "latviaverse")
+    return (None, None)  # Not found
+
+# Modify parse_entry to handle the new return type
+def parse_entry(entry):
+    entry = entry.strip().lower()
+    if "x" in entry:
+        part, amount_str = map(str.strip, entry.split("x", 1))
+        rarity, mochi_type = get_rarity_by_name(part)
+        if rarity is None:
+            try:
+                rarity = float(part)
+                mochi_type = "regular"  # Assume regular if manually entered
+            except:
+                return (None, None)
+        try:
+            amount = float(amount_str)
+        except:
+            return (None, None)
+        if rarity and amount:
+            return (amount / rarity, mochi_type)
+    else:
+        if re.match(r"^\d+(\.\d+)?$", entry):
+            try:
+                rarity = float(entry)
+                return (1 / rarity, "regular")  # Assume regular if manually entered
+            except:
+                return (None, None)
+        else:
+            rarity, mochi_type = get_rarity_by_name(entry)
+            if rarity:
+                return (1 / rarity, mochi_type)
+    return (None, None)
+
+# Update the comparison logic in the "Compare two mochis" mode
+if mode == "Compare two mochis":
+    have = st.text_input("Your mochi (name, rarity, or `mochi x amount`):")
+    want = st.text_input("Their mochi (name, rarity, or `mochi x amount`):")
+
+    if have and want:
+        val_have, type_have = parse_entry(have)
+        val_want, type_want = parse_entry(want)
+        
+        if val_have is not None and val_want is not None:
+            ratio = val_want / val_have
+            # Check if either mochi is from Latviaverse
+            latviaverse_note = ""
+            if type_have == "latviaverse" or type_want == "latviaverse":
+                latviaverse_note = " (⚠️ **Note:** One or both mochis are from the **Latviaverse event**!)"
+            
+            if ratio < 1:
+                st.success(f"They need **{1/ratio:.2f}** times that for a fair trade{latviaverse_note}")
+            else:
+                st.success(f"You need **{ratio:.2f}** times that for a fair trade{latviaverse_note}")
+        else:
+            st.warning("Could not interpret one or both entries. Please check the format.")
+            
 def normalize_name(name):
     name = name.lower()
     name = re.sub(r"[.’'–—]", "", name)
