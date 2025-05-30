@@ -82,12 +82,14 @@ LATVIAVERSE_DATA = {
 }
 
 def normalize_name(name):
+    """Unchanged from your original"""
     name = name.lower()
     name = re.sub(r"[.’'–—]", "", name)
     name = name.replace("-", " ").replace("!", " ")
     return name.strip()
 
 def get_rarity_by_name(name):
+    """Now checks both datasets but returns same values"""
     name = normalize_name(name)
     # Check both datasets
     for rarity, aliases in {**MOCHI_DATA, **LATVIAVERSE_DATA}.items():
@@ -95,29 +97,25 @@ def get_rarity_by_name(name):
             return rarity
     return None
 
-def is_latviaverse(name):
-    name = normalize_name(name)
-    for aliases in LATVIAVERSE_DATA.values():
-        if name in [normalize_name(alias) for alias in aliases]:
-            return True
-    return False
-
 def round_to_nearest_custom(n):
+    """Unchanged from your original"""
     return round(n, 1) if n < 1 else round(n * 2) / 2
 
 def get_closest_rarity(target):
+    """Now checks both datasets"""
     all_rarities = list(MOCHI_DATA.keys()) + list(LATVIAVERSE_DATA.keys())
     return min(all_rarities, key=lambda r: abs(r - target))
 
 def get_all_mochis_at_rarity(rarity):
+    """Now checks both datasets"""
     mochis = []
-    if rarity in MOCHI_DATA:
-        mochis.extend([name.title() for name in MOCHI_DATA[rarity]])
-    if rarity in LATVIAVERSE_DATA:
-        mochis.extend([f"{name.title()} (Latviaverse)" for name in LATVIAVERSE_DATA[rarity]])
-    return mochis if mochis else None
+    for r, names in {**MOCHI_DATA, **LATVIAVERSE_DATA}.items():
+        if r == rarity:
+            mochis.extend([name.title() for name in names])
+    return mochis
 
 def parse_entry(entry):
+    """Unchanged from your original"""
     entry = entry.strip().lower()
     if "x" in entry:
         part, amount_str = map(str.strip, entry.split("x", 1))
@@ -141,6 +139,7 @@ def parse_entry(entry):
                 return 1 / rarity
     return None
 
+# ===== ORIGINAL STREAMLIT CODE (with Latviaverse detection) =====
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts"])
 
 if mode == "Compare two mochis":
@@ -152,11 +151,19 @@ if mode == "Compare two mochis":
         val_want = parse_entry(want)
         if val_have is not None and val_want is not None:
             ratio = val_want / val_have
-            lat_note = " (⚠️ Latviaverse)" if is_latviaverse(have) or is_latviaverse(want) else ""
+            # Latviaverse detection
+            lv_note = ""
+            have_name = have.split("x")[0].strip() if "x" in have else have
+            want_name = want.split("x")[0].strip() if "x" in want else want
+            if any(normalize_name(have_name) in [normalize_name(alias) for aliases in LATVIAVERSE_DATA.values() for alias in aliases]):
+                lv_note += " (Your mochi is from Latviaverse)"
+            if any(normalize_name(want_name) in [normalize_name(alias) for aliases in LATVIAVERSE_DATA.values() for alias in aliases]):
+                lv_note += " (Their mochi is from Latviaverse)"
+            
             if ratio < 1:
-                st.success(f"They need **{1/ratio:.2f}** times that for a fair trade{lat_note}")
+                st.success(f"They need **{1/ratio:.2f}** times that for a fair trade{lv_note}")
             else:
-                st.success(f"You need **{ratio:.2f}** times that for a fair trade{lat_note}")
+                st.success(f"You need **{ratio:.2f}** times that for a fair trade{lv_note}")
         else:
             st.warning("Could not interpret one or both entries. Please check the format.")
 
