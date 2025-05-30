@@ -3,7 +3,7 @@ import re
 
 st.title("🌟 Mochis Trade Calculator")
 
-# Mochi rarity data (rarity: [aliases])
+# Original MOCHI_DATA (unchanged)
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
@@ -61,7 +61,7 @@ MOCHI_DATA = {
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"]
 }
 
-# Add this to your existing MOCHI_DATA
+# New Latviaverse data (lower = rarer)
 LATVIAVERSE_DATA = {
     0.5: ["rainbow latvia"],
     1.0: ["latvian empire", "kingdom of latvia", "main character latvia"],
@@ -81,73 +81,6 @@ LATVIAVERSE_DATA = {
     15.0: ["gray latvia"]
 }
 
-# Update get_rarity_by_name to check both datasets
-def get_rarity_by_name(name):
-    name = normalize_name(name)
-    # Check regular mochis first
-    for rarity, aliases in MOCHI_DATA.items():
-        if name in [normalize_name(alias) for alias in aliases]:
-            return (rarity, "regular")  # Return (rarity, type)
-    # Check Latviaverse mochis
-    for rarity, aliases in LATVIAVERSE_DATA.items():
-        if name in [normalize_name(alias) for alias in aliases]:
-            return (rarity, "latviaverse")
-    return (None, None)  # Not found
-
-# Modify parse_entry to handle the new return type
-def parse_entry(entry):
-    entry = entry.strip().lower()
-    if "x" in entry:
-        part, amount_str = map(str.strip, entry.split("x", 1))
-        rarity, mochi_type = get_rarity_by_name(part)
-        if rarity is None:
-            try:
-                rarity = float(part)
-                mochi_type = "regular"  # Assume regular if manually entered
-            except:
-                return (None, None)
-        try:
-            amount = float(amount_str)
-        except:
-            return (None, None)
-        if rarity and amount:
-            return (amount / rarity, mochi_type)
-    else:
-        if re.match(r"^\d+(\.\d+)?$", entry):
-            try:
-                rarity = float(entry)
-                return (1 / rarity, "regular")  # Assume regular if manually entered
-            except:
-                return (None, None)
-        else:
-            rarity, mochi_type = get_rarity_by_name(entry)
-            if rarity:
-                return (1 / rarity, mochi_type)
-    return (None, None)
-
-# Update the comparison logic in the "Compare two mochis" mode
-if mode == "Compare two mochis":
-    have = st.text_input("Your mochi (name, rarity, or `mochi x amount`):")
-    want = st.text_input("Their mochi (name, rarity, or `mochi x amount`):")
-
-    if have and want:
-        val_have, type_have = parse_entry(have)
-        val_want, type_want = parse_entry(want)
-        
-        if val_have is not None and val_want is not None:
-            ratio = val_want / val_have
-            # Check if either mochi is from Latviaverse
-            latviaverse_note = ""
-            if type_have == "latviaverse" or type_want == "latviaverse":
-                latviaverse_note = " (⚠️ **Note:** One or both mochis are from the **Latviaverse event**!)"
-            
-            if ratio < 1:
-                st.success(f"They need **{1/ratio:.2f}** times that for a fair trade{latviaverse_note}")
-            else:
-                st.success(f"You need **{ratio:.2f}** times that for a fair trade{latviaverse_note}")
-        else:
-            st.warning("Could not interpret one or both entries. Please check the format.")
-            
 def normalize_name(name):
     name = name.lower()
     name = re.sub(r"[.’'–—]", "", name)
@@ -156,25 +89,39 @@ def normalize_name(name):
 
 def get_rarity_by_name(name):
     name = normalize_name(name)
-    for rarity, aliases in MOCHI_DATA.items():
+    # Check both datasets
+    for rarity, aliases in {**MOCHI_DATA, **LATVIAVERSE_DATA}.items():
         if name in [normalize_name(alias) for alias in aliases]:
             return rarity
     return None
+
+def is_latviaverse(name):
+    name = normalize_name(name)
+    for aliases in LATVIAVERSE_DATA.values():
+        if name in [normalize_name(alias) for alias in aliases]:
+            return True
+    return False
 
 def round_to_nearest_custom(n):
     return round(n, 1) if n < 1 else round(n * 2) / 2
 
 def get_closest_rarity(target):
-    return min(MOCHI_DATA.keys(), key=lambda r: abs(r - target))
+    all_rarities = list(MOCHI_DATA.keys()) + list(LATVIAVERSE_DATA.keys())
+    return min(all_rarities, key=lambda r: abs(r - target))
 
 def get_all_mochis_at_rarity(rarity):
-    return [name.title() for r, names in MOCHI_DATA.items() if r == rarity for name in names]
+    mochis = []
+    if rarity in MOCHI_DATA:
+        mochis.extend([name.title() for name in MOCHI_DATA[rarity]])
+    if rarity in LATVIAVERSE_DATA:
+        mochis.extend([f"{name.title()} (Latviaverse)" for name in LATVIAVERSE_DATA[rarity]])
+    return mochis if mochis else None
 
 def parse_entry(entry):
     entry = entry.strip().lower()
     if "x" in entry:
         part, amount_str = map(str.strip, entry.split("x", 1))
-        rarity = get_rarity_by_name(part) or (float(part) if re.match(r"^\d+(\.\d+)?$", part) else None)
+        rarity = get_rarity_by_name(part) or (float(part) if re.match(r"^\d+(\.\d+)?$", part) else None
         try:
             amount = float(amount_str)
         except:
@@ -205,20 +152,21 @@ if mode == "Compare two mochis":
         val_want = parse_entry(want)
         if val_have is not None and val_want is not None:
             ratio = val_want / val_have
+            lat_note = " (⚠️ Latviaverse)" if is_latviaverse(have) or is_latviaverse(want) else ""
             if ratio < 1:
-                st.success(f"They need **{1/ratio:.2f}** times that for a fair trade, for example they entered four iceland and it says 5 so it would be 4 x 5 which is 20 icelands")
+                st.success(f"They need **{1/ratio:.2f}** times that for a fair trade{lat_note}")
             else:
-                st.success(f"You need **{ratio:.2f}** times that for a fair trade, for example you entered four iceland and it says 5 so it would be 4 x 5 which is 20 icelands")
+                st.success(f"You need **{ratio:.2f}** times that for a fair trade{lat_note}")
         else:
-            st.warning("Could not interpret one or both entries. Please check the format (e.g., `ukraine x 20`, `5`, or `russia`).")
+            st.warning("Could not interpret one or both entries. Please check the format.")
 
 elif mode == "Trade multiple mochis":
     input_text = st.text_input("Enter your mochis (comma separated, names or rarities):")
-
     if input_text:
         try:
             entries = [x.strip() for x in input_text.split(",") if x.strip()]
             rarities = []
+            lat_detected = False
             for e in entries:
                 if re.match(r"^\d+(\.\d+)?$", e):
                     rarities.append(float(e))
@@ -226,6 +174,8 @@ elif mode == "Trade multiple mochis":
                     r = get_rarity_by_name(e)
                     if r:
                         rarities.append(r)
+                        if is_latviaverse(e):
+                            lat_detected = True
 
             if rarities:
                 total = sum(1 / r for r in rarities)
@@ -234,32 +184,38 @@ elif mode == "Trade multiple mochis":
                 mochis = get_all_mochis_at_rarity(rounded) or get_all_mochis_at_rarity(get_closest_rarity(rounded))
 
                 st.success(f"These mochis can be traded for one mochi of rarity **~{exact:.2f}**.")
+                if lat_detected:
+                    st.warning("⚠️ Latviaverse mochis detected in trade!")
                 st.markdown(f"**Rounded to:** `{rounded}`")
                 if mochis:
-                    st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
+                    st.markdown("**Suggested mochis:** " + ", ".join(mochis))
         except Exception as e:
             st.warning(f"Error: {e}")
 
 elif mode == "Value from Counts":
-    input_text = st.text_area("Enter your mochis as 'rarity/mochi x amount', comma-separated (e.g. ukraine x 20, 5 x 5):")
-
+    input_text = st.text_area("Enter your mochis as 'rarity/mochi x amount', comma-separated:")
     if input_text:
         try:
             entries = [x.strip() for x in input_text.split(",") if x.strip()]
             total = 0
+            lat_detected = False
             for entry in entries:
                 val = parse_entry(entry)
                 if val:
                     total += val
+                    if is_latviaverse(entry.split("x")[0].strip()):
+                        lat_detected = True
             if total:
                 exact = 1 / total
                 rounded = round_to_nearest_custom(exact)
                 mochis = get_all_mochis_at_rarity(rounded) or get_all_mochis_at_rarity(get_closest_rarity(rounded))
 
                 st.success(f"Your total value is equivalent to a mochi of rarity **~{exact:.2f}**.")
+                if lat_detected:
+                    st.warning("⚠️ Latviaverse mochis detected in calculation!")
                 st.markdown(f"**Rounded to:** `{rounded}`")
                 if mochis:
-                    st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
+                    st.markdown("**Suggested mochis:** " + ", ".join(mochis))
         except Exception as e:
             st.warning(f"Error: {e}")
 
