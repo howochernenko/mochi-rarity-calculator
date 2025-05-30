@@ -224,3 +224,4 @@ elif mode == "Value from Counts":
 
 st.markdown("---")
 st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
+st.markdown("Also if you noticed any bug ping howo.chernenko on discord, the current bug i noticed is that luxembourg and benelux does not work")
