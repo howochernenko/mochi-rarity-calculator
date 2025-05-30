@@ -3,7 +3,6 @@ import re
 
 st.title("🌟 Mochis Trade Calculator")
 
-# Original MOCHI_DATA (unchanged)
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
@@ -61,7 +60,6 @@ MOCHI_DATA = {
     130: ["davie", "empire of stomaria", "stomaria", "cyprus", "turkish republic of northern cyprus", "trnc", "northern cyprus"]
 }
 
-# New Latviaverse data (lower = rarer)
 LATVIAVERSE_DATA = {
     0.5: ["rainbow latvia"],
     1.0: ["latvian empire", "kingdom of latvia", "main character latvia"],
