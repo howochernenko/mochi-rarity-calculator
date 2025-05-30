@@ -146,9 +146,9 @@ if mode == "Compare two mochis":
         if val_have is not None and val_want is not None:
             ratio = val_want / val_have
             if ratio < 1:
-                st.success(f"They need {1/ratio:.2f}× yours for a fair trade")
+                st.success(f"They need {1/ratio:.2f}× what they have for a fair trade")
             else:
-                st.success(f"You need {ratio:.2f}× theirs for a fair trade")
+                st.success(f"You need {ratio:.2f}× what you have for a fair trade")
         else:
             st.warning("Could not interpret entries. Check format and mochi type.")
 
