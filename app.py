@@ -126,6 +126,9 @@ def parse_entry(entry, mochi_type):
             rarity = get_rarity_by_name(entry, mochi_type)
             return 1 / rarity if rarity else None
 
+def mochi_value_converter():
+    st.subheader("🔁 Mochi Value Converter")
+    
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts", "Value Converter"])
@@ -225,9 +228,7 @@ elif mode == "Value from Counts":
 elif mode == "Value Converter":
     mochi_value_converter()
 
-def mochi_value_converter():
-    st.subheader("🔁 Mochi Value Converter")
-    
+
     # Input section
     col1, col2 = st.columns([3, 1])
     with col1:
