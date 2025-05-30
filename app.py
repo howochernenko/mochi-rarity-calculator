@@ -115,11 +115,10 @@ def get_all_mochis_at_rarity(rarity):
     return mochis
 
 def parse_entry(entry):
-    """Unchanged from your original"""
     entry = entry.strip().lower()
     if "x" in entry:
         part, amount_str = map(str.strip, entry.split("x", 1))
-        rarity = get_rarity_by_name(part) or (float(part) if re.match(r"^\d+(\.\d+)?$", part) else None
+        rarity = get_rarity_by_name(part) or (float(part) if re.match(r"^\d+(\.\d+)?$", part) else None)
         try:
             amount = float(amount_str)
         except:
@@ -139,7 +138,6 @@ def parse_entry(entry):
                 return 1 / rarity
     return None
 
-# ===== ORIGINAL STREAMLIT CODE (with Latviaverse detection) =====
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts"])
 
 if mode == "Compare two mochis":
