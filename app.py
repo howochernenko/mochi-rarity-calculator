@@ -181,31 +181,47 @@ elif mode == "Trade multiple mochis":
                 st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
 
 elif mode == "Value from Counts":
-    input_text = st.text_area(f"Enter {mochi_type} mochis:",
-                            help=f"Format: 'mochi x amount'\nExample: 'ukraine x20' ({mochi_type} only)")
-    
+    input_text = st.text_area(
+        "Enter your mochis as 'rarity/mochi x amount', comma-separated:",
+        help="Example for common: 'ukraine x 20, 5 x 5'\nExample for Latviaverse: 'rainbow latvia x 2, 1 x 3'"
+    )
+
     if input_text:
-        entries = [x.strip() for x in input_text.split("\n") if x.strip()]
-        total_value = 0
+        entries = [x.strip() for x in input_text.split(",") if x.strip()]
+        total = 0
+        invalid_entries = []
         
         for entry in entries:
             val = parse_entry(entry, mochi_type.lower())
-            if val is not None:
-                total_value += val
+            if val:
+                total += val
             else:
-                st.warning(f"Could not parse: {entry}")
+                invalid_entries.append(entry)
         
-        if total_value > 0:
-            exact_rarity = 1 / total_value
-            rounded_rarity = min(current_data.keys(), key=lambda x: abs(x - exact_rarity))
+        if invalid_entries:
+            st.warning(f"Could not interpret: {', '.join(invalid_entries)}")
+        
+        if total > 0:
+            exact = 1 / total
+            rounded = round_to_nearest_custom(exact)
             
-            st.success(f"Total value: {total_value:.2f} (1 mochi of rarity ~{exact_rarity:.2f})")
-            st.markdown(f"Rounded to: {rounded_rarity}")
+            # Get suggestions from the correct dataset
+            suggestions = []
+            for r, names in current_data.items():
+                if r == rounded:
+                    suggestions.extend(names)
             
-            suggestions = [name.title() for r, names in current_data.items() 
-                         if r == rounded_rarity for name in names]
+            if not suggestions:
+                closest = get_closest_rarity(rounded)
+                for r, names in current_data.items():
+                    if r == closest:
+                        suggestions.extend(names)
+            
+            st.success(f"Your total value is equivalent to a {mochi_type.lower()} mochi of rarity **~{exact:.2f}**.")
+            st.markdown(f"**Rounded to:** `{rounded}`")
+            
             if suggestions:
-                st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
-
+                st.markdown("**Suggested mochis at that rarity:** " + ", ".join([name.title() for name in suggestions]))
+                
 st.markdown("---")
 st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
