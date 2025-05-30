@@ -1,7 +1,7 @@
 import streamlit as st
 import re
 
-st.title("🌟 Mochis Trade Calculator")
+st.title("🌟 Mochis Trade Calculator"
 
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
