@@ -1,7 +1,7 @@
 import streamlit as st
 import re
 
-st.title("🌟 Mochis Trade Calculator"
+st.title("🌟 Mochis Trade Calculator")
 
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
@@ -32,7 +32,7 @@ MOCHI_DATA = {
     14: ["neko austria", "ancient egypt", "mama egypt", "kemet", "czechoslovakia", "waiter"],
     15: ["sweden", "nyo belarus", "nyo germany"],
     16: ["neko hungary", "nyo finland", "quebec"],
-    17: ["nyo italy"],
+    17: ["nyo italy", "serbia"],
     18: ["south africa", "pictonian"],
     19: ["nyo prussia"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
@@ -94,41 +94,51 @@ def get_closest_rarity(target):
 
 def get_rarity_by_name(name):
     name = normalize_name(name)
-    for rarity, aliases in {**MOCHI_DATA, **LATVIAVERSE_DATA}.items():
+    # Check regular mochis first
+    for rarity, aliases in MOCHI_DATA.items():
         if name in [normalize_name(alias) for alias in aliases]:
-            return rarity
-    return None
+            return (rarity, "regular")
+    # Check Latviaverse mochis
+    for rarity, aliases in LATVIAVERSE_DATA.items():
+        if name in [normalize_name(alias) for alias in aliases]:
+            return (rarity, "latviaverse")
+    return (None, None)
 
-def get_all_mochis_at_rarity(rarity):
-    mochis = []
-    for r, names in {**MOCHI_DATA, **LATVIAVERSE_DATA}.items():
-        if r == rarity:
-            mochis.extend([name.title() for name in names])
-    return mochis
+def get_all_mochis_at_rarity(rarity, mochi_type="regular"):
+    if mochi_type == "regular":
+        return [name.title() for r, names in MOCHI_DATA.items() if r == rarity for name in names]
+    else:
+        return [name.title() for r, names in LATVIAVERSE_DATA.items() if r == rarity for name in names]
 
 def parse_entry(entry):
     entry = entry.strip().lower()
     if "x" in entry:
         part, amount_str = map(str.strip, entry.split("x", 1))
-        rarity = get_rarity_by_name(part) or (float(part) if re.match(r"^\d+(\.\d+)?$", part) else None)
+        rarity, mochi_type = get_rarity_by_name(part)
+        if rarity is None:
+            try:
+                rarity = float(part)
+                mochi_type = "regular"  # Assume regular if manually entered
+            except:
+                return (None, None)
         try:
             amount = float(amount_str)
         except:
-            amount = None
+            return (None, None)
         if rarity and amount:
-            return amount / rarity
+            return (amount / rarity, mochi_type)
     else:
         if re.match(r"^\d+(\.\d+)?$", entry):
             try:
                 rarity = float(entry)
-                return 1 / rarity
+                return (1 / rarity, "regular")  # Assume regular if manually entered
             except:
-                return None
+                return (None, None)
         else:
-            rarity = get_rarity_by_name(entry)
+            rarity, mochi_type = get_rarity_by_name(entry)
             if rarity:
-                return 1 / rarity
-    return None
+                return (1 / rarity, mochi_type)
+    return (None, None)
 
 def is_latviaverse(name):
     name = normalize_name(name)
@@ -147,28 +157,32 @@ if mode == "Value from Counts":
         entries = [x.strip() for x in input_text.split(",") if x.strip()]
         total = 0
         lat_detected = False
+        reg_detected = False
         
         for entry in entries:
-            val = parse_entry(entry)
+            val, mochi_type = parse_entry(entry)
             if val:
                 total += val
-                # Check if Latviaverse mochi
-                if "x" in entry:
-                    mochi_name = entry.split("x")[0].strip()
-                else:
-                    mochi_name = entry
-                
-                if is_latviaverse(mochi_name):
+                if mochi_type == "latviaverse":
                     lat_detected = True
+                else:
+                    reg_detected = True
 
-        if total > 0:
+        if lat_detected and reg_detected:
+            st.error("❌ Cannot mix regular and Latviaverse mochis in the same calculation!")
+        elif total > 0:
             exact = 1 / total
             rounded = round_to_nearest_custom(exact)
-            mochis = get_all_mochis_at_rarity(rounded) or get_all_mochis_at_rarity(get_closest_rarity(rounded))
-
-            st.success(f"Your total value is equivalent to a mochi of rarity **~{exact:.2f}**.")
+            
+            # Determine which dataset to use for suggestions
             if lat_detected:
-                st.warning("⚠️ Latviaverse mochis detected in calculation!")
+                mochis = get_all_mochis_at_rarity(rounded, "latviaverse") or get_all_mochis_at_rarity(get_closest_rarity(rounded), "latviaverse")
+                mochi_type_note = "Latviaverse"
+            else:
+                mochis = get_all_mochis_at_rarity(rounded, "regular") or get_all_mochis_at_rarity(get_closest_rarity(rounded), "regular")
+                mochi_type_note = "regular"
+
+            st.success(f"Your total value is equivalent to a {mochi_type_note} mochi of rarity **~{exact:.2f}**.")
             st.markdown(f"**Rounded to:** `{rounded}`")
             if mochis:
                 st.markdown("**Suggested mochis at that rarity:** " + ", ".join(mochis))
