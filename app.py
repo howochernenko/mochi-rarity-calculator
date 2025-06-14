@@ -81,7 +81,7 @@ LATVIAVERSE_DATA = {
 
 def normalize_name(name):
     name = name.lower()
-    name = re.sub(r"[.'’'–—]", "", name)
+    name = re.sub(r"[.'’–—]", "", name)
     name = name.replace("-", " ").replace("!", " ")
     return name.strip()
 
@@ -93,30 +93,22 @@ def get_rarity_by_name(name, mochi_type="common"):
             return rarity
     return None
 
-def is_latviaverse(name):
-    name = normalize_name(name)
-    for aliases in LATVIAVERSE_DATA.values():
-        if name in [normalize_name(alias) for alias in aliases]:
-            return True
-    return False
-
-def round_to_nearest_custom(n):
-    return round(n, 1) if n < 1 else round(n * 2) / 2
-
-def get_closest_rarity(target, data):
-    return min(data.keys(), key=lambda r: abs(r - target))
-
 def parse_entry(entry, mochi_type):
     entry = entry.strip().lower()
     if "x" in entry:
+        # Format like "netherlands x2" or "axis x 3"
         part, amount_str = map(str.strip, entry.split("x", 1))
-        rarity = get_rarity_by_name(part, mochi_type) or (float(part) if re.match(r"^\d+(\.\d+)?$", part) else None)
+        rarity = get_rarity_by_name(part, mochi_type)
+        if rarity is None and re.match(r"^\d+(\.\d+)?$", part):
+            rarity = float(part)
         try:
             amount = float(amount_str)
-            return amount / rarity if rarity else None
+            if rarity:
+                return amount / rarity
         except:
             return None
     else:
+        # Format like "netherlands" or "1.0"
         if re.match(r"^\d+(\.\d+)?$", entry):
             try:
                 return 1 / float(entry)
@@ -124,11 +116,22 @@ def parse_entry(entry, mochi_type):
                 return None
         else:
             rarity = get_rarity_by_name(entry, mochi_type)
-            return 1 / rarity if rarity else None
+            if rarity:
+                return 1 / rarity
+    return None
+
+def round_to_nearest_custom(n):
+    if n < 1:
+        return round(n, 1)
+    else:
+        return round(n * 2) / 2
+
+def get_closest_rarity(target, data):
+    return min(data.keys(), key=lambda r: abs(r - target))
 
 def mochi_value_converter():
     st.subheader("🔁 Mochi Value Converter")
-    
+
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
 mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts", "Value Converter"])
@@ -228,8 +231,6 @@ elif mode == "Value from Counts":
 elif mode == "Value Converter":
     mochi_value_converter()
 
-
-    # Input section
     col1, col2 = st.columns([3, 1])
     with col1:
         input_mochis = st.text_input(
@@ -243,39 +244,36 @@ elif mode == "Value Converter":
         )
     
     if input_mochis and target_mochi:
-        # Parse input mochis
         total_value = 0
         invalid_entries = []
         
-        # Handle both comma and newline separation
+        # Split by comma first, then by newline inside each part
         entries = []
-        for line in input_mochis.split(","):
-            entries.extend([x.strip() for x in line.split("\n") if x.strip()])
+        for part in input_mochis.split(","):
+            entries.extend([x.strip() for x in part.split("\n") if x.strip()])
         
         for entry in entries:
             # Support both "5 russia" and "russia x5" formats
             if "x" in entry:
                 val = parse_entry(entry, mochi_type.lower())
             else:
-                # Handle "5 russia" format
                 parts = entry.split()
-                if len(parts) >= 2 and parts[0].isdigit():
+                if len(parts) >= 2 and parts[0].replace('.', '', 1).isdigit():
+                    # Format like "5 russia"
                     val = parse_entry(f"{' '.join(parts[1:])} x {parts[0]}", mochi_type.lower())
                 else:
-                    val = None
+                    val = parse_entry(f"{entry} x 1", mochi_type.lower())
             
-            if val:
+            if val is not None:
                 total_value += val
             else:
                 invalid_entries.append(entry)
         
-        # Parse target mochi
         if "x" in target_mochi:
             target_val = parse_entry(target_mochi, mochi_type.lower())
         else:
             target_val = parse_entry(f"{target_mochi} x 1", mochi_type.lower())
         
-        # Display results
         if invalid_entries:
             st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
         
@@ -286,7 +284,6 @@ elif mode == "Value Converter":
                 {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}**
             """)
             
-            # Show breakdown
             with st.expander("📊 Breakdown"):
                 st.write(f"Total value of your mochis: **{total_value:.4f}**")
                 st.write(f"Value of 1 {target_mochi}: **{target_val:.4f}**")
