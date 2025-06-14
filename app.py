@@ -3,6 +3,7 @@ import re
 
 st.title("🌟 Mochis Trade Calculator")
 
+# Data with rarities and aliases
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
@@ -79,33 +80,45 @@ LATVIAVERSE_DATA = {
     15.0: ["gray latvia"]
 }
 
-def normalize_name(name):
+def normalize_name(name: str) -> str:
+    """Normalize input for matching: lower case, remove punctuation, replace dashes."""
     name = name.lower()
     name = re.sub(r"[.'’–—]", "", name)
     name = name.replace("-", " ").replace("!", " ")
     return name.strip()
 
-def get_rarity_by_name(name, mochi_type="common"):
+def get_rarity_by_name(name: str, mochi_type="common"):
+    """Return rarity number by mochi alias name, or None if not found."""
     name = normalize_name(name)
     data = LATVIAVERSE_DATA if mochi_type == "latviaverse" else MOCHI_DATA
     for rarity, aliases in data.items():
-        if name in [normalize_name(alias) for alias in aliases]:
+        normalized_aliases = [normalize_name(alias) for alias in aliases]
+        if name in normalized_aliases:
             return rarity
     return None
 
-def parse_entry(entry, mochi_type):
+def parse_entry(entry: str, mochi_type="common"):
+    """Parse a single entry like 'netherlands x2' or '0.5' and return float value (amount / rarity)."""
     entry = entry.strip().lower()
     if "x" in entry:
-        # Format like "netherlands x2" or "axis x 3"
-        part, amount_str = map(str.strip, entry.split("x", 1))
-        rarity = get_rarity_by_name(part, mochi_type)
-        if rarity is None and re.match(r"^\d+(\.\d+)?$", part):
-            rarity = float(part)
-        try:
-            amount = float(amount_str)
-            if rarity:
-                return amount / rarity
-        except:
+        # Support formats like "netherlands x2" or "axis x 3"
+        parts = entry.split("x")
+        if len(parts) >= 2:
+            part = parts[0].strip()
+            amount_str = parts[1].strip()
+            rarity = get_rarity_by_name(part, mochi_type)
+            if rarity is None:
+                # If part is numeric rarity itself, use it
+                if re.match(r"^\d+(\.\d+)?$", part):
+                    rarity = float(part)
+                else:
+                    return None
+            try:
+                amount = float(amount_str)
+                return amount / rarity if rarity else None
+            except:
+                return None
+        else:
             return None
     else:
         # Format like "netherlands" or "1.0"
@@ -114,19 +127,20 @@ def parse_entry(entry, mochi_type):
                 return 1 / float(entry)
             except:
                 return None
-        else:
-            rarity = get_rarity_by_name(entry, mochi_type)
-            if rarity:
-                return 1 / rarity
+        rarity = get_rarity_by_name(entry, mochi_type)
+        if rarity:
+            return 1 / rarity
     return None
 
 def round_to_nearest_custom(n):
+    """Rounds to nearest 0.1 if below 1, else nearest 0.5."""
     if n < 1:
         return round(n, 1)
     else:
         return round(n * 2) / 2
 
 def get_closest_rarity(target, data):
+    """Find closest rarity key to target in data dictionary."""
     return min(data.keys(), key=lambda r: abs(r - target))
 
 def mochi_value_converter():
@@ -146,8 +160,8 @@ if mode == "Compare two mochis":
     if have and want:
         val_have = parse_entry(have, mochi_type.lower())
         val_want = parse_entry(want, mochi_type.lower())
-        
-        if val_have is not None and val_want is not None:
+
+        if val_have is not None and val_want is not None and val_have != 0:
             ratio = val_want / val_have
             if ratio < 1:
                 st.success(f"They need {1/ratio:.2f}× of theirs for a fair trade")
@@ -159,72 +173,72 @@ if mode == "Compare two mochis":
 elif mode == "Trade multiple mochis":
     input_text = st.text_input(f"Enter {mochi_type} mochis (comma separated):",
                              help=f"Example: 'ukraine x2, poland' ({mochi_type} only)")
-    
+
     if input_text:
         entries = [x.strip() for x in input_text.split(",") if x.strip()]
         rarities = []
-        
+
         for e in entries:
             val = parse_entry(e, mochi_type.lower())
-            if val is not None:
+            if val is not None and val != 0:
                 rarities.append(1/val)
             else:
                 st.warning(f"Could not parse: {e}")
-        
+
         if rarities:
             total_value = sum(1/r for r in rarities)
             exact_rarity = 1 / total_value
             rounded_rarity = round_to_nearest_custom(exact_rarity)
-            
+
             st.success(f"Total value: 1 mochi of rarity ~{exact_rarity:.2f}")
             st.markdown(f"Rounded to: {rounded_rarity}")
-            
-            suggestions = [name.title() for r, names in current_data.items() 
-                         if r == rounded_rarity for name in names]
+
+            suggestions = [name.title() for r, names in current_data.items()
+                           if r == rounded_rarity for name in names]
             if not suggestions:
                 closest = get_closest_rarity(rounded_rarity, current_data)
-                suggestions = [name.title() for r, names in current_data.items() 
-                             if r == closest for name in names]
-            
+                suggestions = [name.title() for r, names in current_data.items()
+                               if r == closest for name in names]
+
             if suggestions:
                 st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
 
 elif mode == "Value from Counts":
     input_text = st.text_area(f"Enter {mochi_type} mochis (one per line or comma-separated):",
-                            help=f"Format: 'mochi x amount' or 'rarity x amount'\nExample: 'ukraine x20' ({mochi_type} only)")
-    
+                             help=f"Format: 'mochi x amount' or 'rarity x amount'\nExample: 'ukraine x20' ({mochi_type} only)")
+
     if input_text:
         entries = []
         for line in input_text.split("\n"):
             entries.extend([x.strip() for x in line.split(",") if x.strip()])
-        
+
         total_value = 0
         invalid_entries = []
-        
+
         for entry in entries:
             val = parse_entry(entry, mochi_type.lower())
             if val is not None:
                 total_value += val
             else:
                 invalid_entries.append(entry)
-        
+
         if invalid_entries:
             st.warning(f"Could not parse: {', '.join(invalid_entries)}")
-        
+
         if total_value > 0:
             exact_rarity = 1 / total_value
             rounded_rarity = round_to_nearest_custom(exact_rarity)
-            
+
             st.success(f"Total value: {total_value:.2f} (1 mochi of rarity ~{exact_rarity:.2f})")
             st.markdown(f"Rounded to: {rounded_rarity}")
-            
-            suggestions = [name.title() for r, names in current_data.items() 
-                         if r == rounded_rarity for name in names]
+
+            suggestions = [name.title() for r, names in current_data.items()
+                           if r == rounded_rarity for name in names]
             if not suggestions:
                 closest = get_closest_rarity(rounded_rarity, current_data)
-                suggestions = [name.title() for r, names in current_data.items() 
-                             if r == closest for name in names]
-            
+                suggestions = [name.title() for r, names in current_data.items()
+                               if r == closest for name in names]
+
             if suggestions:
                 st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
 
@@ -234,24 +248,24 @@ elif mode == "Value Converter":
     col1, col2 = st.columns([3, 1])
     with col1:
         input_mochis = st.text_input(
-            "Your mochis:", 
+            "Your mochis:",
             placeholder="e.g. '5 russia, 1 ukraine' or 'russia x5, ukraine x1'"
         )
     with col2:
         target_mochi = st.text_input(
-            "Value in:", 
+            "Value in:",
             placeholder="e.g. 'belarus'"
         )
-    
+
     if input_mochis and target_mochi:
         total_value = 0
         invalid_entries = []
-        
-        # Split by comma first, then by newline inside each part
+
+        # Split by commas, then newlines
         entries = []
         for part in input_mochis.split(","):
             entries.extend([x.strip() for x in part.split("\n") if x.strip()])
-        
+
         for entry in entries:
             # Support both "5 russia" and "russia x5" formats
             if "x" in entry:
@@ -263,27 +277,27 @@ elif mode == "Value Converter":
                     val = parse_entry(f"{' '.join(parts[1:])} x {parts[0]}", mochi_type.lower())
                 else:
                     val = parse_entry(f"{entry} x 1", mochi_type.lower())
-            
+
             if val is not None:
                 total_value += val
             else:
                 invalid_entries.append(entry)
-        
+
         if "x" in target_mochi:
             target_val = parse_entry(target_mochi, mochi_type.lower())
         else:
             target_val = parse_entry(f"{target_mochi} x 1", mochi_type.lower())
-        
+
         if invalid_entries:
             st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
-        
+
         if total_value and target_val:
             equivalent_amount = total_value / target_val
             st.success(f"""
                 **Equivalent Value:**  
                 {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}**
             """)
-            
+
             with st.expander("📊 Breakdown"):
                 st.write(f"Total value of your mochis: **{total_value:.4f}**")
                 st.write(f"Value of 1 {target_mochi}: **{target_val:.4f}**")
