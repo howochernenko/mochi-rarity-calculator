@@ -81,7 +81,57 @@ LATVIAVERSE_DATA = {
     14.0: ["green latvia", "red latvia", "blue latvia", "orange latvia", "yellow latvia", "purple latvia", "pink latvia"],
     15.0: ["gray latvia"]
 }
-
+def tag_based_search():
+    st.subheader("🏷️ Tag-Based Mochi Search")
+    
+    # Define tags and their patterns
+    TAG_CATEGORIES = {
+        "Neko": ["neko", "cat", "tama", "itabby"],
+        "Nyo": ["nyo", "female"],
+        "2P": ["2p", "two", "second"],
+        "Latvia": ["latvia"],
+        "Historical": ["rome", "empire", "soviet", "ottoman"],
+        "Animal": ["whale", "bird", "fox", "bunny"]
+    }
+    
+    # Let users select multiple tags
+    selected_tags = st.multiselect(
+        "Search by tags:",
+        options=list(TAG_CATEGORIES.keys()),
+        default=["Neko"]
+    )
+    
+    # Find matching mochis
+    if selected_tags:
+        results = {}
+        search_patterns = []
+        
+        # Combine all selected tag patterns
+        for tag in selected_tags:
+            search_patterns.extend(TAG_CATEGORIES[tag])
+        
+        # Search through all mochis
+        for rarity, names in current_data.items():
+            for name in names:
+                normalized_name = normalize_name(name)
+                if any(pattern in normalized_name for pattern in search_patterns):
+                    if rarity not in results:
+                        results[rarity] = []
+                    results[rarity].append(name)
+        
+        # Display results
+        if results:
+            st.success(f"Found {sum(len(v) for v in results.values())} matching mochis:")
+            
+            # Sort by rarity (lower = rarer)
+            for rarity in sorted(results.keys()):
+                with st.expander(f"Rarity {rarity}: {len(results[rarity])} mochis"):
+                    cols = st.columns(3)
+                    for i, name in enumerate(sorted(results[rarity])):
+                        cols[i%3].write(f"- {name.title()}")
+        else:
+            st.warning("No mochis found matching these tags")
+            
 def normalize_name(name: str) -> str:
     """Normalize input for matching: lower case, remove punctuation, replace dashes."""
     name = name.lower()
@@ -216,7 +266,7 @@ def mochi_value_converter():
 # Main app interface
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
-mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter"])
+mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Tag Search"])
 
 if mode == "Name ↔ Rarity Lookup":
     st.subheader("🔍 Mochi Name ⇄ Rarity")
@@ -322,6 +372,9 @@ elif mode == "Value from Counts":
 elif mode == "Value Converter":
     mochi_value_converter()
 
+elif mode == "Tag Search":
+    tag_based_search()
+    
 st.markdown("---")
 st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
 st.markdown("If you noticed any bug ping howo.chernenko on discord, the current bug i noticed is that luxembourg and benelux does not work and i'm trying to fix it rn......")
