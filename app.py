@@ -148,7 +148,11 @@ def mochi_value_converter():
 
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
-mode = st.radio("Choose mode:", ["Compare two mochis", "Trade multiple mochis", "Value from Counts", "Value Converter"])
+mode = st.radio("Choose mode:", [
+    "Compare two mochis",
+    "Name ↔ Rarity Lookup",
+    "Value from Counts",
+    "Value Converter"])
 
 if mode == "Compare two mochis":
     col1, col2 = st.columns(2)
@@ -170,38 +174,7 @@ if mode == "Compare two mochis":
         else:
             st.warning("Could not interpret entries. Check format and mochi type.")
 
-elif mode == "Trade multiple mochis":
-    input_text = st.text_input(f"Enter {mochi_type} mochis (comma separated):",
-                             help=f"Example: 'ukraine x2, poland' ({mochi_type} only)")
 
-    if input_text:
-        entries = [x.strip() for x in input_text.split(",") if x.strip()]
-        rarities = []
-
-        for e in entries:
-            val = parse_entry(e, mochi_type.lower())
-            if val is not None and val != 0:
-                rarities.append(1/val)
-            else:
-                st.warning(f"Could not parse: {e}")
-
-        if rarities:
-            total_value = sum(1/r for r in rarities)
-            exact_rarity = 1 / total_value
-            rounded_rarity = round_to_nearest_custom(exact_rarity)
-
-            st.success(f"Total value: 1 mochi of rarity ~{exact_rarity:.2f}")
-            st.markdown(f"Rounded to: {rounded_rarity}")
-
-            suggestions = [name.title() for r, names in current_data.items()
-                           if r == rounded_rarity for name in names]
-            if not suggestions:
-                closest = get_closest_rarity(rounded_rarity, current_data)
-                suggestions = [name.title() for r, names in current_data.items()
-                               if r == closest for name in names]
-
-            if suggestions:
-                st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
 
 elif mode == "Value from Counts":
     input_text = st.text_area(f"Enter {mochi_type} mochis (one per line or comma-separated):",
@@ -302,6 +275,32 @@ elif mode == "Value Converter":
                 st.write(f"Total value of your mochis: **{total_value:.4f}**")
                 st.write(f"Value of 1 {target_mochi}: **{target_val:.4f}**")
                 st.write(f"Calculation: {total_value:.4f} ÷ {target_val:.4f} = {equivalent_amount:.2f}")
+
+elif mode == "Name ↔ Rarity Lookup":
+    st.subheader("🔍 Mochi Name ⇄ Rarity")
+    lookup_input = st.text_input(f"Enter a mochi name or rarity number:", placeholder="e.g. neko england OR 5")
+
+    if lookup_input:
+        norm = normalize_name(lookup_input)
+
+        # Check if numeric → show mochis at that rarity
+        if re.match(r"^\d+(\.\d+)?$", norm):
+            rarity_num = float(norm)
+            matched_mochis = [name.title() for r, names in current_data.items() if r == rarity_num for name in names]
+
+            if matched_mochis:
+                st.success(f"Mochis at rarity **{rarity_num}**: {', '.join(matched_mochis)}")
+            else:
+                st.warning(f"No mochis found at rarity {rarity_num} in {mochi_type} data.")
+
+        else:
+            # Try to get rarity by name
+            rarity = get_rarity_by_name(norm, mochi_type.lower())
+            if rarity is not None:
+                st.success(f"**{lookup_input.title()}** has rarity: **{rarity}**")
+            else:
+                st.warning(f"No match found for '{lookup_input}' in {mochi_type} mochis.")
+
 
 st.markdown("---")
 st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
