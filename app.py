@@ -89,7 +89,8 @@ def tag_based_search():
         "Neko": ["neko"],
         "Nyo": ["nyo", ],
         "2P": ["2p"],
-        "Micronations": ["wy", "sealand", "aerican", "niko", "ladonia", "seborga", "drsd", "slowjamastan", "kugelmugel"],
+         "Creature": ["whale", "gilbird", "puffin", "flying", "pictonian", "hanatamago", "pochi", "tony", "pierre", "pookie", ],
+        "Micronations": ["wy", "sealand", "aerican", "niko", "ladonia", "seborga", "drsd", "slowjamastan", "kugelmugel", "stomaria"],
     }
     
     # Let users select multiple tags
