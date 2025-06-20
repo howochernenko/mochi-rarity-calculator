@@ -86,12 +86,10 @@ def tag_based_search():
     
     # Define tags and their patterns
     TAG_CATEGORIES = {
-        "Neko": ["neko", "cat", "tama", "itabby"],
-        "Nyo": ["nyo", "female"],
-        "2P": ["2p", "two", "second"],
-        "Latvia": ["latvia"],
-        "Historical": ["rome", "empire", "soviet", "ottoman"],
-        "Animal": ["whale", "bird", "fox", "bunny"]
+        "Neko": ["neko"],
+        "Nyo": ["nyo", ],
+        "2P": ["2p"],
+        "Micronations": ["wy", "sealand", "aerican", "niko", "ladonia", "seborga", "drsd", "slowjamastan", "kugelmugel"],
     }
     
     # Let users select multiple tags
