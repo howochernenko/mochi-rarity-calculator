@@ -148,11 +148,7 @@ def mochi_value_converter():
 
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
-mode = st.radio("Choose mode:", [
-    "Compare two mochis",
-    "Name ↔ Rarity Lookup",
-    "Value from Counts",
-    "Value Converter"])
+mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter"])
 
 if mode == "Compare two mochis":
     col1, col2 = st.columns(2)
