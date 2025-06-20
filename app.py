@@ -1,5 +1,7 @@
 import streamlit as st
 import re
+import difflib
+
 
 st.title("🌟 Mochis Trade Calculator")
 
@@ -79,6 +81,20 @@ LATVIAVERSE_DATA = {
     14.0: ["green latvia", "red latvia", "blue latvia", "orange latvia", "yellow latvia", "purple latvia", "pink latvia"],
     15.0: ["gray latvia"]
 }
+
+def suggest_similar_mochis(input_name, data):
+    input_name = normalize_name(input_name)
+    all_aliases = [normalize_name(alias) for names in data.values() for alias in names]
+    matches = difflib.get_close_matches(input_name, all_aliases, n=5, cutoff=0.6)
+    return matches
+rarity = get_rarity_by_name(user_input, mochi_type)
+if rarity is None:
+    suggestions = suggest_similar_mochis(user_input, current_data)
+    if suggestions:
+        st.warning(f"No exact match. Did you mean: {', '.join(suggestions)}?")
+    else:
+        st.error("No mochi found with that name.")
+
 
 def normalize_name(name: str) -> str:
     """Normalize input for matching: lower case, remove punctuation, replace dashes."""
