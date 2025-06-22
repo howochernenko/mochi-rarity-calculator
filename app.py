@@ -2,7 +2,6 @@ import streamlit as st
 import re
 import difflib
 
-
 st.title("🌟 Mochis Trade Calculator")
 
 # Data with rarities and aliases
@@ -19,7 +18,7 @@ MOCHI_DATA = {
     3: ["nyo japan", "knights templar", "house of habsburg", "habsburg", "hapsburg", "neko england"],
     3.14: ["ancient greece", "mama greece", "hellas"],
     4: ["neko japan", "tama", "neko prussia", "pictonian princess", "neko russia"],
-    5: [ "austria-hungary", "japan", "neko america", "americat"],
+    5: ["austria-hungary", "japan", "neko america", "americat"],
     5.5: ["2p italy"],
     6: ["neko germany", "germouser", "tony", "nyo france", "neko france"],
     6.5: ["2p germany"],
@@ -36,8 +35,8 @@ MOCHI_DATA = {
     15: ["sweden", "nyo belarus", "nyo germany"],
     16: ["quebec"],
     17: ["nyo italy", "serbia"],
-    18: ["nyo finland",],
-    19: ["neko hungary", "pictonian", "south africa",],
+    18: ["nyo finland"],
+    19: ["neko hungary", "pictonian", "south africa"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
     25: ["benelux", "greenland", "nyo romano", "nyo china"],
     30: ["aerican empire", "aerica", "flying mint bunny", "nyo switzerland", "nyo norway"],
@@ -81,56 +80,7 @@ LATVIAVERSE_DATA = {
     14.0: ["green latvia", "red latvia", "blue latvia", "orange latvia", "yellow latvia", "purple latvia", "pink latvia"],
     15.0: ["gray latvia"]
 }
-def tag_based_search():
-    st.subheader("🏷️ Tag-Based Mochi Search")
-    
-    # Define tags and their patterns
-    TAG_CATEGORIES = {
-        "Neko": ["neko"],
-        "Nyo": ["nyo", ],
-        "2P": ["2p"],
-         "Creature": ["whale", "gilbird", "puffin", "flying", "pictonian", "hanatamago", "pochi", "tony", "pierre", "pookie", ],
-        "Micronations": ["wy", "sealand", "aerican", "niko", "ladonia", "seborga", "drsd", "slowjamastan", "kugelmugel", "stomaria"],
-    }
-    
-    # Let users select multiple tags
-    selected_tags = st.multiselect(
-        "Search by tags:",
-        options=list(TAG_CATEGORIES.keys()),
-        default=["Neko"]
-    )
-    
-    # Find matching mochis
-    if selected_tags:
-        results = {}
-        search_patterns = []
-        
-        # Combine all selected tag patterns
-        for tag in selected_tags:
-            search_patterns.extend(TAG_CATEGORIES[tag])
-        
-        # Search through all mochis
-        for rarity, names in current_data.items():
-            for name in names:
-                normalized_name = normalize_name(name)
-                if any(pattern in normalized_name for pattern in search_patterns):
-                    if rarity not in results:
-                        results[rarity] = []
-                    results[rarity].append(name)
-        
-        # Display results
-        if results:
-            st.success(f"Found {sum(len(v) for v in results.values())} matching mochis:")
-            
-            # Sort by rarity (lower = rarer)
-            for rarity in sorted(results.keys()):
-                with st.expander(f"Rarity {rarity}: {len(results[rarity])} mochis"):
-                    cols = st.columns(3)
-                    for i, name in enumerate(sorted(results[rarity])):
-                        cols[i%3].write(f"- {name.title()}")
-        else:
-            st.warning("No mochis found matching these tags")
-            
+
 def normalize_name(name: str) -> str:
     """Normalize input for matching: lower case, remove punctuation, replace dashes."""
     name = name.lower()
@@ -159,14 +109,12 @@ def parse_entry(entry: str, mochi_type="common"):
     """Parse a single entry like 'netherlands x2' or '0.5' and return float value (amount / rarity)."""
     entry = entry.strip().lower()
     if "x" in entry:
-        # Support formats like "netherlands x2" or "axis x 3"
         parts = entry.split("x")
         if len(parts) >= 2:
             part = parts[0].strip()
             amount_str = parts[1].strip()
             rarity = get_rarity_by_name(part, mochi_type)
             if rarity is None:
-                # If part is numeric rarity itself, use it
                 if re.match(r"^\d+(\.\d+)?$", part):
                     rarity = float(part)
                 else:
@@ -179,7 +127,6 @@ def parse_entry(entry: str, mochi_type="common"):
         else:
             return None
     else:
-        # Format like "netherlands" or "1.0"
         if re.match(r"^\d+(\.\d+)?$", entry):
             try:
                 return 1 / float(entry)
@@ -201,6 +148,49 @@ def get_closest_rarity(target, data):
     """Find closest rarity key to target in data dictionary."""
     return min(data.keys(), key=lambda r: abs(r - target))
 
+def tag_based_search():
+    st.subheader("🏷️ Tag-Based Mochi Search")
+    
+    TAG_CATEGORIES = {
+        "Neko": ["neko"],
+        "Nyo": ["nyo"],
+        "2P": ["2p"],
+        "Creature": ["whale", "gilbird", "puffin", "flying", "pictonian", "hanatamago", "pochi", "tony", "pierre", "pookie"],
+        "Micronations": ["wy", "sealand", "aerican", "niko", "ladonia", "seborga", "drsd", "slowjamastan", "kugelmugel", "stomaria"],
+    }
+    
+    selected_tags = st.multiselect(
+        "Search by tags:",
+        options=list(TAG_CATEGORIES.keys()),
+        default=["Neko"]
+    )
+    
+    if selected_tags:
+        results = {}
+        search_patterns = []
+        
+        for tag in selected_tags:
+            search_patterns.extend(TAG_CATEGORIES[tag])
+        
+        for rarity, names in current_data.items():
+            for name in names:
+                normalized_name = normalize_name(name)
+                if any(pattern in normalized_name for pattern in search_patterns):
+                    if rarity not in results:
+                        results[rarity] = []
+                    results[rarity].append(name)
+        
+        if results:
+            st.success(f"Found {sum(len(v) for v in results.values())} matching mochis:")
+            
+            for rarity in sorted(results.keys()):
+                with st.expander(f"Rarity {rarity}: {len(results[rarity])} mochis"):
+                    cols = st.columns(3)
+                    for i, name in enumerate(sorted(results[rarity])):
+                        cols[i%3].write(f"- {name.title()}")
+        else:
+            st.warning("No mochis found matching these tags")
+
 def mochi_value_converter():
     st.subheader("🔁 Mochi Value Converter")
     
@@ -220,19 +210,16 @@ def mochi_value_converter():
         total_value = 0
         invalid_entries = []
 
-        # Split by commas, then newlines
         entries = []
         for part in input_mochis.split(","):
             entries.extend([x.strip() for x in part.split("\n") if x.strip()])
 
         for entry in entries:
-            # Support both "5 russia" and "russia x5" formats
             if "x" in entry:
                 val = parse_entry(entry, mochi_type.lower())
             else:
                 parts = entry.split()
                 if len(parts) >= 2 and parts[0].replace('.', '', 1).isdigit():
-                    # Format like "5 russia"
                     val = parse_entry(f"{' '.join(parts[1:])} x {parts[0]}", mochi_type.lower())
                 else:
                     val = parse_entry(f"{entry} x 1", mochi_type.lower())
@@ -274,7 +261,6 @@ if mode == "Name ↔ Rarity Lookup":
     if lookup_input:
         norm = normalize_name(lookup_input)
 
-        # Check if numeric → show mochis at that rarity
         if re.match(r"^\d+(\.\d+)?$", norm):
             rarity_num = float(norm)
             matched_mochis = [name.title() for r, names in current_data.items() if r == rarity_num for name in names]
@@ -287,7 +273,6 @@ if mode == "Name ↔ Rarity Lookup":
                 st.info(f"Closest rarity is {closest}")
 
         else:
-            # Try to get rarity by name
             rarity = get_rarity_by_name(norm, mochi_type.lower())
             if rarity is not None:
                 st.success(f"**{lookup_input.title()}** has rarity: **{rarity}**")
