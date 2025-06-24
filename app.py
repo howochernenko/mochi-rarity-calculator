@@ -38,7 +38,7 @@ MOCHI_DATA = {
     18: ["nyo finland"],
     19: ["neko hungary", "pictonian", "south africa"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
-    25: ["benelux", "greenland", "nyo romano", "nyo china"],
+    25: ["benelux", "benelux countries", "greenland", "nyo romano", "nyo china"],
     30: ["aerican empire", "aerica", "flying mint bunny", "nyo switzerland", "nyo norway"],
     35: ["hanatamago", "kyoto", "teutonic knights", "ecuador", "osaka"],
     40: ["pochi", "mongolia", "persia", "kingdom of pontus", "pontus", "mr. puffin"],
@@ -52,7 +52,7 @@ MOCHI_DATA = {
     80: ["liechtenstein", "taiwan", "nyo austria", "ireland"],
     85: ["croatia", "slowjamastan", "austria", "hungary"],
     90: ["switzerland", "ukraine", "romania", "seborga"],
-    95: ["moldova", "luxembourg", "molossia", "netherlands", "holland"],
+    95: ["moldova", "luxembourg", "luxemburg", "molossia", "netherlands", "holland"],
     100: ["indonesia", "slovakia", "northern ireland", "wy"],
     105: ["picardy", "shujinko", "denmark", "new zealand", "aotearoa", "turkey"],
     110: ["niko niko jr", "niko jr", "nyo hungary", "australia", "ladonia"],
@@ -361,5 +361,5 @@ elif mode == "Tag Search":
     
 st.markdown("---")
 st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
-st.markdown("If you noticed any bug ping howo.chernenko on discord, the current bug i noticed is that luxembourg and benelux does not work and i'm trying to fix it rn......")
+st.markdown("If you noticed any bug ping howo.chernenko on discord")
 st.markdown("Also some mochi worth more due to demand for example russia/neko england.etc")
