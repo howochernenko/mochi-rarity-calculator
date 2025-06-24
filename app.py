@@ -311,7 +311,7 @@ elif mode == "Compare two mochis":
                 st.success(f"You need {ratio:.2f}× of yours for a fair trade")
 
 elif mode == "Value from Counts":
-    input_text = st.text_area(f"Enter {mochi_type} mochis (one per line or comma-separated):",
+    input_text = st.text_area(f"Enter {mochi_type} mochis (one per line or comma-separated), mochi/rarity x amount:",
                              help=f"Format: 'mochi x amount' or 'rarity x amount'\nExample: 'ukraine x20' ({mochi_type} only)")
 
     if input_text:
