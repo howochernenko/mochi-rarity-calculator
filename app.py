@@ -209,12 +209,12 @@ def mochi_value_converter(current_dict):
     if input_mochis and target_mochi:
         total_value = 0
         invalid_entries = []
-
+        
         # entries = []
         # for part in input_mochis.split(","):
         #     entries.extend([x.strip() for x in part.split("\n") if x.strip()])
         entries = [x.strip() for x in re.split(r'[,\n]', input_mochis) if x.strip()]
-
+        target_val = current_dict[target_mochi]
         for entry in entries:
             entry_split = entry.strip().split()
             if entry_split and entry_split[0].isdigit():
@@ -238,7 +238,7 @@ def mochi_value_converter(current_dict):
                 #     val = parse_entry(f"{entry} x 1", mochi_type.lower())
 
             if val is not None:
-                total_value += val
+                total_value += target_val/val
             else:
                 invalid_entries.append(entry)
 
@@ -246,15 +246,16 @@ def mochi_value_converter(current_dict):
         #     target_val = parse_entry(target_mochi, mochi_type.lower())
         # else:
         #     target_val = parse_entry(f"{target_mochi} x 1", mochi_type.lower())
-        target_val = current_dict[target_mochi]
+        
         if invalid_entries:
             st.warning(f"Could not calculate: {', '.join(invalid_entries)} in {current_dict}")
 
         if total_value and target_val:
-            equivalent_amount =  target_val / total_value 
+            #equivalent_amount =  target_val / total_value 
+            equivalent_amount = total_value
             st.success(f"""
                 **Equivalent Value:** 
-                {input_mochis}({total_value}) ≈ **{equivalent_amount:.2f} {target_mochi}({target_val})**
+                {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}({target_val})**
             """)
 
             with st.expander("📊 Breakdown"):
