@@ -198,7 +198,7 @@ def mochi_value_converter(current_dict):
     with col1:
         input_mochis = st.text_input(
             "Your mochis:", 
-            placeholder="e.g. '5 russia, 1 ukraine' or 'russia x5, ukraine x1'"
+            placeholder="e.g. '5 russia, 1 ukraine' or 'russia, 3 benelux'"
         )
     with col2:
         target_mochi = st.text_input(
