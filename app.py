@@ -210,15 +210,25 @@ def mochi_value_converter(current_dict):
         total_value = 0
         invalid_entries = []
 
-        entries = []
-        for part in input_mochis.split(","):
-            entries.extend([x.strip() for x in part.split("\n") if x.strip()])
+        # entries = []
+        # for part in input_mochis.split(","):
+        #     entries.extend([x.strip() for x in part.split("\n") if x.strip()])
+        entries = [x.strip() for x in re.split(r'[,\n]', input_mochis) if x.strip()]
 
         for entry in entries:
-            if "*" in entry:
-                val = parse_entry(entry, mochi_type.lower())
+            entry_split = entry.strip().split()
+            if entry_split and entry_split[0].isdigit():
+                n = int(entry_split[0])
+                real_entry = ' '.join(entry_split[1:]).strip()
             else:
-                val = current_dict[entry]
+                n = 1
+                real_entry = entry.strip()
+            val = current_dict[real_entry] * n
+            
+            # if "*" in entry:
+            #     val = parse_entry(entry, mochi_type.lower())
+            # else:
+            #     val = current_dict[entry]
                 # parts = entry.split()
                 # if len(parts) >= 2 and parts[0].replace('.', '', 1).isdigit():
                 #     val = parse_entry(f"{' '.join(parts[1:])} x {parts[0]}", mochi_type.lower())
