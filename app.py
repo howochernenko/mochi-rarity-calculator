@@ -236,7 +236,7 @@ def mochi_value_converter(current_dict):
         #     target_val = parse_entry(f"{target_mochi} x 1", mochi_type.lower())
         target_val = current_dict[target_mochi]
         if invalid_entries:
-            st.warning(f"Could not calculate: {', '.join(invalid_entries)} in {dd}")
+            st.warning(f"Could not calculate: {', '.join(invalid_entries)} in {current_dict}")
 
         if total_value and target_val:
             equivalent_amount =  target_val / total_value 
