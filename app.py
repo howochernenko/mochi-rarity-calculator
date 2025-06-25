@@ -220,6 +220,7 @@ def mochi_value_converter(current_dict):
             if entry_split and entry_split[0].isdigit():
                 n = int(entry_split[0])
                 real_entry = ' '.join(entry_split[1:]).strip()
+                #real_entry = re.sub(r'^\d+\s+', '', entry).strip()
             else:
                 n = 1
                 real_entry = entry.strip()
