@@ -38,7 +38,7 @@ MOCHI_DATA = {
     18: ["nyo finland"],
     19: ["neko hungary", "pictonian", "south africa"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
-    25: ["benelux", "benelux countries", "greenland", "nyo romano", "nyo china"],
+    25: ["benelux", "greenland", "nyo romano", "nyo china"],
     30: ["aerican empire", "aerica", "flying mint bunny", "nyo switzerland", "nyo norway"],
     35: ["hanatamago", "kyoto", "teutonic knights", "ecuador", "osaka"],
     40: ["pochi", "mongolia", "persia", "kingdom of pontus", "pontus", "mr. puffin"],
@@ -191,7 +191,7 @@ def tag_based_search():
         else:
             st.warning("No mochis found matching these tags")
 
-def mochi_value_converter():
+def mochi_value_converter(current_dict):
     st.subheader("🔁 Mochi Value Converter")
     
     col1, col2 = st.columns([3, 1])
@@ -229,11 +229,11 @@ def mochi_value_converter():
             else:
                 invalid_entries.append(entry)
 
-        if "x" in target_mochi:
-            target_val = parse_entry(target_mochi, mochi_type.lower())
-        else:
-            target_val = parse_entry(f"{target_mochi} x 1", mochi_type.lower())
-
+        # if "x" in target_mochi:
+        #     target_val = parse_entry(target_mochi, mochi_type.lower())
+        # else:
+        #     target_val = parse_entry(f"{target_mochi} x 1", mochi_type.lower())
+        target_val = current_dict[target_mochi]
         if invalid_entries:
             st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
 
@@ -249,9 +249,18 @@ def mochi_value_converter():
                 st.write(f"Value of 1 {target_mochi}: **{target_val:.4f}**")
                 st.write(f"Calculation: {total_value:.4f} ÷ {target_val:.4f} = {equivalent_amount:.2f}")
 
+def convert_to_flat_dict(input_dict):
+    flat_dict = {}
+    for score, names in input_dict.items():
+        for name in names:
+            flat_dict[name] = score
+    return flat_dict
+    
 # Main app interface
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
+current_data_flat = convert_to_flat_dict(current_data)
+
 mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Tag Search"])
 
 if mode == "Name ↔ Rarity Lookup":
@@ -354,7 +363,7 @@ elif mode == "Value from Counts":
                 st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
 
 elif mode == "Value Converter":
-    mochi_value_converter()
+    mochi_value_converter(current_data_flat)
 
 elif mode == "Tag Search":
     tag_based_search()
