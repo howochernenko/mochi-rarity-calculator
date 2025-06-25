@@ -215,7 +215,7 @@ def mochi_value_converter(current_dict):
             entries.extend([x.strip() for x in part.split("\n") if x.strip()])
 
         for entry in entries:
-            if "x" in entry:
+            if "*" in entry:
                 val = parse_entry(entry, mochi_type.lower())
             else:
                 val = current_dict[entry]
