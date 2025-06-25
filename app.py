@@ -218,14 +218,14 @@ def mochi_value_converter(current_dict):
         for entry in entries:
             entry_split = entry.strip().split()
             if entry_split and entry_split[0].isdigit():
-                st.success(f">>>{entry_split[0]}")
+                #st.success(f">>>{entry_split[0]}")
                 n = int(entry_split[0])
                 real_entry = ' '.join(entry_split[1:]).strip()
                 #real_entry = re.sub(r'^\d+\s+', '', entry).strip()
             else:
                 n = 1
                 real_entry = entry.strip()
-            val = current_dict[real_entry] * n
+            val = current_dict[real_entry] / n
             
             # if "*" in entry:
             #     val = parse_entry(entry, mochi_type.lower())
@@ -254,9 +254,7 @@ def mochi_value_converter(current_dict):
             equivalent_amount =  target_val / total_value 
             st.success(f"""
                 **Equivalent Value:** 
-                t is {total_value}
-                target is {target_val}
-                {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}**
+                {input_mochis}({total_value}) ≈ **{equivalent_amount:.2f} {target_mochi}({target_val})**
             """)
 
             with st.expander("📊 Breakdown"):
