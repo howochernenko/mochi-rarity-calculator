@@ -218,11 +218,12 @@ def mochi_value_converter(current_dict):
             if "x" in entry:
                 val = parse_entry(entry, mochi_type.lower())
             else:
-                parts = entry.split()
-                if len(parts) >= 2 and parts[0].replace('.', '', 1).isdigit():
-                    val = parse_entry(f"{' '.join(parts[1:])} x {parts[0]}", mochi_type.lower())
-                else:
-                    val = parse_entry(f"{entry} x 1", mochi_type.lower())
+                val = current_dict[entry]
+                # parts = entry.split()
+                # if len(parts) >= 2 and parts[0].replace('.', '', 1).isdigit():
+                #     val = parse_entry(f"{' '.join(parts[1:])} x {parts[0]}", mochi_type.lower())
+                # else:
+                #     val = parse_entry(f"{entry} x 1", mochi_type.lower())
 
             if val is not None:
                 total_value += val
@@ -240,7 +241,9 @@ def mochi_value_converter(current_dict):
         if total_value and target_val:
             equivalent_amount = total_value / target_val
             st.success(f"""
-                **Equivalent Value:**  
+                **Equivalent Value:** 
+                t is {total_value}
+                target is {target_val}
                 {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}**
             """)
 
