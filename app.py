@@ -239,7 +239,7 @@ def mochi_value_converter(current_dict):
             st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
 
         if total_value and target_val:
-            equivalent_amount = total_value / target_val
+            equivalent_amount =  target_val / total_value 
             st.success(f"""
                 **Equivalent Value:** 
                 t is {total_value}
