@@ -209,14 +209,14 @@ def tag_based_search(data):
         else:
             st.warning("No mochis found matching these tags")
 
-def mochi_value_converter(current_dict):
+def mochi_value_converter(current_data_flat):
     st.subheader("🔁 Mochi Value Converter")
     
     col1, col2 = st.columns([3, 1])
     with col1:
         input_mochis = st.text_input(
             "Your mochis:", 
-            placeholder="e.g. '5 russia, 1 ukraine' or 'russia x5, ukraine'"
+            placeholder="e.g. '5 russia, 1 ukraine' or 'russia x5, ukraine x1'"
         )
     with col2:
         target_mochi = st.text_input(
@@ -225,44 +225,71 @@ def mochi_value_converter(current_dict):
         )
     
     if input_mochis and target_mochi:
+        # Get target mochi value
+        target_norm = normalize_name(target_mochi)
+        if target_norm not in current_data_flat:
+            st.error(f"Target mochi '{target_mochi}' not found in database")
+            return
+        
+        target_value = current_data_flat[target_norm]
+        
+        # Parse input mochis
+        entries = [x.strip() for x in re.split(r'[,\n]', input_mochis) if x.strip()]
         total_value = 0
         invalid_entries = []
         
-        entries = [x.strip() for x in re.split(r'[,\n]', input_mochis) if x.strip()]
-        
-        try:
-            target_val = current_dict[normalize_name(target_mochi)]
-        except KeyError:
-            st.error(f"Could not find target mochi: {target_mochi}")
-            return
-
         for entry in entries:
-            val = parse_entry(entry, mochi_type.lower())
-            if val is not None:
-                total_value += val
+            # Handle both "3 russia" and "russia x3" formats
+            if re.match(r'^\d', entry):  # Format: "3 russia"
+                parts = re.split(r'\s+', entry, 1)
+                if len(parts) == 2 and parts[0].replace('.', '', 1).isdigit():
+                    amount = float(parts[0])
+                    name = parts[1]
+                else:
+                    invalid_entries.append(entry)
+                    continue
+            else:  # Format: "russia x3"
+                if 'x' in entry:
+                    parts = entry.split('x')
+                    if len(parts) == 2 and parts[1].strip().replace('.', '', 1).isdigit():
+                        name = parts[0].strip()
+                        amount = float(parts[1].strip())
+                    else:
+                        invalid_entries.append(entry)
+                        continue
+                else:
+                    name = entry
+                    amount = 1
+            
+            # Look up mochi value
+            name_norm = normalize_name(name)
+            if name_norm in current_data_flat:
+                mochi_value = current_data_flat[name_norm]
+                total_value += amount * (1 / mochi_value)  # Convert to base value
             else:
                 invalid_entries.append(entry)
-
+        
         if invalid_entries:
             st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
             for entry in invalid_entries:
-                suggestions = suggest_similar_mochis(entry.split('x')[0].strip(), 
+                suggestions = suggest_similar_mochis(entry.split('x')[0].strip() if 'x' in entry else entry.split()[0], 
                                                     LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA)
                 if suggestions:
                     st.info(f"Suggestions for '{entry}': {', '.join(suggestions)}")
-
-        if total_value > 0 and target_val > 0:
-            equivalent_amount = total_value / target_val
+        
+        if total_value > 0:
+            # Calculate how many target mochis this is worth
+            equivalent_amount = total_value * target_value  # Convert from base value to target
             st.success(f"""
                 **Equivalent Value:** 
                 {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}**
             """)
 
             with st.expander("📊 Breakdown"):
-                st.write(f"Total value of your mochis: {total_value:.4f}")
-                st.write(f"Value of 1 {target_mochi}: {target_val:.4f}")
-                st.write(f"Calculation: {total_value:.4f} ÷ {target_val:.4f} = {equivalent_amount:.2f}")
-
+                st.write(f"Total base value: {total_value:.4f}")
+                st.write(f"Value of 1 {target_mochi}: {1/target_value:.4f}")
+                st.write(f"Calculation: {total_value:.4f} × {target_value:.4f} = {equivalent_amount:.2f}")
+                
 def convert_to_flat_dict(input_dict):
     flat_dict = {}
     for score, names in input_dict.items():
