@@ -412,7 +412,7 @@ elif mode == "Tag Search":
 st.markdown("---")
 st.markdown("Disclaimer: Calculator could be outdated if I didn't notice any rarity change so don't use if you don't trust it :p")
 st.markdown("If you noticed any bug ping howo.chernenko on discord")
-st.markdown("Also some mochi worth more due to demand for example russia/neko england.etc")
+st.markdown("Also some mochi worth more due to demand for example russia/neko england.etc I DIDN'T CHANGE ANY RARITY IN THE CALCULATOR U HAVE TO THINK ABOUT DEMAND URSELF WHEN TRADING SORRY")
 st.markdown("---")
 st.markdown("Tutorial:")
 st.markdown("Name-Rarity look up is to check rarity or check mochis ") 
