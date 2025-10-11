@@ -38,7 +38,7 @@ MOCHI_DATA = {
     18: ["nyo finland"],
     19: ["neko hungary", "pictonian", "south africa"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
-    24: ["nyo hong kong"]，
+    24: ["nyo hong kong"],
     25: ["benelux", "greenland", "nyo romano", "nyo china"],
     30: ["aerican empire", "aerica", "flying mint bunny", "nyo switzerland", "nyo norway"],
     35: ["hanatamago", "kyoto", "teutonic knights", "ecuador", "osaka"],
