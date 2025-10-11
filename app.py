@@ -1,6 +1,7 @@
 import streamlit as st
 import re
 import difflib
+from datetime import datetime
 
 st.title("🌟 Mochis Trade Calculator")
 
@@ -82,10 +83,16 @@ LATVIAVERSE_DATA = {
     15.0: ["gray latvia"]
 }
 
+# Update history
+UPDATE_HISTORY = [
+    {"date": "2025-10-10", "changes": "Added Neko Spain, Neko China, Neko Canada. Fixed some mochi placements."},
+    {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
+]
+
 def normalize_name(name: str) -> str:
     """Normalize input for matching: lower case, remove punctuation, replace dashes."""
     name = name.lower()
-    name = re.sub(r"[.'’–—]", "", name)
+    name = re.sub(r"[.''–—]", "", name)
     name = name.replace("-", " ").replace("!", " ")
     return name.strip()
 
@@ -297,11 +304,60 @@ def convert_to_flat_dict(input_dict):
         for name in names:
             flat_dict[normalize_name(name)] = score
     return flat_dict
+
+def show_update_history():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📋 Update History")
+    for update in UPDATE_HISTORY:
+        with st.sidebar.expander(f"📅 {update['date']}"):
+            st.write(update['changes'])
+
+def comments_section():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("💬 Comments & Feedback")
     
+    # Initialize session state for comments
+    if 'comments' not in st.session_state:
+        st.session_state.comments = []
+    
+    # Comment input
+    with st.sidebar.form("comment_form"):
+        name = st.text_input("Your name:", placeholder="Anonymous")
+        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...")
+        submitted = st.form_submit_button("Post Comment")
+        
+        if submitted and comment.strip():
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+            comment_data = {
+                "name": name.strip() or "Anonymous",
+                "comment": comment.strip(),
+                "timestamp": timestamp
+            }
+            st.session_state.comments.append(comment_data)
+            st.sidebar.success("Comment posted!")
+    
+    # Display comments
+    if st.session_state.comments:
+        st.sidebar.markdown("### Recent Comments")
+        for i, comment in enumerate(reversed(st.session_state.comments[-5:])):  # Show last 5 comments
+            st.sidebar.markdown(f"**{comment['name']}** ({comment['timestamp']})")
+            st.sidebar.write(comment['comment'])
+            if i < len(st.session_state.comments[-5:]) - 1:
+                st.sidebar.markdown("---")
+    
+    # Clear comments button (for moderation)
+    if st.sidebar.button("Clear All Comments (Moderator)"):
+        st.session_state.comments = []
+        st.sidebar.success("All comments cleared!")
+
 # Main app interface
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
 current_data_flat = convert_to_flat_dict(current_data)
+
+# Sidebar features
+show_update_history()
+comments_section()
 
 mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Tag Search"])
 
