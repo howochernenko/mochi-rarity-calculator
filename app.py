@@ -12,46 +12,7 @@ try:
 except:
     COMMENTS_FILE = "comments.json"
 
-def load_comments():
-    """Load comments from file with error handling"""
-    try:
-        # First try to load from session state (for current session)
-        if 'persistent_comments' in st.session_state:
-            return st.session_state.persistent_comments
-        
-        # Then try to load from file
-        if os.path.exists(COMMENTS_FILE):
-            with open(COMMENTS_FILE, 'r', encoding='utf-8') as f:
-                comments = json.load(f)
-                # Store in session state for faster access
-                st.session_state.persistent_comments = comments
-                return comments
-    except Exception as e:
-        st.sidebar.error(f"Error loading comments: {e}")
-    
-    # Return empty list if anything fails
-    return []
-
-def save_comments(comments):
-    """Save comments to file and session state"""
-    try:
-        # Save to session state
-        st.session_state.persistent_comments = comments
-        
-        # Try to save to file
-        with open(COMMENTS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(comments, f, indent=2, ensure_ascii=False)
-        return True
-    except Exception as e:
-        st.sidebar.error(f"Error saving comments: {e}")
-        # Even if file save fails, at least we have it in session state
-        return True  # Return True so the app continues
-
 def comments_section():
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("💬 Comments & Feedback")
-    
-   def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
     
@@ -144,6 +105,7 @@ def save_comments(comments):
     """Save comments to session state"""
     st.session_state.persistent_comments = comments
     return True
+
 
 st.title("🌟 Mochis Trade Calculator")
 
