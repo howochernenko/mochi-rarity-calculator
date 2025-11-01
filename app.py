@@ -5,6 +5,86 @@ from datetime import datetime
 import json
 import os
 
+def show_owner_messages():
+    """Show popup messages from the owner when the app starts"""
+    
+    # Initialize session state for messages
+    if 'message_index' not in st.session_state:
+        st.session_state.message_index = 0
+    if 'show_messages' not in st.session_state:
+        st.session_state.show_messages = True
+    
+    # Messages from the owner
+    OWNER_MESSAGES = [
+        "🌟 Hai Welcome to Mochis Trade Calculator!",
+        "📊 This tool helps you calculate fair trades between different mochis.",
+        "💡 Remember about demand and stuff, some mochis like russia/Japan are worth more due to popularity BUT I DON'T CHANGE THE RARITY BASED ON DEMAND plz stop spreadng misinformation ty......don't get scammed",
+        "🐛 Found a bug? Use the comments section or tell me on discord",
+        "📢 u can also suggest new features and stuff okay??okay???",
+        "🎉 ok that's all ty -Howo (me the awesome owner of this site)"
+    ]
+    
+    if st.session_state.show_messages and st.session_state.message_index < len(OWNER_MESSAGES):
+        # Create a popup-like container
+        with st.container():
+            st.markdown("""
+                <style>
+                .owner-message {
+                    background-color: #f0f2f6;
+                    padding: 20px;
+                    border-radius: 10px;
+                    border-left: 5px solid #ff4b4b;
+                    margin: 10px 0px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .owner-header {
+                    color: #ff4b4b;
+                    font-weight: bold;
+                    font-size: 1.2em;
+                    margin-bottom: 10px;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            
+            # Message content
+            st.markdown(f"""
+                <div class="owner-message">
+                    <div class="owner-header">💌 Message from Howo (me the awesome owner)</div>
+                    {OWNER_MESSAGES[st.session_state.message_index]}
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Navigation buttons
+            col1, col2, col3 = st.columns([1, 1, 1])
+            
+            with col1:
+                if st.session_state.message_index > 0:
+                    if st.button("⬅️ Previous", use_container_width=True):
+                        st.session_state.message_index -= 1
+                        st.rerun()
+            
+            with col2:
+                if st.session_state.message_index < len(OWNER_MESSAGES) - 1:
+                    if st.button("Next ➡️", use_container_width=True):
+                        st.session_state.message_index += 1
+                        st.rerun()
+                else:
+                    if st.button("🎉 Got it!", use_container_width=True):
+                        st.session_state.show_messages = False
+                        st.rerun()
+            
+            with col3:
+                if st.button("❌ Close", use_container_width=True):
+                    st.session_state.show_messages = False
+                    st.rerun()
+            
+            # Progress indicator
+            progress = (st.session_state.message_index + 1) / len(OWNER_MESSAGES)
+            st.progress(progress)
+            st.caption(f"Message {st.session_state.message_index + 1} of {len(OWNER_MESSAGES)}")
+
+st.title("🌟 Mochis Trade Calculator")
+show_owner_messages() 
 
 st.title("🌟 Mochis Trade Calculator")
 
