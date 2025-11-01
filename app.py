@@ -51,13 +51,17 @@ def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
     
+   def comments_section():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("💬 Comments & Feedback")
+    
     # Load comments
     comments = load_comments()
     
-    # Comment input form
-    with st.sidebar.form("comment_form", clear_on_submit=True):
-        name = st.text_input("Your name:", placeholder="Anonymous")
-        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100)
+    # Comment input form - use unique key
+    with st.sidebar.form("comment_input_form", clear_on_submit=True):
+        name = st.text_input("Your name:", placeholder="Anonymous", key="comment_name")
+        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100, key="comment_text")
         submitted = st.form_submit_button("💬 Post Comment")
         
         if submitted:
@@ -103,11 +107,11 @@ def comments_section():
         st.session_state.moderator_authenticated = False
     
     if not st.session_state.moderator_authenticated:
-        # Login form
-        with st.sidebar.form("moderator_login"):
+        # Login form - use unique key
+        with st.sidebar.form("moderator_login_form"):
             st.write("Moderator Login")
-            password = st.text_input("Password:", type="password")
-            login_btn = st.form_submit_button("Login")
+            password = st.text_input("Password:", type="password", key="moderator_password")
+            login_btn = st.form_submit_button("Login", key="login_btn")
             
             if login_btn:
                 # CHANGE THIS PASSWORD to something secure!
@@ -119,15 +123,27 @@ def comments_section():
     else:
         # User is authenticated, show clear button
         st.sidebar.success("🔓 Moderator Mode Active")
-        if st.sidebar.button("🗑️ Clear All Comments"):
+        if st.sidebar.button("🗑️ Clear All Comments", key="clear_comments_btn"):
             if save_comments([]):
                 st.sidebar.success("✅ All comments cleared!")
                 st.rerun()
         
         # Logout button
-        if st.sidebar.button("🚪 Logout"):
+        if st.sidebar.button("🚪 Logout", key="logout_btn"):
             st.session_state.moderator_authenticated = False
             st.rerun()
+
+# Simple session state based comments functions
+def load_comments():
+    """Load comments from session state"""
+    if 'persistent_comments' not in st.session_state:
+        st.session_state.persistent_comments = []
+    return st.session_state.persistent_comments
+
+def save_comments(comments):
+    """Save comments to session state"""
+    st.session_state.persistent_comments = comments
+    return True
 
 st.title("🌟 Mochis Trade Calculator")
 
