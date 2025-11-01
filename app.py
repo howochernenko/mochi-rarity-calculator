@@ -2,10 +2,11 @@ import streamlit as st
 import re
 import difflib
 from datetime import datetime
+import json
+import os
 
 st.title("🌟 Mochis Trade Calculator")
 
-# Data with rarities and aliases
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
     0.5: ["soviet union", "ussr"],
@@ -83,7 +84,6 @@ LATVIAVERSE_DATA = {
     15.0: ["gray latvia"]
 }
 
-# Update history
 UPDATE_HISTORY = [
     {"date": "2025-10-10", "changes": "Added Neko Spain, Neko China, Neko Canada. Fixed some mochi placements."},
     {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
@@ -312,16 +312,35 @@ def show_update_history():
         with st.sidebar.expander(f"📅 {update['date']}"):
             st.write(update['changes'])
 
+COMMENTS_FILE = "comments.json"
+
+def load_comments():
+    """Load comments from JSON file"""
+    try:
+        if os.path.exists(COMMENTS_FILE):
+            with open(COMMENTS_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return []
+
+def save_comments(comments):
+    """Save comments to JSON file"""
+    try:
+        with open(COMMENTS_FILE, 'w') as f:
+            json.dump(comments, f, indent=2)
+    except Exception as e:
+        st.sidebar.error(f"Error saving comments: {e}")
+
 def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
     
-    # Initialize session state for comments
-    if 'comments' not in st.session_state:
-        st.session_state.comments = []
+    # Load comments from file
+    comments = load_comments()
     
     # Comment input
-    with st.sidebar.form("comment_form"):
+    with st.sidebar.form("comment_form", clear_on_submit=True):
         name = st.text_input("Your name:", placeholder="Anonymous")
         comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...")
         submitted = st.form_submit_button("Post Comment")
@@ -333,22 +352,25 @@ def comments_section():
                 "comment": comment.strip(),
                 "timestamp": timestamp
             }
-            st.session_state.comments.append(comment_data)
+            comments.append(comment_data)
+            save_comments(comments)
             st.sidebar.success("Comment posted!")
+            st.rerun()  # Refresh to show the new comment
     
     # Display comments
-    if st.session_state.comments:
+    if comments:
         st.sidebar.markdown("### Recent Comments")
-        for i, comment in enumerate(reversed(st.session_state.comments[-5:])):  # Show last 5 comments
+        for i, comment in enumerate(reversed(comments[-10:])):  # Show last 10 comments
             st.sidebar.markdown(f"**{comment['name']}** ({comment['timestamp']})")
             st.sidebar.write(comment['comment'])
-            if i < len(st.session_state.comments[-5:]) - 1:
+            if i < len(comments[-10:]) - 1:
                 st.sidebar.markdown("---")
     
     # Clear comments button (for moderation)
     if st.sidebar.button("Clear All Comments (Moderator)"):
-        st.session_state.comments = []
+        save_comments([])
         st.sidebar.success("All comments cleared!")
+        st.rerun()
 
 # Main app interface
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
