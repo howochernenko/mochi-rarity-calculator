@@ -91,6 +91,30 @@ UPDATE_HISTORY = [
     {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
 ]
 
+# Add these constants near the top of your script
+COMMENTS_FILE = "mochi_comments.json"
+MODERATOR_PASSWORD = "moderator123"  # Change this to your desired password
+
+def load_comments():
+    """Load comments from JSON file"""
+    try:
+        if os.path.exists(COMMENTS_FILE):
+            with open(COMMENTS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        st.sidebar.error(f"Error loading comments: {e}")
+    return []
+
+def save_comments(comments):
+    """Save comments to JSON file"""
+    try:
+        with open(COMMENTS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(comments, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        st.sidebar.error(f"Error saving comments: {e}")
+        return False
+
 def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
@@ -151,12 +175,13 @@ def comments_section():
             st.session_state.show_password_field = True
             st.rerun()
     else:
+        st.sidebar.warning("⚠️ This will permanently delete all comments!")
         password = st.sidebar.text_input("Enter moderator password:", type="password")
         col1, col2 = st.sidebar.columns(2)
         
         with col1:
             if st.button("✅ Confirm Clear"):
-                if password == "ukrowocanon":
+                if password == MODERATOR_PASSWORD:
                     if save_comments([]):
                         st.session_state.show_password_field = False
                         st.sidebar.success("✅ All comments cleared!")
