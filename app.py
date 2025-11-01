@@ -313,7 +313,6 @@ def show_update_history():
         with st.sidebar.expander(f"📅 {update['date']}"):
             st.write(update['changes'])
 
-COMMENTS_FILE = "comments.json"
 
 def comments_section():
     st.sidebar.markdown("---")
