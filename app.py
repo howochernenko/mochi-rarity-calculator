@@ -314,11 +314,22 @@ def show_update_history():
             st.write(update['changes'])
 
 
+def load_comments():
+    """Load comments from session state"""
+    if 'comments' not in st.session_state:
+        st.session_state.comments = []
+    return st.session_state.comments
+
+def save_comments(comments):
+    """Save comments to session state"""
+    st.session_state.comments = comments
+    return True
+
 def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
     
-    # Load comments from file
+    # Load comments from session state
     comments = load_comments()
     
     # Comment input form
@@ -361,20 +372,34 @@ def comments_section():
     else:
         st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
     
-    # Clear comments button (for moderation) - PROTECTED
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 🔒 Moderator Tools")
     
-    # Password protection for clear comments
-    with st.sidebar.expander("Clear All Comments (Moderator Only)"):
-        password = st.text_input("Enter moderator password:", type="password")
-        if st.button("🗑️ Clear All Comments"):
-            if password == "kindcake50": 
-                if save_comments([]):
-                    st.success("✅ All comments cleared!")
+    if 'moderator_authenticated' not in st.session_state:
+        st.session_state.moderator_authenticated = False
+    
+    if not st.session_state.moderator_authenticated:
+        with st.sidebar.form("moderator_login"):
+            st.write("Moderator Login")
+            password = st.text_input("Password:", type="password")
+            login_btn = st.form_submit_button("Login")
+            
+            if login_btn:
+                if password == "ukrowocanon":  
+                    st.session_state.moderator_authenticated = True
                     st.rerun()
-            else:
-                st.error("❌ Incorrect password!")
+                else:
+                    st.error("❌ Incorrect password!")
+    else:
+        st.sidebar.success("🔓 Moderator Mode Active")
+        if st.sidebar.button("🗑️ Clear All Comments"):
+            if save_comments([]):
+                st.sidebar.success("✅ All comments cleared!")
+                st.rerun()
+        
+        if st.sidebar.button("🚪 Logout"):
+            st.session_state.moderator_authenticated = False
+            st.rerun()
 
 # Main app interface
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
