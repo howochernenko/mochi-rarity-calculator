@@ -6,37 +6,76 @@ import json
 import os
 
 
+try:
+    # Try to get comments file path from secrets, fallback to default
+    COMMENTS_FILE = st.secrets.get("comments_file", "comments.json")
+except:
+    COMMENTS_FILE = "comments.json"
+
+def load_comments():
+    """Load comments from file with error handling"""
+    try:
+        # First try to load from session state (for current session)
+        if 'persistent_comments' in st.session_state:
+            return st.session_state.persistent_comments
+        
+        # Then try to load from file
+        if os.path.exists(COMMENTS_FILE):
+            with open(COMMENTS_FILE, 'r', encoding='utf-8') as f:
+                comments = json.load(f)
+                # Store in session state for faster access
+                st.session_state.persistent_comments = comments
+                return comments
+    except Exception as e:
+        st.sidebar.error(f"Error loading comments: {e}")
+    
+    # Return empty list if anything fails
+    return []
+
+def save_comments(comments):
+    """Save comments to file and session state"""
+    try:
+        # Save to session state
+        st.session_state.persistent_comments = comments
+        
+        # Try to save to file
+        with open(COMMENTS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(comments, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        st.sidebar.error(f"Error saving comments: {e}")
+        # Even if file save fails, at least we have it in session state
+        return True  # Return True so the app continues
+
 def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
     
-    # Load comments from session state
+    # Load comments
     comments = load_comments()
     
-    # Comment section - using columns instead of form for better layout
-    col1, col2 = st.sidebar.columns([1, 1])
-    
-    with col1:
-        st.write("**Add Comment**")
-    
-    # Comment input using a different approach
-    name = st.sidebar.text_input("Your name:", placeholder="Anonymous", key="comment_name")
-    comment = st.sidebar.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100, key="comment_text")
-    
-    if st.sidebar.button("💬 Post Comment", key="post_comment"):
-        if comment.strip():
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            comment_data = {
-                "name": name.strip() or "Anonymous",
-                "comment": comment.strip(),
-                "timestamp": timestamp
-            }
-            comments.append(comment_data)
-            if save_comments(comments):
-                st.sidebar.success("✅ Comment posted successfully!")
-                st.rerun()
-        else:
-            st.sidebar.warning("⚠️ Please write a comment before posting")
+    # Comment input form
+    with st.sidebar.form("comment_form", clear_on_submit=True):
+        name = st.text_input("Your name:", placeholder="Anonymous")
+        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100)
+        submitted = st.form_submit_button("💬 Post Comment")
+        
+        if submitted:
+            if comment.strip():
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                comment_data = {
+                    "name": name.strip() or "Anonymous",
+                    "comment": comment.strip(),
+                    "timestamp": timestamp
+                }
+                comments.append(comment_data)
+                if save_comments(comments):
+                    st.sidebar.success("✅ Comment posted successfully!")
+                    st.rerun()
+                else:
+                    st.sidebar.error("❌ Failed to save comment")
+            else:
+                st.sidebar.warning("⚠️ Please write a comment before posting")
     
     # Display comments
     if comments:
@@ -55,7 +94,7 @@ def comments_section():
     else:
         st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
     
-    # Moderator tools - completely separate section
+    # Clear comments button (for moderation) - PROTECTED
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 🔒 Moderator Tools")
     
@@ -64,26 +103,29 @@ def comments_section():
         st.session_state.moderator_authenticated = False
     
     if not st.session_state.moderator_authenticated:
-        # Simple login without form
-        st.sidebar.write("Moderator Login")
-        password = st.sidebar.text_input("Password:", type="password", key="mod_password")
-        
-        if st.sidebar.button("Login", key="mod_login"):
-            if password == "ukrowocanon":  
-                st.session_state.moderator_authenticated = True
-                st.rerun()
-            else:
-                st.sidebar.error("❌ Incorrect password!")
+        # Login form
+        with st.sidebar.form("moderator_login"):
+            st.write("Moderator Login")
+            password = st.text_input("Password:", type="password")
+            login_btn = st.form_submit_button("Login")
+            
+            if login_btn:
+                # CHANGE THIS PASSWORD to something secure!
+                if password == "mochi_moderator_2024":  
+                    st.session_state.moderator_authenticated = True
+                    st.rerun()
+                else:
+                    st.error("❌ Incorrect password!")
     else:
-        # User is authenticated
+        # User is authenticated, show clear button
         st.sidebar.success("🔓 Moderator Mode Active")
-        
-        if st.sidebar.button("🗑️ Clear All Comments", key="clear_comments"):
+        if st.sidebar.button("🗑️ Clear All Comments"):
             if save_comments([]):
                 st.sidebar.success("✅ All comments cleared!")
                 st.rerun()
         
-        if st.sidebar.button("🚪 Logout", key="mod_logout"):
+        # Logout button
+        if st.sidebar.button("🚪 Logout"):
             st.session_state.moderator_authenticated = False
             st.rerun()
 
