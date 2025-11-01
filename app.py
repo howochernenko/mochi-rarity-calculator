@@ -6,6 +6,101 @@ import json
 import os
 
 
+def load_comments():
+    """Load comments from session state"""
+    if 'comments' not in st.session_state:
+        st.session_state.comments = []
+    return st.session_state.comments
+
+def save_comments(comments):
+    """Save comments to session state"""
+    st.session_state.comments = comments
+    return True
+
+def show_update_history():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📋 Update History")
+    for update in UPDATE_HISTORY:
+        with st.sidebar.expander(f"📅 {update['date']}"):
+            st.write(update['changes'])
+
+def comments_section():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("💬 Comments & Feedback")
+    
+    # Load comments from session state
+    comments = load_comments()
+    
+    # Comment input form
+    with st.sidebar.form("comment_form", clear_on_submit=True):
+        name = st.text_input("Your name:", placeholder="Anonymous")
+        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100)
+        submitted = st.form_submit_button("💬 Post Comment")
+        
+        if submitted:
+            if comment.strip():
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                comment_data = {
+                    "name": name.strip() or "Anonymous",
+                    "comment": comment.strip(),
+                    "timestamp": timestamp
+                }
+                comments.append(comment_data)
+                if save_comments(comments):
+                    st.sidebar.success("✅ Comment posted successfully!")
+                    st.rerun()
+                else:
+                    st.sidebar.error("❌ Failed to save comment")
+            else:
+                st.sidebar.warning("⚠️ Please write a comment before posting")
+    
+    # Display comments
+    if comments:
+        st.sidebar.markdown(f"### 📝 Recent Comments ({len(comments)} total)")
+        
+        # Show last 10 comments (newest first)
+        recent_comments = list(reversed(comments[-10:]))
+        
+        for i, comment in enumerate(recent_comments):
+            st.sidebar.markdown(f"**{comment['name']}** *({comment['timestamp']})*")
+            st.sidebar.write(comment['comment'])
+            
+            # Add separator between comments (but not after the last one)
+            if i < len(recent_comments) - 1:
+                st.sidebar.markdown("---")
+    else:
+        st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
+    
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🔒 Moderator Tools")
+    
+    if 'moderator_authenticated' not in st.session_state:
+        st.session_state.moderator_authenticated = False
+    
+    if not st.session_state.moderator_authenticated:
+        with st.sidebar.form("moderator_login"):
+            st.write("Moderator Login")
+            password = st.text_input("Password:", type="password")
+            login_btn = st.form_submit_button("Login")
+            
+            if login_btn:
+                if password == "ukrowocanon":  
+                    st.session_state.moderator_authenticated = True
+                    st.rerun()
+                else:
+                    st.error("❌ Incorrect password!")
+    else:
+        st.sidebar.success("🔓 Moderator Mode Active")
+        if st.sidebar.button("🗑️ Clear All Comments"):
+            if save_comments([]):
+                st.sidebar.success("✅ All comments cleared!")
+                st.rerun()
+        
+        # Logout button
+        if st.sidebar.button("🚪 Logout"):
+            st.session_state.moderator_authenticated = False
+            st.rerun()
+
 st.title("🌟 Mochis Trade Calculator")
 
 MOCHI_DATA = {
@@ -314,115 +409,6 @@ def show_update_history():
         with st.sidebar.expander(f"📅 {update['date']}"):
             st.write(update['changes'])
 
-
-def comments_section():
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("💬 Comments & Feedback")
-    
-    # Load comments from file
-    comments = load_comments()
-    
-    # Comment input form - MOVED OUTSIDE OF ANY OTHER FORM
-    with st.sidebar.form("comment_form", clear_on_submit=True):
-        name = st.text_input("Your name:", placeholder="Anonymous")
-        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100)
-        submitted = st.form_submit_button("💬 Post Comment")
-        
-        if submitted:
-            if comment.strip():
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                comment_data = {
-                    "name": name.strip() or "Anonymous",
-                    "comment": comment.strip(),
-                    "timestamp": timestamp
-                }
-                comments.append(comment_data)
-                if save_comments(comments):
-                    st.sidebar.success("✅ Comment posted successfully!")
-                    st.rerun()
-                else:
-                    st.sidebar.error("❌ Failed to save comment")
-            else:
-                st.sidebar.warning("⚠️ Please write a comment before posting")
-    
-    # Display comments (NOT inside any form)
-    if comments:
-        st.sidebar.markdown(f"### 📝 Recent Comments ({len(comments)} total)")
-        
-        # Show last 10 comments (newest first)
-        recent_comments = list(reversed(comments[-10:]))
-        
-        for i, comment in enumerate(recent_comments):
-            st.sidebar.markdown(f"**{comment['name']}** *({comment['timestamp']})*")
-            st.sidebar.write(comment['comment'])
-            
-            # Add separator between comments (but not after the last one)
-            if i < len(recent_comments) - 1:
-                st.sidebar.markdown("---")
-    else:
-        st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
-    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🔒 Moderator Tools")
-    
-    if 'moderator_authenticated' not in st.session_state:
-        st.session_state.moderator_authenticated = False
-    
-    if not st.session_state.moderator_authenticated:
-        with st.sidebar.form("moderator_login"):
-            st.write("Moderator Login")
-            password = st.text_input("Password:", type="password")
-            login_btn = st.form_submit_button("Login")
-            
-            if login_btn:
-                if password == "ukrowocanon":  
-                    st.session_state.moderator_authenticated = True
-                    st.rerun()
-                else:
-                    st.error("❌ Incorrect password!")
-    else:
-        st.sidebar.success("🔓 Moderator Mode Active")
-        if st.sidebar.button("🗑️ Clear All Comments"):
-            if save_comments([]):
-                st.sidebar.success("✅ All comments cleared!")
-                st.rerun()
-        
-        # Logout button - NOT inside a form
-        if st.sidebar.button("🚪 Logout"):
-            st.session_state.moderator_authenticated = False
-            st.rerun()
-    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🔒 Moderator Tools")
-    
-    if 'moderator_authenticated' not in st.session_state:
-        st.session_state.moderator_authenticated = False
-    
-    if not st.session_state.moderator_authenticated:
-        # Login form
-        with st.sidebar.form("moderator_login"):
-            st.write("Moderator Login")
-            password = st.text_input("Password:", type="password")
-            login_btn = st.form_submit_button("Login")
-            
-            if login_btn:
-                if password == "ukrowocanon":  
-                    st.session_state.moderator_authenticated = True
-                    st.rerun()
-                else:
-                    st.error("❌ Incorrect password!")
-    else:
-        # User is authenticated, show clear button
-        st.sidebar.success("🔓 Moderator Mode Active")
-        if st.sidebar.button("🗑️ Clear All Comments"):
-            if save_comments([]):
-                st.sidebar.success("✅ All comments cleared!")
-                st.rerun()
-        
-        # Logout button
-        if st.sidebar.button("🚪 Logout"):
-            st.session_state.moderator_authenticated = False
-            st.rerun()
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 🔒 Moderator Tools")
