@@ -85,6 +85,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
+    {"date": "2025-10-31", "changes": "fixed comment section, added some message thingy that appear when you open the calculator"},
     {"date": "2025-10-10", "changes": "Added Neko Spain, Neko China, Neko Canada. Fixed some mochi placements."},
     {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
 ]
