@@ -6,107 +6,6 @@ import json
 import os
 
 
-try:
-    # Try to get comments file path from secrets, fallback to default
-    COMMENTS_FILE = st.secrets.get("comments_file", "comments.json")
-except:
-    COMMENTS_FILE = "comments.json"
-
-def comments_section():
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("💬 Comments & Feedback")
-    
-    # Load comments
-    comments = load_comments()
-    
-    # Comment input form - use unique key
-    with st.sidebar.form("comment_input_form", clear_on_submit=True):
-        name = st.text_input("Your name:", placeholder="Anonymous", key="comment_name")
-        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100, key="comment_text")
-        submitted = st.form_submit_button("💬 Post Comment")
-        
-        if submitted:
-            if comment.strip():
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                comment_data = {
-                    "name": name.strip() or "Anonymous",
-                    "comment": comment.strip(),
-                    "timestamp": timestamp
-                }
-                comments.append(comment_data)
-                if save_comments(comments):
-                    st.sidebar.success("✅ Comment posted successfully!")
-                    st.rerun()
-                else:
-                    st.sidebar.error("❌ Failed to save comment")
-            else:
-                st.sidebar.warning("⚠️ Please write a comment before posting")
-    
-    # Display comments
-    if comments:
-        st.sidebar.markdown(f"### 📝 Recent Comments ({len(comments)} total)")
-        
-        # Show last 10 comments (newest first)
-        recent_comments = list(reversed(comments[-10:]))
-        
-        for i, comment in enumerate(recent_comments):
-            st.sidebar.markdown(f"**{comment['name']}** *({comment['timestamp']})*")
-            st.sidebar.write(comment['comment'])
-            
-            # Add separator between comments (but not after the last one)
-            if i < len(recent_comments) - 1:
-                st.sidebar.markdown("---")
-    else:
-        st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
-    
-    # Clear comments button (for moderation) - PROTECTED
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🔒 Moderator Tools")
-    
-    # Check if user is already authenticated
-    if 'moderator_authenticated' not in st.session_state:
-        st.session_state.moderator_authenticated = False
-    
-    if not st.session_state.moderator_authenticated:
-        # Login form - use unique key
-        with st.sidebar.form("moderator_login_form"):
-            st.write("Moderator Login")
-            password = st.text_input("Password:", type="password", key="moderator_password")
-            login_btn = st.form_submit_button("Login", key="login_btn")
-            
-            if login_btn:
-                # CHANGE THIS PASSWORD to something secure!
-                if password == "mochi_moderator_2024":  
-                    st.session_state.moderator_authenticated = True
-                    st.rerun()
-                else:
-                    st.error("❌ Incorrect password!")
-    else:
-        # User is authenticated, show clear button
-        st.sidebar.success("🔓 Moderator Mode Active")
-        if st.sidebar.button("🗑️ Clear All Comments", key="clear_comments_btn"):
-            if save_comments([]):
-                st.sidebar.success("✅ All comments cleared!")
-                st.rerun()
-        
-        # Logout button
-        if st.sidebar.button("🚪 Logout", key="logout_btn"):
-            st.session_state.moderator_authenticated = False
-            st.rerun()
-
-# Simple session state based comments functions
-def load_comments():
-    """Load comments from session state"""
-    if 'persistent_comments' not in st.session_state:
-        st.session_state.persistent_comments = []
-    return st.session_state.persistent_comments
-
-def save_comments(comments):
-    """Save comments to session state"""
-    st.session_state.persistent_comments = comments
-    return True
-
-
 st.title("🌟 Mochis Trade Calculator")
 
 MOCHI_DATA = {
@@ -191,6 +90,87 @@ UPDATE_HISTORY = [
     {"date": "2025-10-10", "changes": "Added Neko Spain, Neko China, Neko Canada. Fixed some mochi placements."},
     {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
 ]
+
+def comments_section():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("💬 Comments & Feedback")
+    
+    # Load comments from file
+    comments = load_comments()
+    
+    # Comment input form
+    with st.sidebar.form("comment_form", clear_on_submit=True):
+        name = st.text_input("Your name:", placeholder="Anonymous")
+        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100)
+        submitted = st.form_submit_button("💬 Post Comment")
+        
+        if submitted:
+            if comment.strip():
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                comment_data = {
+                    "name": name.strip() or "Anonymous",
+                    "comment": comment.strip(),
+                    "timestamp": timestamp
+                }
+                comments.append(comment_data)
+                if save_comments(comments):
+                    st.sidebar.success("✅ Comment posted successfully!")
+                    st.rerun()
+                else:
+                    st.sidebar.error("❌ Failed to save comment")
+            else:
+                st.sidebar.warning("⚠️ Please write a comment before posting")
+    
+    # Display comments
+    if comments:
+        st.sidebar.markdown(f"### 📝 Recent Comments ({len(comments)} total)")
+        
+        # Show last 10 comments (newest first)
+        recent_comments = list(reversed(comments[-10:]))
+        
+        for i, comment in enumerate(recent_comments):
+            st.sidebar.markdown(f"**{comment['name']}** *({comment['timestamp']})*")
+            st.sidebar.write(comment['comment'])
+            
+            # Add separator between comments (but not after the last one)
+            if i < len(recent_comments) - 1:
+                st.sidebar.markdown("---")
+    else:
+        st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
+    
+    # Clear comments button with password protection
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🔒 Moderator Tools")
+    
+    # Initialize session state for password
+    if 'show_password_field' not in st.session_state:
+        st.session_state.show_password_field = False
+    
+    if not st.session_state.show_password_field:
+        if st.sidebar.button("🗑️ Clear All Comments"):
+            st.session_state.show_password_field = True
+            st.rerun()
+    else:
+        password = st.sidebar.text_input("Enter moderator password:", type="password")
+        col1, col2 = st.sidebar.columns(2)
+        
+        with col1:
+            if st.button("✅ Confirm Clear"):
+                if password == "ukrowocanon":
+                    if save_comments([]):
+                        st.session_state.show_password_field = False
+                        st.sidebar.success("✅ All comments cleared!")
+                        st.rerun()
+                    else:
+                        st.sidebar.error("❌ Failed to clear comments")
+                else:
+                    st.sidebar.error("❌ Incorrect password")
+        
+        with col2:
+            if st.button("❌ Cancel"):
+                st.session_state.show_password_field = False
+                st.rerun()
+                
 
 def normalize_name(name: str) -> str:
     """Normalize input for matching: lower case, remove punctuation, replace dashes."""
