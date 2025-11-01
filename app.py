@@ -91,10 +91,8 @@ UPDATE_HISTORY = [
     {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
 ]
 
-# Add these constants near the top of your script
 COMMENTS_FILE = "mochi_comments.json"
-MODERATOR_PASSWORD = "moderator123"  # Change this to your desired password
-
+MODERATOR_PASSWORD = "ukrowocanon"  
 def load_comments():
     """Load comments from JSON file"""
     try:
