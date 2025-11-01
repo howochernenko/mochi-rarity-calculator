@@ -5,6 +5,33 @@ from datetime import datetime
 import json
 import os
 
+def load_comments():
+    """Load comments using st.experimental_connection"""
+    try:
+        # Try to use experimental connection for persistence
+        conn = st.experimental_connection('comments', type='file', path='comments.json')
+        try:
+            data = conn.read()
+            return json.loads(data)
+        except:
+            return []
+    except:
+        # Fallback to session state
+        if 'comments' not in st.session_state:
+            st.session_state.comments = []
+        return st.session_state.comments
+
+def save_comments(comments):
+    """Save comments using st.experimental_connection"""
+    try:
+        conn = st.experimental_connection('comments', type='file', path='comments.json')
+        conn.write(json.dumps(comments))
+        return True
+    except:
+        # Fallback to session state
+        st.session_state.comments = comments
+        return True
+
 st.title("🌟 Mochis Trade Calculator")
 
 MOCHI_DATA = {
