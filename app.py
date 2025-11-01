@@ -21,8 +21,8 @@ def show_owner_messages():
         "Remember about demand and stuff, some mochis like russia/Japan are worth more due to popularity BUT I DON'T CHANGE THE RARITY BASED ON DEMAND plz stop spreadng misinformation ty......don't get scammed",
         "Found a bug? Use the comments section or tell me on discord",
         "Make sure to scroll down and check the disclaimer and tutorial part.....it's important oaky?",
-        "u can also suggest new features and stuff okay??okay???",
-        "bro i'm lowkey crashing out ugh if u have any problem with this calculator tell me in comment section or just tell in on discord",
+        "u can also suggest new features and stuff okay??okay???...plz leave some comment if u like this calculator i need motive",
+        "bro i'm lowkey crashing out ugh if u have any problem with this calculator tell me in comment section or just tell in on discord plz don't hate me...",
         "🎉 ok that's all ty -Howo (me the awesome owner of this site)"
     ]
     
