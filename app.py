@@ -366,11 +366,24 @@ def comments_section():
             if i < len(comments[-10:]) - 1:
                 st.sidebar.markdown("---")
     
-    # Clear comments button (for moderation)
-    if st.sidebar.button("Clear All Comments (Moderator)"):
-        save_comments([])
-        st.sidebar.success("All comments cleared!")
-        st.rerun()
+   
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🔒 Moderator Tools")
+    
+    MODERATOR_PASSWORD = os.getenv("kindcake50", "default_password")
+    
+    # Simple password check
+    with st.sidebar.expander("Clear All Comments (Moderator Only)"):
+        password = st.text_input("Enter moderator password:", type="password")
+        if st.button("🗑️ Clear All Comments"):
+            if password == MODERATOR_PASSWORD:
+                if save_comments([]):
+                    st.success("✅ All comments cleared!")
+                    st.rerun()
+                else:
+                    st.error("❌ Failed to clear comments")
+            else:
+                st.error("❌ Incorrect password!")
 
 # Main app interface
 mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
