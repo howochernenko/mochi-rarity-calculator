@@ -5,32 +5,6 @@ from datetime import datetime
 import json
 import os
 
-def load_comments():
-    """Load comments using st.experimental_connection"""
-    try:
-        # Try to use experimental connection for persistence
-        conn = st.experimental_connection('comments', type='file', path='comments.json')
-        try:
-            data = conn.read()
-            return json.loads(data)
-        except:
-            return []
-    except:
-        # Fallback to session state
-        if 'comments' not in st.session_state:
-            st.session_state.comments = []
-        return st.session_state.comments
-
-def save_comments(comments):
-    """Save comments using st.experimental_connection"""
-    try:
-        conn = st.experimental_connection('comments', type='file', path='comments.json')
-        conn.write(json.dumps(comments))
-        return True
-    except:
-        # Fallback to session state
-        st.session_state.comments = comments
-        return True
 
 st.title("🌟 Mochis Trade Calculator")
 
@@ -341,22 +315,33 @@ def show_update_history():
             st.write(update['changes'])
 
 
+COMMENTS_FILE = "comments.json"
+
 def load_comments():
-    """Load comments from session state"""
-    if 'comments' not in st.session_state:
-        st.session_state.comments = []
-    return st.session_state.comments
+    """Load comments from JSON file"""
+    try:
+        if os.path.exists(COMMENTS_FILE):
+            with open(COMMENTS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        st.sidebar.error(f"Error loading comments: {e}")
+    return []
 
 def save_comments(comments):
-    """Save comments to session state"""
-    st.session_state.comments = comments
-    return True
+    """Save comments to JSON file"""
+    try:
+        with open(COMMENTS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(comments, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        st.sidebar.error(f"Error saving comments: {e}")
+        return False
 
 def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
     
-    # Load comments from session state
+    # Load comments from file
     comments = load_comments()
     
     # Comment input form
@@ -398,6 +383,38 @@ def comments_section():
                 st.sidebar.markdown("---")
     else:
         st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
+    
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🔒 Moderator Tools")
+    
+    if 'moderator_authenticated' not in st.session_state:
+        st.session_state.moderator_authenticated = False
+    
+    if not st.session_state.moderator_authenticated:
+        # Login form
+        with st.sidebar.form("moderator_login"):
+            st.write("Moderator Login")
+            password = st.text_input("Password:", type="password")
+            login_btn = st.form_submit_button("Login")
+            
+            if login_btn:
+                if password == "ukrowocanon":  
+                    st.session_state.moderator_authenticated = True
+                    st.rerun()
+                else:
+                    st.error("❌ Incorrect password!")
+    else:
+        # User is authenticated, show clear button
+        st.sidebar.success("🔓 Moderator Mode Active")
+        if st.sidebar.button("🗑️ Clear All Comments"):
+            if save_comments([]):
+                st.sidebar.success("✅ All comments cleared!")
+                st.rerun()
+        
+        # Logout button
+        if st.sidebar.button("🚪 Logout"):
+            st.session_state.moderator_authenticated = False
+            st.rerun()
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 🔒 Moderator Tools")
