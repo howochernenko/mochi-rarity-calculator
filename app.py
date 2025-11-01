@@ -315,24 +315,6 @@ def show_update_history():
 
 COMMENTS_FILE = "comments.json"
 
-def load_comments():
-    """Load comments from JSON file"""
-    try:
-        if os.path.exists(COMMENTS_FILE):
-            with open(COMMENTS_FILE, 'r') as f:
-                return json.load(f)
-    except:
-        pass
-    return []
-
-def save_comments(comments):
-    """Save comments to JSON file"""
-    try:
-        with open(COMMENTS_FILE, 'w') as f:
-            json.dump(comments, f, indent=2)
-    except Exception as e:
-        st.sidebar.error(f"Error saving comments: {e}")
-
 def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
@@ -340,49 +322,58 @@ def comments_section():
     # Load comments from file
     comments = load_comments()
     
-    # Comment input
+    # Comment input form
     with st.sidebar.form("comment_form", clear_on_submit=True):
         name = st.text_input("Your name:", placeholder="Anonymous")
-        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...")
-        submitted = st.form_submit_button("Post Comment")
+        comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100)
+        submitted = st.form_submit_button("💬 Post Comment")
         
-        if submitted and comment.strip():
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-            comment_data = {
-                "name": name.strip() or "Anonymous",
-                "comment": comment.strip(),
-                "timestamp": timestamp
-            }
-            comments.append(comment_data)
-            save_comments(comments)
-            st.sidebar.success("Comment posted!")
-            st.rerun()  # Refresh to show the new comment
+        if submitted:
+            if comment.strip():
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                comment_data = {
+                    "name": name.strip() or "Anonymous",
+                    "comment": comment.strip(),
+                    "timestamp": timestamp
+                }
+                comments.append(comment_data)
+                if save_comments(comments):
+                    st.sidebar.success("✅ Comment posted successfully!")
+                    st.rerun()
+                else:
+                    st.sidebar.error("❌ Failed to save comment")
+            else:
+                st.sidebar.warning("⚠️ Please write a comment before posting")
     
     # Display comments
     if comments:
-        st.sidebar.markdown("### Recent Comments")
-        for i, comment in enumerate(reversed(comments[-10:])):  # Show last 10 comments
-            st.sidebar.markdown(f"**{comment['name']}** ({comment['timestamp']})")
+        st.sidebar.markdown(f"### 📝 Recent Comments ({len(comments)} total)")
+        
+        # Show last 10 comments (newest first)
+        recent_comments = list(reversed(comments[-10:]))
+        
+        for i, comment in enumerate(recent_comments):
+            st.sidebar.markdown(f"**{comment['name']}** *({comment['timestamp']})*")
             st.sidebar.write(comment['comment'])
-            if i < len(comments[-10:]) - 1:
+            
+            # Add separator between comments (but not after the last one)
+            if i < len(recent_comments) - 1:
                 st.sidebar.markdown("---")
+    else:
+        st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
     
-   
+    # Clear comments button (for moderation) - PROTECTED
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 🔒 Moderator Tools")
     
-    MODERATOR_PASSWORD = os.getenv("kindcake50", "default_password")
-    
-    # Simple password check
+    # Password protection for clear comments
     with st.sidebar.expander("Clear All Comments (Moderator Only)"):
         password = st.text_input("Enter moderator password:", type="password")
         if st.button("🗑️ Clear All Comments"):
-            if password == MODERATOR_PASSWORD:
+            if password == "kindcake50": 
                 if save_comments([]):
                     st.success("✅ All comments cleared!")
                     st.rerun()
-                else:
-                    st.error("❌ Failed to clear comments")
             else:
                 st.error("❌ Incorrect password!")
 
