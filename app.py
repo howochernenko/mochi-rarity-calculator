@@ -509,6 +509,16 @@ def compare_two_mochis_detailed(have_entry, want_entry, mochi_type="common"):
             st.write(f"Since {ratio:.4f} ≥ 1, you need more of yours:")
             st.success(f"**You need {ratio:.2f}× of your {have_name.title()} for a fair trade**")
 
+mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
+current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
+current_data_flat = convert_to_flat_dict(current_data)
+
+# Sidebar features
+show_update_history()
+comments_section()
+
+mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Tag Search"])
+
 # Update the Compare two mochis section
 if mode == "Compare two mochis":
     col1, col2 = st.columns(2)
@@ -676,15 +686,7 @@ def show_update_history():
             st.session_state.moderator_authenticated = False
             st.rerun()
 
-mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
-current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
-current_data_flat = convert_to_flat_dict(current_data)
 
-# Sidebar features
-show_update_history()
-comments_section()
-
-mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Tag Search"])
 
 if mode == "Name ↔ Rarity Lookup":
     st.subheader("🔍 Mochi Name ⇄ Rarity")
