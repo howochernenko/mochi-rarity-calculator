@@ -302,11 +302,10 @@ def suggest_similar_mochis(input_name, data):
     return matches
 
 def parse_entry(entry: str, mochi_type="common"):
-    """Parse a single entry like '3 russia' or 'russia x3' and return float value (amount / rarity)."""
+    """Parse a single entry like '3 russia' and return float value (amount / rarity)."""
     entry = entry.strip().lower()
     
-    # Try format: "3 russia"
-    if re.match(r"^\d+", entry):
+   if re.match(r"^\d+", entry):
         parts = re.split(r"\s+", entry, 1)
         if len(parts) == 2:
             try:
@@ -317,39 +316,54 @@ def parse_entry(entry: str, mochi_type="common"):
                     if re.match(r"^\d+(\.\d+)?$", name_part):
                         rarity = float(name_part)
                     else:
-                        return None
-                return amount / rarity if rarity else None
+                        return None, None, None
+                value = amount / rarity if rarity else None
+                return value, amount, rarity
             except:
-                return None
-    
-    # Try format: "russia x3"
-    if "x" in entry:
-        parts = entry.split("x")
-        if len(parts) >= 2:
-            name_part = parts[0].strip()
-            amount_str = parts[1].strip()
-            rarity = get_rarity_by_name(name_part, mochi_type)
-            if rarity is None:
-                if re.match(r"^\d+(\.\d+)?$", name_part):
-                    rarity = float(name_part)
-                else:
-                    return None
-            try:
-                amount = float(amount_str)
-                return amount / rarity if rarity else None
-            except:
-                return None
-    
-    # Handle single number or name without amount
-    if re.match(r"^\d+(\.\d+)?$", entry):
+                return None, None, None
+
+  if re.match(r"^\d+(\.\d+)?$", entry):
         try:
-            return 1 / float(entry)
+            rarity = float(entry)
+            return 1 / rarity, 1, rarity
         except:
-            return None
-    rarity = get_rarity_by_name(entry, mochi_type)
+            return None, None, None
+             rarity = get_rarity_by_name(entry, mochi_type)
     if rarity:
-        return 1 / rarity
-    return None
+        return 1 / rarity, 1, rarity
+    
+    return None, None, None
+
+def show_detailed_calculation(entries, target_mochi, target_rarity, mochi_type="common"):
+    """Show detailed calculation breakdown"""
+    st.subheader("🧮 Detailed Calculation")
+    
+    total_value = 0
+    calculation_steps = []
+    
+    for entry in entries:
+        val, amount, rarity = parse_entry(entry, mochi_type)
+        if val is not None:
+            total_value += val
+            mochi_name = entry.split(' ', 1)[1] if ' ' in entry else entry
+            calculation_steps.append(f"{amount} {mochi_name.title()}({rarity}) = {amount}/{rarity} = {val:.4f}")
+    
+    if calculation_steps:
+        st.write("**Step 1: Calculate total value**")
+        for step in calculation_steps:
+            st.write(f"• {step}")
+        
+        st.write(f"**Total Value = {total_value:.4f}**")
+        st.write("")
+        
+        st.write("**Step 2: Convert to target mochi**")
+        st.write(f"Target: 1 {target_mochi.title()}({target_rarity}) = 1/{target_rarity} = {1/target_rarity:.4f}")
+        st.write("")
+        st.write(f"**Step 3: Final calculation**")
+        st.write(f"{total_value:.4f} ÷ {1/target_rarity:.4f} = {total_value * target_rarity:.2f}")
+        st.write("")
+        st.success(f"**Result: {total_value * target_rarity:.2f} {target_mochi.title()}**")
+
 
 def round_to_nearest_custom(n):
     """Rounds to nearest 0.1 if below 1, else nearest 0.5."""
@@ -412,7 +426,7 @@ def mochi_value_converter(current_data_flat):
     with col1:
         input_mochis = st.text_input(
             "Your mochis:", 
-            placeholder="e.g. '5 russia, 1 ukraine' or 'russia x5, ukraine x1'"
+            placeholder="e.g. '4 ukraine, 3 belarus' or '5 russia'"
         )
     with col2:
         target_mochi = st.text_input(
@@ -427,7 +441,7 @@ def mochi_value_converter(current_data_flat):
             st.error(f"Target mochi '{target_mochi}' not found in database")
             return
         
-        target_value = current_data_flat[target_norm]
+        target_rarity = current_data_flat[target_norm]
         
         # Parse input mochis
         entries = [x.strip() for x in re.split(r'[,\n]', input_mochis) if x.strip()]
@@ -435,27 +449,157 @@ def mochi_value_converter(current_data_flat):
         invalid_entries = []
         
         for entry in entries:
-            # Handle both "3 russia" and "russia x3" formats
-            if re.match(r'^\d', entry):  # Format: "3 russia"
-                parts = re.split(r'\s+', entry, 1)
-                if len(parts) == 2 and parts[0].replace('.', '', 1).isdigit():
-                    amount = float(parts[0])
-                    name = parts[1]
-                else:
-                    invalid_entries.append(entry)
-                    continue
-            else:  # Format: "russia x3"
-                if 'x' in entry:
-                    parts = entry.split('x')
-                    if len(parts) == 2 and parts[1].strip().replace('.', '', 1).isdigit():
-                        name = parts[0].strip()
-                        amount = float(parts[1].strip())
-                    else:
-                        invalid_entries.append(entry)
-                        continue
-                else:
-                    name = entry
-                    amount = 1
+            val, amount, rarity = parse_entry(entry, mochi_type.lower())
+            if val is not None:
+                total_value += val
+            else:
+                invalid_entries.append(entry)
+        
+        if invalid_entries:
+            st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
+            for entry in invalid_entries:
+                suggestions = suggest_similar_mochis(entry.split()[0] if ' ' in entry else entry, 
+                                                    LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA)
+                if suggestions:
+                    st.info(f"Suggestions for '{entry}': {', '.join(suggestions)}")
+        
+        if total_value > 0:
+            equivalent_amount = total_value * target_rarity
+            
+            st.success(f"""
+                **Equivalent Value:** 
+                {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi.title()}**
+            """)
+
+            # Show detailed calculation
+            with st.expander("📊 Show Detailed Calculation"):
+                show_detailed_calculation(entries, target_mochi, target_rarity, mochi_type.lower())
+
+def compare_two_mochis_detailed(have_entry, want_entry, mochi_type="common"):
+    """Show detailed comparison between two mochis"""
+    val_have, amount_have, rarity_have = parse_entry(have_entry, mochi_type)
+    val_want, amount_want, rarity_want = parse_entry(want_entry, mochi_type)
+    
+    if val_have is not None and val_want is not None and val_have != 0:
+        ratio = val_want / val_have
+        
+        st.subheader("🧮 Detailed Comparison")
+        st.write("**Step 1: Calculate values**")
+        
+        have_name = have_entry.split(' ', 1)[1] if ' ' in have_entry else have_entry
+        want_name = want_entry.split(' ', 1)[1] if ' ' in want_entry else want_entry
+        
+        st.write(f"Your {have_entry}: {amount_have}/{rarity_have} = {val_have:.4f}")
+        st.write(f"Their {want_entry}: {amount_want}/{rarity_want} = {val_want:.4f}")
+        st.write("")
+        
+        st.write("**Step 2: Calculate ratio**")
+        st.write(f"{val_want:.4f} ÷ {val_have:.4f} = {ratio:.4f}")
+        st.write("")
+        
+        st.write("**Step 3: Fair trade calculation**")
+        if ratio < 1:
+            needed = 1/ratio
+            st.write(f"Since {ratio:.4f} < 1, they need more of theirs:")
+            st.write(f"1 ÷ {ratio:.4f} = {needed:.2f}×")
+            st.success(f"**They need {needed:.2f}× of their {want_name.title()} for a fair trade**")
+        else:
+            st.write(f"Since {ratio:.4f} ≥ 1, you need more of yours:")
+            st.success(f"**You need {ratio:.2f}× of your {have_name.title()} for a fair trade**")
+
+# Update the Compare two mochis section
+elif mode == "Compare two mochis":
+    col1, col2 = st.columns(2)
+    with col1:
+        have = st.text_input("Your mochi:", placeholder="e.g. '3 russia'")
+    with col2:
+        want = st.text_input("Their mochi:", placeholder="e.g. '5 ukraine'")
+
+    if have and want:
+        val_have, amount_have, rarity_have = parse_entry(have, mochi_type.lower())
+        val_want, amount_want, rarity_want = parse_entry(want, mochi_type.lower())
+
+        if val_have is None:
+            name_part = have.split(' ', 1)[1] if ' ' in have else have
+            suggestions = suggest_similar_mochis(name_part, current_data)
+            if suggestions:
+                st.warning(f"Couldn't find '{have}'. Did you mean: {', '.join(suggestions)}?")
+        
+        if val_want is None:
+            name_part = want.split(' ', 1)[1] if ' ' in want else want
+            suggestions = suggest_similar_mochis(name_part, current_data)
+            if suggestions:
+                st.warning(f"Couldn't find '{want}'. Did you mean: {', '.join(suggestions)}?")
+
+        if val_have is not None and val_want is not None and val_have != 0:
+            ratio = val_want / val_have
+            if ratio < 1:
+                st.success(f"They need {1/ratio:.2f}× of theirs for a fair trade")
+            else:
+                st.success(f"You need {ratio:.2f}× of yours for a fair trade")
+            
+            # Show detailed comparison
+            with st.expander("📊 Show Detailed Calculation"):
+                compare_two_mochis_detailed(have, want, mochi_type.lower())
+
+# Update the Value from Counts section to show detailed calculation
+elif mode == "Value from Counts":
+    input_text = st.text_area(f"Enter {mochi_type} mochis (one per line or comma-separated):",
+                             help="Format: 'amount mochi'\nExample: '20 ukraine' or '3 russia, 5 ukraine'",
+                             placeholder="e.g. '3 russia, 5 ukraine'")
+
+    if input_text:
+        entries = [x.strip() for x in re.split(r'[,\n]', input_text) if x.strip()]
+
+        total_value = 0
+        invalid_entries = []
+        calculation_steps = []
+
+        for entry in entries:
+            val, amount, rarity = parse_entry(entry, mochi_type.lower())
+            if val is not None:
+                total_value += val
+                mochi_name = entry.split(' ', 1)[1] if ' ' in entry else entry
+                calculation_steps.append(f"{amount} {mochi_name.title()}({rarity}) = {amount}/{rarity} = {val:.4f}")
+            else:
+                invalid_entries.append(entry)
+
+        if invalid_entries:
+            st.warning(f"Could not parse: {', '.join(invalid_entries)}")
+            for entry in invalid_entries:
+                name_part = entry.split(' ', 1)[1] if ' ' in entry else entry
+                suggestions = suggest_similar_mochis(name_part, current_data)
+                if suggestions:
+                    st.info(f"Suggestions for '{entry}': {', '.join(suggestions)}")
+
+        if total_value > 0:
+            exact_rarity = 1 / total_value
+            rounded_rarity = round_to_nearest_custom(exact_rarity)
+
+            st.success(f"Total value: {total_value:.2f} (1 mochi of rarity ~{exact_rarity:.2f})")
+            st.markdown(f"Rounded to: {rounded_rarity}")
+
+            # Show detailed calculation
+            with st.expander("📊 Show Detailed Calculation"):
+                st.write("**Step-by-step calculation:**")
+                for step in calculation_steps:
+                    st.write(f"• {step}")
+                st.write("")
+                st.write(f"**Total Value = {total_value:.4f}**")
+                st.write("")
+                st.write(f"**Equivalent rarity:** 1 ÷ {total_value:.4f} = {exact_rarity:.4f}")
+                st.write(f"**Rounded to nearest standard: {rounded_rarity}**")
+
+            suggestions = [name.title() for r, names in current_data.items()
+                           if r == rounded_rarity for name in names]
+            if not suggestions:
+                closest = get_closest_rarity(rounded_rarity, current_data)
+                suggestions = [name.title() for r, names in current_data.items()
+                               if r == closest for name in names]
+
+            if suggestions:
+                st.markdown(f"Suggested {mochi_type} mochis: {', '.join(suggestions)}")
+                
             
             # Look up mochi value
             name_norm = normalize_name(name)
