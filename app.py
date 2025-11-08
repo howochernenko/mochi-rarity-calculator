@@ -537,27 +537,7 @@ mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis",
 
 
         
-        if invalid_entries:
-            st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
-            for entry in invalid_entries:
-                suggestions = suggest_similar_mochis(entry.split('x')[0].strip() if 'x' in entry else entry.split()[0], 
-                                                    LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA)
-                if suggestions:
-                    st.info(f"Suggestions for '{entry}': {', '.join(suggestions)}")
-        
-        if total_value > 0:
-            # Calculate how many target mochis this is worth
-            equivalent_amount = total_value * target_value  # Convert from base value to target
-            st.success(f"""
-                **Equivalent Value:** 
-                {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi}**
-            """)
-
-            with st.expander("📊 Breakdown"):
-                st.write(f"Total base value: {total_value:.4f}")
-                st.write(f"Value of 1 {target_mochi}: {1/target_value:.4f}")
-                st.write(f"Calculation: {total_value:.4f} × {target_value:.4f} = {equivalent_amount:.2f}")
-                
+     
 
 def show_update_history():
     st.sidebar.markdown("---")
