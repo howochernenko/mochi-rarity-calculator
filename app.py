@@ -175,6 +175,14 @@ UPDATE_HISTORY = [
 mochi_type = "Common" 
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
 
+def normalize_name(name: str) -> str:
+    """Normalize input for matching: lower case, remove punctuation, replace dashes."""
+    name = name.lower()
+    name = re.sub(r"[.'’–—]", "", name)
+    name = name.replace("-", " ").replace("!", " ")
+    return name.strip()
+
+
 def convert_to_flat_dict(input_dict):
     flat_dict = {}
     for score, names in input_dict.items():
@@ -288,12 +296,7 @@ def comments_section():
                 st.rerun()
 
 
-def normalize_name(name: str) -> str:
-    """Normalize input for matching: lower case, remove punctuation, replace dashes."""
-    name = name.lower()
-    name = re.sub(r"[.''–—]", "", name)
-    name = name.replace("-", " ").replace("!", " ")
-    return name.strip()
+
 
 def get_rarity_by_name(name: str, mochi_type="common"):
     """Return rarity number by mochi alias name, or None if not found."""
