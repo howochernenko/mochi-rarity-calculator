@@ -171,6 +171,16 @@ UPDATE_HISTORY = [
     {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
 ]
 
+
+def convert_to_flat_dict(input_dict):
+    flat_dict = {}
+    for score, names in input_dict.items():
+        for name in names:
+            flat_dict[normalize_name(name)] = score
+    return flat_dict
+
+current_data_flat = convert_to_flat_dict(current_data)  # Now this will work
+
 COMMENTS_FILE = "mochi_comments.json"
 MODERATOR_PASSWORD = "ukrowocanon"  
 def load_comments():
@@ -274,15 +284,6 @@ def comments_section():
                 st.session_state.show_password_field = False
                 st.rerun()
 
-current_data_flat = convert_to_flat_dict(current_data)
-
-def convert_to_flat_dict(input_dict):
-    flat_dict = {}
-    for score, names in input_dict.items():
-        for name in names:
-            flat_dict[normalize_name(name)] = score
-    return flat_dict
-                
 
 def normalize_name(name: str) -> str:
     """Normalize input for matching: lower case, remove punctuation, replace dashes."""
