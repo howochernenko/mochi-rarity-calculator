@@ -535,14 +535,7 @@ comments_section()
 
 mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Tag Search"])
 
-                
-            
-            name_norm = normalize_name(name)
-            if name_norm in current_data_flat:
-                mochi_value = current_data_flat[name_norm]
-                total_value += amount * (1 / mochi_value)  # Convert to base value
-            else:
-                invalid_entries.append(entry)
+
         
         if invalid_entries:
             st.warning(f"Could not calculate: {', '.join(invalid_entries)}")
