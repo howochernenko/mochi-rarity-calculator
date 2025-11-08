@@ -172,6 +172,9 @@ UPDATE_HISTORY = [
 ]
 
 
+mochi_type = "Common" 
+current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
+
 def convert_to_flat_dict(input_dict):
     flat_dict = {}
     for score, names in input_dict.items():
@@ -179,7 +182,7 @@ def convert_to_flat_dict(input_dict):
             flat_dict[normalize_name(name)] = score
     return flat_dict
 
-current_data_flat = convert_to_flat_dict(current_data)  # Now this will work
+current_data_flat = convert_to_flat_dict(current_data)
 
 COMMENTS_FILE = "mochi_comments.json"
 MODERATOR_PASSWORD = "ukrowocanon"  
