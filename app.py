@@ -1,4 +1,4 @@
-    import streamlit as st
+import streamlit as st
 import re
 import difflib
 from datetime import datetime
@@ -87,8 +87,6 @@ def show_owner_messages():
 
 st.title("🌟 Mochis Trade Calculator")
 show_owner_messages() 
-
-st.title("🌟 Mochis Trade Calculator")
 
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
