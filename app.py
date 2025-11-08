@@ -529,6 +529,13 @@ mochi_type = st.radio("Select mochi type:", ["Common", "Latviaverse"])
 current_data = LATVIAVERSE_DATA if mochi_type == "Latviaverse" else MOCHI_DATA
 current_data_flat = convert_to_flat_dict(current_data)
 
+def show_update_history():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📋 Update History")
+    for update in UPDATE_HISTORY:
+        with st.sidebar.expander(f"📅 {update['date']}"):
+            st.write(update['changes'])
+            
 # Sidebar features
 show_update_history()
 comments_section()
