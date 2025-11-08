@@ -510,7 +510,7 @@ def compare_two_mochis_detailed(have_entry, want_entry, mochi_type="common"):
             st.success(f"**You need {ratio:.2f}× of your {have_name.title()} for a fair trade**")
 
 # Update the Compare two mochis section
-elif mode == "Compare two mochis":
+if mode == "Compare two mochis":
     col1, col2 = st.columns(2)
     with col1:
         have = st.text_input("Your mochi:", placeholder="e.g. '3 russia'")
