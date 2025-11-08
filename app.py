@@ -273,6 +273,15 @@ def comments_section():
             if st.button("❌ Cancel"):
                 st.session_state.show_password_field = False
                 st.rerun()
+
+current_data_flat = convert_to_flat_dict(current_data)
+
+def convert_to_flat_dict(input_dict):
+    flat_dict = {}
+    for score, names in input_dict.items():
+        for name in names:
+            flat_dict[normalize_name(name)] = score
+    return flat_dict
                 
 
 def normalize_name(name: str) -> str:
@@ -642,12 +651,6 @@ elif mode == "Value from Counts":
                 st.write(f"Value of 1 {target_mochi}: {1/target_value:.4f}")
                 st.write(f"Calculation: {total_value:.4f} × {target_value:.4f} = {equivalent_amount:.2f}")
                 
-def convert_to_flat_dict(input_dict):
-    flat_dict = {}
-    for score, names in input_dict.items():
-        for name in names:
-            flat_dict[normalize_name(name)] = score
-    return flat_dict
 
 def show_update_history():
     st.sidebar.markdown("---")
