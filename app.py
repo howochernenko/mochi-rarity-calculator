@@ -16,7 +16,7 @@ def show_owner_messages():
     
     # Messages from the owner
     OWNER_MESSAGES = [
-        "🌟 Hai Welcome to Mochis Trade Calculator!",
+        "🌟 Hai Welcome to Mochis Trade Calculator! I just updated it so it shows detailed calculation",
         "This calculator helps you calculate fair trades between different mochis.",
         "Remember about demand and stuff, some mochis like russia/Japan are worth more due to popularity BUT I DON'T CHANGE THE RARITY BASED ON DEMAND plz stop spreadng misinformation ty......don't get scammed",
         "Found a bug? Use the comments section or tell me on discord",
@@ -166,6 +166,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
+    {"date": "2025-11-7", "changes": "Added detailed calculation function which shows how calculation works"}, 
     {"date": "2025-10-31", "changes": "fixed comment section, added some message thingy that appear when you open the calculator"},
     {"date": "2025-10-10", "changes": "Added Neko Spain, Neko China, Neko Canada. Fixed some mochi placements."},
     {"date": "2025-01-10", "changes": "Added Value Converter feature and improved parsing for both '3 russia' and 'russia x3' formats"},
