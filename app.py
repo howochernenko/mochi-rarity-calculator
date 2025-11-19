@@ -122,7 +122,7 @@ MOCHI_DATA = {
     19: ["neko hungary", "pictonian", "south africa"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
     24: ["nyo hong kong"],
-    25: ["benelux", "greenland", "nyo romano", "nyo china"],
+    25: ["benelux", "greenland", "nyo romano", "nyo china", "kitty-chan"],
     30: ["aerican empire", "aerica", "flying mint bunny", "nyo switzerland", "nyo norway"],
     35: ["hanatamago", "kyoto", "teutonic knights", "ecuador", "osaka"],
     40: ["pochi", "mongolia", "persia", "kingdom of pontus", "pontus", "mr. puffin"],
@@ -166,6 +166,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
+    {"date": "2025-11-18", "changes": "Added Kitty-Chan"}, 
     {"date": "2025-11-7", "changes": "Added detailed calculation function which shows how calculation works"}, 
     {"date": "2025-10-31", "changes": "fixed comment section, added some message thingy that appear when you open the calculator"},
     {"date": "2025-10-10", "changes": "Added Neko Spain, Neko China, Neko Canada. Fixed some mochi placements."},
