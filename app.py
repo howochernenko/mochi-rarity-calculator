@@ -208,6 +208,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
+    {"date": "2025-12-13", "changes": "Added disclaimer part"}, 
     {"date": "2025-11-18", "changes": "Added Kitty-Chan"}, 
     {"date": "2025-11-7", "changes": "Added detailed calculation function which shows how calculation works"}, 
     {"date": "2025-10-31", "changes": "fixed comment section, added some message thingy that appear when you open the calculator"},
