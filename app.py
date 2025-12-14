@@ -20,10 +20,10 @@ def mandatory_popup():
             
             **This calculator uses BASE RARITY VALUES ONLY!**
             
-            • I **DON'T CHANGE RARITY** based on demand/popularity
-            • Some mochis (russia, Japan, neko england, etc.) are worth more due to demand
+            • I **DID NOT CHANGE RARITY** based on demand/popularity, idk who kept saying that but IT'S WRONG 
             • Use this as a **GUIDELINE ONLY** - think about demand yourself!
             • Don't get scammed by only looking at rarity!
+            • According to the owner of mochidex aka gober, using this calculator isn't recommended because it’s inaccurate and the owner of the calc(aka me, Howo) can change it if I want. I don't see how the calculator is inaccurate, if there is any problem with this calc you can directly tell me and point it out. I won't change the rarity cuz there is no need for me to do that, If i do it then no one will trust me anymore which is bad so i won't :P
             """)
             
             col1, col2, col3 = st.columns([1, 2, 1])
