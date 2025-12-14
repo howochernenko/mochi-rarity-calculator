@@ -6,94 +6,41 @@ import json
 import os
 
 def mandatory_popup():
-    """Show mandatory popup that must be accepted before using the calculator"""
+    """Simple mandatory popup that must be accepted"""
     
-    # Initialize session state
     if 'popup_accepted' not in st.session_state:
         st.session_state.popup_accepted = False
     
-    # If not accepted, show the popup and block the rest of the app
     if not st.session_state.popup_accepted:
-        # Create a modal-like container
-        st.markdown("""
-            <style>
-            .mandatory-popup {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 30px;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                z-index: 9999;
-                width: 80%;
-                max-width: 600px;
-                border: 3px solid #ff4b4b;
-            }
-            .popup-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.7);
-                z-index: 9998;
-            }
-            .popup-title {
-                color: #ff4b4b;
-                font-size: 1.5em;
-                font-weight: bold;
-                margin-bottom: 15px;
-                text-align: center;
-            }
-            .popup-content {
-                margin: 20px 0;
-                line-height: 1.6;
-            }
-            .popup-button {
-                display: block;
-                margin: 20px auto 0;
-                padding: 12px 30px;
-                font-size: 1.1em;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-        
-        # Overlay
-        st.markdown('<div class="popup-overlay"></div>', unsafe_allow_html=True)
-        
-        # Popup content
-        st.markdown("""
-            <div class="mandatory-popup">
-                <div class="popup-title">⚠️ IMPORTANT NOTICE</div>
-                <div class="popup-content">
-                    <p><strong>Welcome to Mochis Trade Calculator!</strong></p>
-                    <p>Before using this calculator, please read:</p>
-                    <ol>
-                        <li>This calculator uses <strong>BASE RARITY VALUES ONLY</strong></li>
-                        <li>I <strong>DON'T CHANGE RARITY</strong> based on demand/popularity</li>
-                        <li>Some mochis (like russia, Japan, neko england) are worth more due to demand</li>
-                        <li>Use this as a <strong>GUIDELINE ONLY</strong> - think about demand yourself!</li>
-                        <li>Don't get scammed by only looking at rarity!</li>
-                    </ol>
-                    <p style="color: #ff4b4b; font-weight: bold;">By clicking "I Understand", you acknowledge that this is just a tool and you need to consider demand when trading.</p>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Accept button (centered)
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("✅ I Understand - Let me use the calculator", 
-                        use_container_width=True, 
-                        type="primary",
-                        key="accept_popup"):
-                st.session_state.popup_accepted = True
-                st.rerun()
-        
-        # Stop the rest of the app from rendering
-        st.stop()
+        # Create a warning container
+        with st.container():
+            st.markdown("---")
+            st.error("""
+            ⚠️ **IMPORTANT DISCLAIMER - READ BEFORE USING**
+            
+            **This calculator uses BASE RARITY VALUES ONLY!**
+            
+            • I **DON'T CHANGE RARITY** based on demand/popularity
+            • Some mochis (russia, Japan, neko england, etc.) are worth more due to demand
+            • Use this as a **GUIDELINE ONLY** - think about demand yourself!
+            • Don't get scammed by only looking at rarity!
+            """)
+            
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                if st.button("✅ I Understand & Accept - Let me use the calculator", 
+                           use_container_width=True,
+                           type="primary"):
+                    st.session_state.popup_accepted = True
+                    st.rerun()
+            
+            st.markdown("---")
+            st.stop()  # Stop the rest of the app
+
+# Add to your app
+st.title("🌟 Mochis Trade Calculator")
+mandatory_popup()
+show_owner_messages()
 
 def show_owner_messages():
     """Show popup messages from the owner when the app starts"""
