@@ -19,12 +19,9 @@ def mandatory_popup():
             ⚠️ **IMPORTANT DISCLAIMER - READ BEFORE USING**
             
             **This calculator uses BASE RARITY VALUES ONLY!**
-            
-            • I **DID NOT CHANGE RARITY** based on demand/popularity, idk who kept saying that but IT'S WRONG 
-            • Use this as a **GUIDELINE ONLY** - think about demand yourself!
-            • Don't get scammed by only looking at rarity!
-            • According to the owner of mochidex aka gober, using this calculator isn't recommended because it’s inaccurate and the owner of the calc(aka me, Howo) can change it if I want.
-             """)
+
+            According to the owner of mochidex aka gober, this calculator is not recommended to use
+            """)
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 if st.button("✅ I Understand & Accept - Let me use the calculator", 
