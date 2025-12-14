@@ -20,13 +20,17 @@ def mandatory_popup():
             
             **This calculator uses BASE RARITY VALUES ONLY!**
 
+            I HAVE TO SAY THIS AGAIN BUT I NEVER CHANGED VALUE BASED ON RARITY, think about the demand yourself to avoid getting scammed
+
             According to the owner of mochidex and other mods, this calculator is not recommended to use because rarity could be outdated, the calculation is inaccuate and I could change the rarity
 
             I admit that if there are rarity changes in mochidex that they didn't announce, I won't be able to realize it and update until someone point it out
 
-            For the inaccuate part: I don't see anywhere in my calculator that have incorrect calculation, there is also the detailed calc button where you can see how it's calculated, if smth is wrong, dm/tell me and I'll change it
+            For the inaccuate part: I don't see anywhere in my calculator that have incorrect calculation, there is also the detailed calc button where you can see how it's calculated, if smth is wrong, dm/tell me and I'll change it. plz don't say that it's inaccuate without evidence cuz it's starting to piss me off a bit :p
 
             I will never change any rarity because there is no point of me doing that, cuz I wanna become friend with everyone and dishonesty will make people dislike me.
+
+            ALSO you can dm me(howo.chernenko) at anytime if you have any question/concern or needs help with the calculator
             
             """)
             col1, col2, col3 = st.columns([1, 2, 1])
