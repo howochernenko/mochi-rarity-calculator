@@ -23,9 +23,8 @@ def mandatory_popup():
             • I **DID NOT CHANGE RARITY** based on demand/popularity, idk who kept saying that but IT'S WRONG 
             • Use this as a **GUIDELINE ONLY** - think about demand yourself!
             • Don't get scammed by only looking at rarity!
-            • According to the owner of mochidex aka gober, using this calculator isn't recommended because it’s inaccurate and the owner of the calc(aka me, Howo) can change it if I want. I don't see how the calculator is inaccurate, if there is any problem with this calc you can directly tell me and point it out. I won't change the rarity cuz there is no need for me to do that, If i do it then no one will trust me anymore which is bad so i won't :P
-            """)
-            
+            • According to the owner of mochidex aka gober, using this calculator isn't recommended because it’s inaccurate and the owner of the calc(aka me, Howo) can change it if I want.
+             """)
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 if st.button("✅ I Understand & Accept - Let me use the calculator", 
