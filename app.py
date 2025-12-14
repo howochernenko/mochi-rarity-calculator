@@ -35,12 +35,9 @@ def mandatory_popup():
                     st.rerun()
             
             st.markdown("---")
-            st.stop()  # Stop the rest of the app
+            st.stop() 
 
-# Add to your app
-st.title("🌟 Mochis Trade Calculator")
-mandatory_popup()
-show_owner_messages()
+
 
 def show_owner_messages():
     """Show popup messages from the owner when the app starts"""
