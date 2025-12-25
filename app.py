@@ -31,8 +31,6 @@ THERE IS A RARITY UPDATE
 *- Howo*
 """)
 
-st.markdown("---")
-st.info("**Maintenance started:** December 24, 2025")
 
 # Stop the app here - nothing below this will run
 st.stop()
