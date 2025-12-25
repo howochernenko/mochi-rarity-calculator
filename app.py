@@ -32,8 +32,7 @@ THERE IS A RARITY UPDATE
 """)
 
 st.markdown("---")
-st.info("**Maintenance started:** November 8, 2025")
-st.info("**Estimated completion:** Check comments for updates")
+st.info("**Maintenance started:** December 24, 2025")
 
 # Stop the app here - nothing below this will run
 st.stop()
