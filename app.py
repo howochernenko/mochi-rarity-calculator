@@ -6,8 +6,6 @@ import json
 import os
 
 
-# Stop the app here - nothing below this will run
-st.stop()
 
 def mandatory_popup():
     """Simple mandatory popup that must be accepted"""
