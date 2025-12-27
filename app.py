@@ -185,11 +185,11 @@ MOCHI_DATA = {
     10: ["italy", "north italy", "germany", "nyo canada", "spain"],
     11: ["france", "romano", "south italy", "nyo poland", "nyo america"],
     12: ["wales", "germania", "germanic tribes", "canada", "nyo prussia"],
-    13: ["nyo lithuania", "china", "nyo england"],
+    13: ["nyo lithuania", "china", "nyo england", "serbia"],
     14: ["neko austria", "ancient egypt", "mama egypt", "kemet", "czechoslovakia", "waiter"],
     15: ["sweden", "nyo belarus", "nyo germany"],
     16: ["quebec"],
-    17: ["nyo italy", "serbia"],
+    17: ["nyo italy"],
     18: ["nyo finland"],
     19: ["neko hungary", "pictonian", "south africa"],
     20: ["nyo portugal", "nyo turkey", "seychelles' mystery friend", "seychelles friend", "mystery friend", "nyo sweden"],
@@ -238,6 +238,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
+    {"date": "2025-12-26", "changes": "Updated new rarity"},
     {"date": "2025-12-13", "changes": "Added disclaimer part"}, 
     {"date": "2025-11-18", "changes": "Added Kitty-Chan"}, 
     {"date": "2025-11-7", "changes": "Added detailed calculation function which shows how calculation works"}, 
