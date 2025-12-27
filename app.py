@@ -5,32 +5,6 @@ from datetime import datetime
 import json
 import os
 
-import streamlit as st
-
-# TEMPORARY MAINTENANCE MODE - UNCOMMENT TO ENABLE
-# ==================================================
-st.set_page_config(page_title="⚠️ Calculator Under Maintenance", layout="centered")
-
-st.title("⚠️ Mochis Trade Calculator - TEMPORARY MAINTENANCE")
-st.markdown("---")
-
-st.error("""
-## 🚧 **Calculator is temporarily unavailable**
-    
-**What's happening?**
-THERE IS A RARITY UPDATE
-
-**Why is it down?**
-- I don't have time to change the raritys yet cuz i've been extremely busy on stuff irl
-
-**When will it be back?**
-- probably in 1-2 days
-
-
-**Thank you for your patience!**  
-*- Howo*
-""")
-
 
 # Stop the app here - nothing below this will run
 st.stop()
