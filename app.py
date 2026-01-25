@@ -716,7 +716,7 @@ def shiny_2p_simulator():
                         st.write("")
                         st.write("**Bundle calculation:**")
                         for name, data in bundle.items():
-                            st.write(f"- {name.title()} (rarity {data['rarity]}):")
+                            st.write(f"- {name.title()} (rarity {data['rarity']}):")
                             st.write(f"  Value per 1 = 1/{data['rarity']} = {data['value_per']:.4f}")
                             st.write(f"  Amount = {shiny_value:.4f} ÷ {data['value_per']:.4f} = {data['amount']:.1f}")
                             st.write(f"  Contribution = {data['amount']:.1f} × {data['value_per']:.4f} = {data['amount'] * data['value_per']:.4f}")
