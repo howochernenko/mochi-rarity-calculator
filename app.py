@@ -746,7 +746,170 @@ def shiny_2p_simulator():
                     base_eq = amount * (base_r / target_r)
                     st.info(f"This equals **{base_eq:,.0f} {q_base.title()} equivalents**")
                     
+    # Shiny ↔ 2P Converter
+    st.markdown("---")
+    st.subheader("🔁 Shiny ↔ 2P Converter")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        conv_from_type = st.selectbox("From:", ["Shiny", "2P"], key="conv_from")
+        conv_from_mochi = st.text_input("Mochi:", placeholder="e.g. ukraine", key="conv_from_mochi")
+    
+    with col2:
+        conv_to_type = st.selectbox("To:", ["2P", "Shiny"], key="conv_to")
+        conv_to_mochi = st.text_input("Mochi:", placeholder="e.g. russia", key="conv_to_mochi")
+    
+    with col3:
+        if st.button("Convert", key="convert_btn"):
+            if conv_from_mochi and conv_to_mochi:
+                from_r = get_rarity_by_name(conv_from_mochi, mochi_type.lower())
+                to_r = get_rarity_by_name(conv_to_mochi, mochi_type.lower())
+                
+                if from_r and to_r:
+                    # Calculate multipliers
+                    from_mult = 2048 if conv_from_type == "Shiny" else 1000
+                    to_mult = 2048 if conv_to_type == "Shiny" else 1000
+                    
+                    # Calculate values
+                    from_value = from_r * from_mult
+                    to_value = to_r * to_mult
+                    
+                    # Calculate ratio
+                    ratio = from_value / to_value
+                    
+                    st.success(f"**1 {conv_from_type} {conv_from_mochi.title()} ≈ {ratio:.3f} {conv_to_type} {conv_to_mochi.title()}**")
+                    
+                    # Show calculation
+                    with st.expander("Show calculation"):
+                        st.write(f"1 {conv_from_type} {conv_from_mochi.title()}: {from_r} × {from_mult} = {from_value:,.0f}")
+                        st.write(f"1 {conv_to_type} {conv_to_mochi.title()}: {to_r} × {to_mult} = {to_value:,.0f}")
+                        st.write(f"Ratio: {from_value:,.0f} ÷ {to_value:,.0f} = {ratio:.3f}")
+                        
+                        # Also show in base equivalents
+                        if conv_from_type != conv_to_type:
+                            st.write("")
+                            st.write(f"**In {conv_from_mochi.title()} equivalents:**")
+                            st.write(f"1 {conv_from_type} {conv_from_mochi.title()} = {from_mult:,} {conv_from_mochi.title()}")
+                            st.write(f"1 {conv_to_type} {conv_to_mochi.title()} = {to_mult * (to_r / from_r):,.0f} {conv_from_mochi.title()}")
+    
+    # Quick Reference Table
+    st.markdown("---")
+    st.subheader("📋 Quick Reference Table")
+    
+    ref_data = {
+        "Type": ["Shiny → Normal", "2P → Normal", "Shiny → 2P", "2P → Shiny", "Shiny → Shiny", "2P → 2P"],
+        "Formula": [
+            "Amount = 2048 × (Target ÷ Base)",
+            "Amount = 1000 × (Target ÷ Base)", 
+            "Amount = 2.048 × (Target ÷ Base)",
+            "Amount = 0.488 × (Target ÷ Base)",
+            "Amount = (Target ÷ Base)",
+            "Amount = (Target ÷ Base)"
+        ],
+        "Example": [
+            "Shiny Ukraine → Romania: 2048 × (90 ÷ 90) = 2048",
+            "2P Russia → Belarus: 1000 × (60 ÷ 9) = 6,667",
+            "Shiny 5 → 2P 10: 2.048 × (10 ÷ 5) = 4.096",
+            "2P 10 → Shiny 5: 0.488 × (5 ÷ 10) = 0.244",
+            "Shiny 5 → Shiny 10: (10 ÷ 5) = 2",
+            "2P 5 → 2P 10: (10 ÷ 5) = 2"
+        ]
+    }
+    
+    # Display as expandable sections
+    for i in range(len(ref_data["Type"])):
+        with st.expander(f"📖 {ref_data['Type'][i]}"):
+            st.write(f"**Formula:** {ref_data['Formula'][i]}")
+            st.write(f"**Example:** {ref_data['Example'][i]}")
+            
+            # Interactive calculator for this type
+            if i < 4:  # Only for first 4 types
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    if i == 0:  # Shiny → Normal
+                        s_base = st.text_input("Shiny mochi:", placeholder="ukraine", key=f"ref_{i}_a")
+                        s_target = st.text_input("Normal mochi:", placeholder="romania", key=f"ref_{i}_b")
+                        if s_base and s_target:
+                            base_r = get_rarity_by_name(s_base, mochi_type.lower())
+                            target_r = get_rarity_by_name(s_target, mochi_type.lower())
+                            if base_r and target_r:
+                                amount = 2048 * (target_r / base_r)
+                                st.info(f"1 Shiny {s_base.title()} = {amount:,.0f} {s_target.title()}")
+                    
+                    elif i == 1:  # 2P → Normal
+                        p_base = st.text_input("2P mochi:", placeholder="russia", key=f"ref_{i}_a")
+                        p_target = st.text_input("Normal mochi:", placeholder="belarus", key=f"ref_{i}_b")
+                        if p_base and p_target:
+                            base_r = get_rarity_by_name(p_base, mochi_type.lower())
+                            target_r = get_rarity_by_name(p_target, mochi_type.lower())
+                            if base_r and target_r:
+                                amount = 1000 * (target_r / base_r)
+                                st.info(f"1 2P {p_base.title()} = {amount:,.0f} {p_target.title()}")
+                    
+                    elif i == 2:  # Shiny → 2P
+                        ss_base = st.text_input("Shiny mochi:", placeholder="5", key=f"ref_{i}_a")
+                        ss_target = st.text_input("2P mochi:", placeholder="10", key=f"ref_{i}_b")
+                        if ss_base and ss_target:
+                            # Check if numbers or names
+                            if ss_base.replace('.', '', 1).isdigit():
+                                base_r = float(ss_base)
+                            else:
+                                base_r = get_rarity_by_name(ss_base, mochi_type.lower())
                             
+                            if ss_target.replace('.', '', 1).isdigit():
+                                target_r = float(ss_target)
+                            else:
+                                target_r = get_rarity_by_name(ss_target, mochi_type.lower())
+                            
+                            if base_r and target_r:
+                                amount = 2.048 * (target_r / base_r)
+                                st.info(f"1 Shiny {ss_base} ≈ {amount:.3f} 2P {ss_target}")
+                    
+                    elif i == 3:  # 2P → Shiny
+                        ps_base = st.text_input("2P mochi:", placeholder="10", key=f"ref_{i}_a")
+                        ps_target = st.text_input("Shiny mochi:", placeholder="5", key=f"ref_{i}_b")
+                        if ps_base and ps_target:
+                            # Check if numbers or names
+                            if ps_base.replace('.', '', 1).isdigit():
+                                base_r = float(ps_base)
+                            else:
+                                base_r = get_rarity_by_name(ps_base, mochi_type.lower())
+                            
+                            if ps_target.replace('.', '', 1).isdigit():
+                                target_r = float(ps_target)
+                            else:
+                                target_r = get_rarity_by_name(ps_target, mochi_type.lower())
+                            
+                            if base_r and target_r:
+                                amount = 0.488 * (target_r / base_r)
+                                st.info(f"1 2P {ps_base} ≈ {amount:.3f} Shiny {ps_target}")
+    
+    # Special: Shiny ↔ 2P same mochi
+    st.markdown("---")
+    st.subheader("🎯 Same Mochi Conversions")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        same_mochi = st.text_input("Mochi name:", placeholder="e.g. ukraine", key="same_mochi")
+        if same_mochi:
+            rarity = get_rarity_by_name(same_mochi, mochi_type.lower())
+            if rarity:
+                st.write(f"**{same_mochi.title()}** (rarity {rarity})")
+                st.write(f"1 Shiny = 2,048 normal")
+                st.write(f"1 2P = 1,000 normal")
+                st.write(f"1 Shiny = 2.048 × 2P")
+                st.write(f"1 2P = 0.488 × Shiny")
+    
+    with col2:
+        if same_mochi and rarity:
+            st.write("**Quick conversions:**")
+            st.write(f"1 Shiny {same_mochi.title()} = {2048 * (rarity / rarity):,.0f} normal")
+            st.write(f"1 2P {same_mochi.title()} = {1000 * (rarity / rarity):,.0f} normal")
+            st.write(f"1 Shiny {same_mochi.title()} = {2048/1000:.3f} 2P {same_mochi.title()}")
+            st.write(f"1 2P {same_mochi.title()} = {1000/2048:.3f} Shiny {same_mochi.title()}")
+            
         
         
     
