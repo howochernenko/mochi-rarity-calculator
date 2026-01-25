@@ -488,15 +488,14 @@ def tag_based_search(data):
             st.warning("No mochis found matching these tags")
 
 
-
 def shiny_2p_simulator():
     st.subheader("✨ Shiny & 2P Trade Simulator")
     
     st.markdown("""
     **CORRECT CALCULATION:**
-    - 1 Normal Mochi value = Its Rarity (e.g., Ukraine = 90)
-    - 1 Shiny Mochi value = Base Rarity × 2048 (e.g., Shiny Ukraine = 90 × 2048 = 184,320)
-    - Amount needed = (Target Rarity × 2048) ÷ Base Rarity
+    - Value = Amount × Rarity
+    - 1 Shiny = Base Rarity × 2048
+    - 1 2P = Base Rarity × 1000
     """)
     
     # Step 1: Base mochi
@@ -564,16 +563,15 @@ def shiny_2p_simulator():
                 mochi_data.append({
                     'name': item['name'],
                     'rarity': rarity,
-                    'max': item['max'],
-                    'value_per_one': 1 / rarity  # For optimization
+                    'max': item['max']
                 })
             else:
                 st.warning(f"Could not find '{item['name']}'")
     
     multiplier = 2048 if special_type == "Shiny" else 1000
     
-    if st.button("🎯 Calculate Optimized Bundles", type="primary") and base_rarity and mochi_data:
-        st.markdown("### 📦 Step 3: Optimized Bundles")
+    if st.button("🎯 Calculate Bundles", type="primary") and base_rarity and mochi_data:
+        st.markdown("### 📦 Step 3: Bundle Results")
         
         # Calculate target value
         target_value = base_rarity * multiplier
@@ -581,218 +579,144 @@ def shiny_2p_simulator():
         st.success(f"**1 {special_type} {base_name.title()}**")
         st.info(f"Target value: **{target_value:,.0f}** (={base_rarity} × {multiplier})")
         
-        # Check if limits are enough
-        total_possible = 0
-        for mochi in mochi_data:
-            if mochi['max']:
-                total_possible += mochi['max'] * mochi['rarity']
-            else:
-                total_possible = float('inf')
-        
-        if total_possible < target_value and total_possible != float('inf'):
-            st.error(f"❌ Not enough! Max possible with limits: {total_possible:,.0f} (need {target_value:,.0f})")
-        
-        # Generate optimized bundles
-        num_bundles = min(3, 2 ** len(mochi_data))  # Limit bundles
-        
-        for bundle_num in range(num_bundles):
+        # Generate simple, accurate bundles
+        for bundle_num in range(min(3, len(mochi_data))):
             with st.expander(f"Bundle #{bundle_num + 1}", expanded=bundle_num == 0):
-                # Initialize
-                amounts = {}
-                remaining = target_value
+                bundle_items = {}
+                remaining_value = target_value
                 
-                # Different optimization strategies
-                if bundle_num == 0:
-                    # Strategy 1: Greedy fill from most valuable (lowest rarity)
-                    sorted_mochis = sorted(mochi_data, key=lambda x: x['rarity'])
+                # Simple strategy: fill with available mochis
+                for i, mochi in enumerate(mochi_data):
+                    if remaining_value <= 0:
+                        break
                     
-                    for mochi in sorted_mochis:
-                        if remaining <= 0.1:
-                            break
-                        
-                        # Calculate max possible from this mochi
-                        max_by_value = remaining / mochi['value_per_one']
-                        
-                        # Apply max limit
-                        if mochi['max']:
-                            max_by_value = min(max_by_value, mochi['max'])
-                        
-                        if max_by_value >= 0.1:
-                            # Use a good portion (70-100%)
-                            use_fraction = 0.7 + (bundle_num * 0.1)  # Vary by bundle
-                            amount = max_by_value * use_fraction
-                            
-                            amounts[mochi['name']] = amount
-                            remaining -= amount * mochi['value_per_one']
-                
-                elif bundle_num == 1:
-                    # Strategy 2: Even value distribution
-                    for mochi in mochi_data:
-                        # Each mochi gets equal value contribution
-                        value_share = target_value / len(mochi_data)
-                        amount = value_share / mochi['value_per_one']
-                        
-                        # Apply max limit
-                        if mochi['max']:
-                            amount = min(amount, mochi['max'])
+                    # Calculate how many of this mochi we could use
+                    max_by_value = remaining_value / mochi['rarity']
+                    
+                    # Apply max limit
+                    if mochi['max']:
+                        max_by_value = min(max_by_value, mochi['max'])
+                    
+                    if max_by_value >= 0.1:  # At least 0.1
+                        # Determine how much to use
+                        if bundle_num == 0:
+                            # Use as much as possible of first mochi
+                            if i == 0:
+                                amount = max_by_value
+                            else:
+                                amount = 0
+                        elif bundle_num == 1:
+                            # Distribute among all
+                            share = 1.0 / len(mochi_data)
+                            amount = max_by_value * share
+                        else:
+                            # Use decreasing amounts
+                            share = 1.0 / (i + 2)
+                            amount = max_by_value * share
                         
                         if amount >= 0.1:
-                            amounts[mochi['name']] = amount
+                            bundle_items[mochi['name']] = {
+                                'amount': amount,
+                                'rarity': mochi['rarity']
+                            }
+                            remaining_value -= amount * mochi['rarity']
                 
-                else:
-                    # Strategy 3: Random optimization with hill climbing
-                    # Start with random amounts
-                    for mochi in mochi_data:
-                        if mochi['max']:
-                            amounts[mochi['name']] = random.uniform(0, mochi['max'])
-                        else:
-                            amounts[mochi['name']] = random.uniform(0, target_value / mochi['value_per_one'])
-                    
-                    # Hill climbing optimization
-                    best_amounts = amounts.copy()
-                    best_error = float('inf')
-                    
-                    for iteration in range(100):  # 100 optimization steps
-                        # Calculate current value
-                        current_value = sum(amounts[name] * next(m['value_per_one'] for m in mochi_data if m['name'] == name) 
-                                          for name in amounts)
-                        error = abs(current_value - target_value)
-                        
-                        if error < best_error:
-                            best_error = error
-                            best_amounts = amounts.copy()
-                        
-                        # Try to improve by adjusting random mochi
-                        if error > 0.1:
-                            adjust_name = random.choice(list(amounts.keys()))
-                            mochi_info = next(m for m in mochi_data if m['name'] == adjust_name)
-                            
-                            # Adjust up or down
-                            if current_value < target_value:
-                                # Need more value
-                                max_increase = (mochi_info['max'] - amounts[adjust_name] if mochi_info['max'] else float('inf'))
-                                if max_increase > 0:
-                                    increase = min(max_increase, (target_value - current_value) / mochi_info['value_per_one'])
-                                    amounts[adjust_name] += increase * random.uniform(0.1, 0.5)
-                            else:
-                                # Need less value
-                                if amounts[adjust_name] > 0:
-                                    decrease = min(amounts[adjust_name], (current_value - target_value) / mochi_info['value_per_one'])
-                                    amounts[adjust_name] -= decrease * random.uniform(0.1, 0.5)
-                    
-                    amounts = best_amounts
-                
-                # Round amounts for display
+                # Round amounts
                 rounded_amounts = {}
-                total_rounded_value = 0
-                
-                for name, amount in amounts.items():
-                    if amount >= 1:
-                        rounded = math.floor(amount) if bundle_num == 0 else math.ceil(amount)
+                for name, data in bundle_items.items():
+                    # Round to reasonable precision
+                    if data['amount'] >= 1000:
+                        rounded = round(data['amount'])
+                    elif data['amount'] >= 100:
+                        rounded = round(data['amount'])
+                    elif data['amount'] >= 10:
+                        rounded = round(data['amount'])
+                    elif data['amount'] >= 1:
+                        rounded = round(data['amount'], 1)
                     else:
-                        rounded = round(amount, 2)
+                        rounded = round(data['amount'], 2)
                     
                     if rounded > 0:
-                        mochi_info = next(m for m in mochi_data if m['name'] == name)
-                        # Apply max limit to rounded amount
-                        if mochi_info['max']:
-                            rounded = min(rounded, mochi_info['max'])
-                        
                         rounded_amounts[name] = rounded
-                        total_rounded_value += rounded * mochi_info['value_per_one']
                 
-                # Final optimization pass
-                if len(rounded_amounts) > 0:
-                    error = abs(total_rounded_value - target_value)
+                # Display bundle
+                if rounded_amounts:
+                    total_value = 0
                     
-                    # Try to adjust the most common mochi to improve accuracy
-                    if error > target_value * 0.01:  # If error > 1%
-                        # Find the mochi with highest rarity (most common)
-                        common_mochis = [m for m in mochi_data if m['rarity'] == max(m['rarity'] for m in mochi_data)]
-                        if common_mochis:
-                            adjust_mochi = common_mochis[0]
-                            current_amount = rounded_amounts.get(adjust_mochi['name'], 0)
-                            
-                            # Calculate needed adjustment
-                            needed_change = (target_value - total_rounded_value) / adjust_mochi['value_per_one']
-                            new_amount = current_amount + needed_change
-                            
-                            # Check limits
-                            if adjust_mochi['max']:
-                                new_amount = min(new_amount, adjust_mochi['max'])
-                            if new_amount >= 0:
-                                rounded_amounts[adjust_mochi['name']] = new_amount
-                                total_rounded_value = sum(rounded_amounts[name] * next(m['value_per_one'] for m in mochi_data if m['name'] == name)
-                                                        for name in rounded_amounts)
-                
-           
-    if rounded_amounts:
-        st.write("**Bundle Contents:**")
-        
-        # Sort by amount (largest first)
-        sorted_items = sorted(rounded_amounts.items(), key=lambda x: x[1], reverse=True)
-        
-        for name, amount in sorted_items:
-            mochi_info = next(m for m in mochi_data if m['name'] == name)
-            
-            # CORRECTED: Value = Amount × Rarity
-            item_value = amount * mochi_info['rarity']
-            
-            # Format amount
-            if amount >= 1000:
-                amount_str = f"{amount:,.0f}"
-            elif amount >= 10:
-                amount_str = f"{amount:.0f}"
-            elif amount >= 1:
-                amount_str = f"{amount:.1f}"
-            else:
-                amount_str = f"{amount:.2f}"
-            
-            st.write(f"- **{amount_str} {name.title()}** (rarity {mochi_info['rarity']})")
-            st.write(f"  Value: {amount:,.1f} × {mochi_info['rarity']} = {item_value:,.0f}")
-        
-        st.write("")
-        total_bundle_value = sum(rounded_amounts[name] * next(m['rarity'] for m in mochi_data if m['name'] == name)
-                               for name in rounded_amounts)
-        st.write(f"**Total Bundle Value:** {total_bundle_value:,.0f}")
-        st.write(f"**Target Value:** {target_value:,.0f}")
-        
-        accuracy = 100 - (abs(total_bundle_value - target_value) / target_value * 100)
-        st.write(f"**Accuracy:** {accuracy:.2f}%")
-        
-        # Verify with formula
-        with st.expander("✅ Verification", expanded=True):
-            st.write("**Formula check:** Amount = (Target Rarity × 2048) ÷ Base Rarity")
-            for name, amount in rounded_amounts.items():
-                mochi_info = next(m for m in mochi_data if m['name'] == name)
-                calculated = (mochi_info['rarity'] * multiplier) / base_rarity
-                st.write(f"- {name.title()}: ({mochi_info['rarity']} × {multiplier}) ÷ {base_rarity} = {calculated:,.0f}")
-                st.write(f"  Using: {amount:,.0f} (Difference: {abs(amount - calculated):,.0f})")
+                    st.write("**Bundle Contents:**")
+                    for name, amount in rounded_amounts.items():
+                        mochi_info = next(m for m in mochi_data if m['name'] == name)
+                        item_value = amount * mochi_info['rarity']
+                        total_value += item_value
+                        
+                        # Format display
+                        if amount >= 1000:
+                            amount_str = f"{amount:,.0f}"
+                        elif amount >= 100:
+                            amount_str = f"{amount:.0f}"
+                        elif amount >= 10:
+                            amount_str = f"{amount:.0f}"
+                        elif amount >= 1:
+                            amount_str = f"{amount:.1f}"
+                        else:
+                            amount_str = f"{amount:.2f}"
+                        
+                        st.write(f"- **{amount_str} {name.title()}** (rarity {mochi_info['rarity']})")
+                        st.write(f"  Value: {amount_str} × {mochi_info['rarity']} = {item_value:,.0f}")
+                    
+                    st.write("")
+                    st.write(f"**Total Bundle Value:** {total_value:,.0f}")
+                    st.write(f"**Target Value:** {target_value:,.0f}")
+                    
+                    # Calculate accuracy
+                    if target_value > 0:
+                        accuracy = 100 - (abs(total_value - target_value) / target_value * 100)
+                        st.write(f"**Accuracy:** {accuracy:.2f}%")
+                        
+                        if accuracy < 95:
+                            st.warning("Could be more accurate with different limits")
+                    
+                    # Show formula
+                    with st.expander("🧮 Show Formula"):
+                        st.write(f"**Formula:** Amount = (Target Rarity × {multiplier}) ÷ {base_rarity}")
+                        for name, amount in rounded_amounts.items():
+                            mochi_info = next(m for m in mochi_data if m['name'] == name)
+                            calc_amount = (mochi_info['rarity'] * multiplier) / base_rarity
+                            st.write(f"- {name.title()}: ({mochi_info['rarity']} × {multiplier}) ÷ {base_rarity} = {calc_amount:,.0f}")
+                            st.write(f"  Using: {amount:,.0f}")
+                else:
+                    st.warning("No valid bundle could be created")
     
     # Quick Calculator
     st.markdown("---")
     st.subheader("⚡ Quick Calculator")
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     
     with col1:
-        calc_type = st.selectbox("Type:", ["Shiny", "2P"], key="q_type")
-        from_mochi = st.text_input("From:", placeholder="ukraine", key="q_from")
+        calc_special = st.selectbox("Type:", ["Shiny", "2P"], key="calc_type")
+        calc_base = st.text_input("Base:", placeholder="ukraine", key="calc_base")
     
     with col2:
-        to_mochi = st.text_input("To:", placeholder="chibitalia", key="q_to")
-    
-    with col3:
+        calc_target = st.text_input("Target:", placeholder="chibitalia", key="calc_target")
+        calc_mult = 2048 if calc_special == "Shiny" else 1000
+        
         if st.button("Calculate", key="quick_calc"):
-            if from_mochi and to_mochi:
-                from_r = get_rarity_by_name(from_mochi, mochi_type.lower())
-                to_r = get_rarity_by_name(to_mochi, mochi_type.lower())
+            if calc_base and calc_target:
+                base_r = get_rarity_by_name(calc_base, mochi_type.lower())
+                target_r = get_rarity_by_name(calc_target, mochi_type.lower())
                 
-                if from_r and to_r:
-                    mult = 2048 if calc_type == "Shiny" else 1000
-                    amount = (to_r * mult) / from_r
+                if base_r and target_r:
+                    amount = (target_r * calc_mult) / base_r
                     
-                    st.success(f"**1 {calc_type} {from_mochi.title()} = {amount:,.0f} {to_mochi.title()}**")
+                    st.success(f"**1 {calc_special} {calc_base.title()} = {amount:,.0f} {calc_target.title()}**")
+                    st.write(f"**Formula:** ({target_r} × {calc_mult}) ÷ {base_r} = {amount:,.0f}")
+                    
+                    # Example verification
+                    if (calc_base.lower() == "ukraine" and calc_target.lower() == "chibitalia" 
+                        and calc_special == "Shiny"):
+                        st.info("✅ Verification: 45 × 2048 ÷ 90 = 1,024 ✓")
+                            
         
         
     
