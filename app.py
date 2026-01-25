@@ -485,6 +485,117 @@ def tag_based_search(data):
         else:
             st.warning("No mochis found matching these tags")
 
+def shiny_2p_calculator():
+    st.subheader("✨ Shiny & 2P Chance Calculator")
+    
+    st.markdown("""
+    **Rarity Multipliers:**
+    - **Shiny Mochi:** 1 in 2048 chance (0.0488%)
+    - **2P Mochi:** 1 in 1000 chance (0.1%)
+    
+    **Formula:** Final Rarity = Base Rarity × Shiny/2P Multiplier
+    """)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        base_rarity = st.number_input(
+            "Base Mochi Rarity:",
+            min_value=0.1,
+            max_value=200.0,
+            value=5.0,
+            step=0.1,
+            help="Enter the base rarity of the mochi"
+        )
+    
+    with col2:
+        mochi_type = st.selectbox(
+            "Special Type:",
+            ["Normal", "Shiny", "2P"],
+            help="Select if it's shiny or 2P"
+        )
+    
+    # Calculate multipliers
+    if mochi_type == "Shiny":
+        multiplier = 2048
+        chance_percent = 0.0488
+    elif mochi_type == "2P":
+        multiplier = 1000
+        chance_percent = 0.1
+    else:
+        multiplier = 1
+        chance_percent = 100
+    
+    # Calculate final rarity
+    final_rarity = base_rarity * multiplier
+    
+    # Display results
+    st.markdown("---")
+    st.subheader("📊 Calculation Results")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Base Rarity", f"{base_rarity}")
+    
+    with col2:
+        if mochi_type != "Normal":
+            st.metric(f"{mochi_type} Multiplier", f"×{multiplier:,}")
+        else:
+            st.metric("Type", "Normal")
+    
+    with col3:
+        st.metric("Final Rarity", f"{final_rarity:,.1f}")
+    
+    # Detailed explanation
+    with st.expander("📝 Show Detailed Calculation"):
+        st.write("**Step-by-step calculation:**")
+        
+        if mochi_type == "Shiny":
+            st.write(f"1. Base rarity: {base_rarity}")
+            st.write(f"2. Shiny multiplier: 1 in 2,048 (0.0488% chance)")
+            st.write(f"3. Calculation: {base_rarity} × 2,048 = {final_rarity:,.1f}")
+            st.write(f"4. Equivalent: 1 mochi of rarity ~{final_rarity:,.1f}")
+        
+        elif mochi_type == "2P":
+            st.write(f"1. Base rarity: {base_rarity}")
+            st.write(f"2. 2P multiplier: 1 in 1,000 (0.1% chance)")
+            st.write(f"3. Calculation: {base_rarity} × 1,000 = {final_rarity:,.1f}")
+            st.write(f"4. Equivalent: 1 mochi of rarity ~{final_rarity:,.1f}")
+        
+        else:
+            st.write("Normal mochi - no multiplier applied")
+        
+        st.write("")
+        st.write("**What does this mean for trading?**")
+        if mochi_type != "Normal":
+            st.write(f"A {mochi_type.lower()} {base_rarity} rarity mochi is worth approximately **{final_rarity:,.1f}** normal mochis of the same rarity.")
+            st.write(f"Or equivalently: 1 {mochi_type.lower()} {base_rarity} ≈ {final_rarity/base_rarity:,.0f} normal {base_rarity} mochis")
+    
+    st.markdown("---")
+    st.subheader("💡 Trading Examples")
+    
+    if mochi_type != "Normal":
+        example_trades = [
+            f"1 {mochi_type} {base_rarity} ≈ {final_rarity/1:,.0f} normal rarity 1 mochis",
+            f"1 {mochi_type} {base_rarity} ≈ {final_rarity/5:,.0f} normal rarity 5 mochis",
+            f"1 {mochi_type} {base_rarity} ≈ {final_rarity/10:,.0f} normal rarity 10 mochis",
+        ]
+        
+        for example in example_trades:
+            st.write(f"- {example}")
+    
+    st.markdown("---")
+    st.subheader("📋 Quick Reference Table")
+    
+    reference_data = {
+        "Base Rarity": [1, 5, 10, 20, 50, 100],
+        "Shiny Rarity": [2048, 10240, 20480, 40960, 102400, 204800],
+        "2P Rarity": [1000, 5000, 10000, 20000, 50000, 100000]
+    }
+    
+    st.table(reference_data)
+    
 def mochi_value_converter(current_data_flat):
     st.subheader("🔁 Mochi Value Converter")
     
@@ -588,12 +699,10 @@ def show_update_history():
 show_update_history()
 comments_section()
 
-mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Tag Search"])
-
+mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Shiny/2P Calculator", "Tag Search"])
 
         
-     
-
+    
 def show_update_history():
     st.sidebar.markdown("---")
     st.sidebar.subheader("📋 Update History")
@@ -633,6 +742,7 @@ def show_update_history():
 
 
 
+
 if mode == "Name ↔ Rarity Lookup":
     st.subheader("🔍 Mochi Name ⇄ Rarity")
     lookup_input = st.text_input(f"Enter a mochi name or rarity number:", placeholder="e.g. neko england OR 5")
@@ -660,6 +770,9 @@ if mode == "Name ↔ Rarity Lookup":
                 suggestions = suggest_similar_mochis(norm, current_data)
                 if suggestions:
                     st.info(f"Did you mean: {', '.join(suggestions)}?")
+
+elif mode == "Shiny/2P Calculator":
+    shiny_2p_calculator()
 
 elif mode == "Compare two mochis":
     col1, col2 = st.columns(2)
