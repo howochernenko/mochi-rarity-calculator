@@ -493,14 +493,9 @@ def shiny_2p_simulator():
     
     st.markdown("""
     **Important:** Lower rarity number = MORE rare!
-    - Ukraine: rarity 90 (common)
-    - Chibitalia: rarity 45 (rarer than Ukraine)
-    
-    **Correct Formula:**
-    - Value of 1 mochi = 1 ÷ Rarity
-    - Shiny Value = (1 ÷ Base Rarity) × 2048
-    - Amount of Target Mochi = Shiny Value ÷ (1 ÷ Target Rarity)
-    - Simplified: Amount = (Target Rarity × 2048) ÷ Base Rarity
+    **Formula:** Amount = (Target Rarity × Multiplier) ÷ Base Rarity
+    - Shiny multiplier: 2,048×
+    - 2P multiplier: 1,000×
     """)
     
     # Step 1: Base mochi input
@@ -538,13 +533,19 @@ def shiny_2p_simulator():
     # Step 2: Input mochis with max limits
     st.markdown("### 📝 Step 2: Bundle Mochis & Limits")
     
-    st.write("Enter mochis you want in the bundle (one per line):")
+    st.write("Enter mochis you want in the bundle (one per line with optional max):")
+    st.write("**Format:** `mochi_name` or `mochi_name max_amount`")
+    st.write("**Example:**")
+    st.code("""chibitalia
+ukraine 100
+romania 50""")
     
     mochi_inputs = st.text_area(
-        "Format: 'mochi_name [max_amount]'",
-        placeholder="e.g.:\nchibitalia\nromania 100\nukraine 50",
+        "Your mochis:",
+        placeholder="e.g.:\nchibitalia\nukraine 100\nromania 50",
         help="Leave max amount blank for no limit",
-        key="mochi_inputs"
+        key="mochi_inputs",
+        height=150
     )
     
     # Parse mochi inputs with max limits
@@ -579,7 +580,6 @@ def shiny_2p_simulator():
                 mochi_data.append({
                     'name': item['name'],
                     'rarity': rarity,
-                    'value': 1 / rarity,  # This is the key: value = 1/rarity
                     'max': item['max']
                 })
             else:
@@ -591,213 +591,270 @@ def shiny_2p_simulator():
     if st.button("🎯 Generate Optimized Bundles", type="primary", key="generate_bundles") and base_rarity and mochi_data:
         st.markdown("### 📦 Step 3: Generated Bundles")
         
-        # Calculate shiny value in base terms
-        base_value = 1 / base_rarity  # Value of 1 normal base mochi
-        shiny_value = base_value * multiplier  # Value of 1 shiny base mochi
+        # Calculate required total
+        required_total = base_rarity * multiplier
+        
+        # Check if max limits are enough
+        total_possible = 0
+        for mochi in mochi_data:
+            if mochi['max']:
+                total_possible += mochi['max'] * mochi['rarity']
+            else:
+                total_possible += float('inf')  # No limit
+        
+        if total_possible < required_total and total_possible != float('inf'):
+            st.error(f"❌ Not enough mochis with given limits!")
+            st.error(f"Required: {required_total:,.0f}, Possible with limits: {total_possible:,.0f}")
+            return
         
         if base_name:
             st.success(f"**Calculating: 1 {special_type} {base_name.title()}**")
-            st.info(f"Base value: 1/{base_rarity} = {base_value:.4f}")
-            st.info(f"Shiny value: {base_value:.4f} × {multiplier} = {shiny_value:.2f}")
+            st.info(f"Total value needed: {base_rarity} × {multiplier} = **{required_total:,.0f}**")
         
-        # Generate multiple optimized bundles
-        for bundle_num in range(3):  # Generate 3 different bundles
+        # Generate optimized bundles
+        for bundle_num in range(min(3, len(mochi_data))):  # Up to 3 bundles
             with st.expander(f"📊 Bundle #{bundle_num + 1}", expanded=bundle_num == 0):
-                remaining_value = shiny_value
                 bundle = {}
+                remaining = required_total
                 
-                # Different strategies
+                # Different strategies for each bundle
                 if bundle_num == 0:
-                    # Strategy 1: Use single most valuable mochi (lowest rarity)
-                    valuable_mochi = min(mochi_data, key=lambda x: x['rarity'])
-                    
-                    # Calculate amount: shiny_value ÷ mochi_value
-                    amount_needed = shiny_value / valuable_mochi['value']
-                    
-                    # Apply max limit
-                    if valuable_mochi['max']:
-                        amount_needed = min(amount_needed, valuable_mochi['max'])
-                    
-                    if amount_needed >= 0.1:  # At least 0.1 of a mochi
-                        bundle[valuable_mochi['name']] = {
-                            'amount': amount_needed,
-                            'rarity': valuable_mochi['rarity'],
-                            'value_per': valuable_mochi['value']
-                        }
-                
-                elif bundle_num == 1:
-                    # Strategy 2: Distribute among 2-3 mochis
-                    sorted_by_rarity = sorted(mochi_data, key=lambda x: x['rarity'])
-                    
-                    # Pick 2-3 mochis to distribute among
-                    num_mochis = min(3, len(sorted_by_rarity))
-                    selected = sorted_by_rarity[:num_mochis]
-                    
-                    # Distribute based on rarity (rarer gets less)
-                    total_inverse_rarity = sum(1/m['rarity'] for m in selected)
-                    
-                    for mochi in selected:
-                        # Weight: more common (higher rarity) gets more
-                        weight = (1/mochi['rarity']) / total_inverse_rarity
-                        amount = (shiny_value * weight) / mochi['value']
+                    # Strategy 1: Proportional distribution
+                    for mochi in mochi_data:
+                        # Calculate fair share based on rarity
+                        share = (mochi['rarity'] / sum(m['rarity'] for m in mochi_data)) * required_total
+                        amount = share / mochi['rarity']
                         
                         # Apply max limit
-                        if mochi['max']:
-                            amount = min(amount, mochi['max'])
+                        if mochi['max'] and amount > mochi['max']:
+                            amount = mochi['max']
                         
-                        if amount >= 0.1:
+                        if amount >= 0.1:  # At least 0.1
                             bundle[mochi['name']] = {
                                 'amount': amount,
-                                'rarity': mochi['rarity'],
-                                'value_per': mochi['value']
+                                'rarity': mochi['rarity']
                             }
+                            remaining -= amount * mochi['rarity']
                 
-                else:
-                    # Strategy 3: Fill with whatever fits
-                    remaining = shiny_value
-                    sorted_by_value = sorted(mochi_data, key=lambda x: x['value'], reverse=True)
+                elif bundle_num == 1:
+                    # Strategy 2: Fill from most common to rarest
+                    sorted_by_rarity = sorted(mochi_data, key=lambda x: x['rarity'], reverse=True)  # Highest rarity first
                     
-                    for mochi in sorted_by_value:
-                        if remaining <= 0.001:
+                    for mochi in sorted_by_rarity:
+                        if remaining <= 0:
                             break
                         
-                        # How many can we take?
-                        max_by_value = remaining / mochi['value']
+                        max_by_value = remaining / mochi['rarity']
                         
                         # Apply max limit
                         if mochi['max']:
                             max_by_value = min(max_by_value, mochi['max'])
                         
-                        if max_by_value >= 0.5:  # At least half a mochi
-                            # Take a reasonable amount
-                            take = max_by_value * random.uniform(0.3, 0.8)
-                            if take >= 0.5:
+                        if max_by_value >= 0.1:
+                            # Use significant amount
+                            amount = max_by_value * 0.8  # Use 80% of possible
+                            if amount >= 0.5:
                                 bundle[mochi['name']] = {
-                                    'amount': take,
-                                    'rarity': mochi['rarity'],
-                                    'value_per': mochi['value']
+                                    'amount': amount,
+                                    'rarity': mochi['rarity']
                                 }
-                                remaining -= take * mochi['value']
+                                remaining -= amount * mochi['rarity']
+                
+                else:
+                    # Strategy 3: Smart optimization
+                    remaining = required_total
+                    # Try to use all mochis
+                    for mochi in mochi_data:
+                        if remaining <= 0:
+                            break
+                        
+                        # Try to use this mochi
+                        possible = remaining / mochi['rarity']
+                        
+                        # Apply max limit
+                        if mochi['max']:
+                            possible = min(possible, mochi['max'])
+                        
+                        if possible >= 0.1:
+                            # Use reasonable amount
+                            if possible <= 2:
+                                amount = possible  # Use all if small
+                            else:
+                                amount = possible * random.uniform(0.3, 0.7)
+                            
+                            bundle[mochi['name']] = {
+                                'amount': amount,
+                                'rarity': mochi['rarity']
+                            }
+                            remaining -= amount * mochi['rarity']
+                
+                # Optimize to get closer
+                for _ in range(10):  # 10 optimization attempts
+                    if abs(remaining) < 1:
+                        break
+                    
+                    # Try to adjust amounts
+                    for name, data in list(bundle.items()):
+                        mochi_info = next((m for m in mochi_data if m['name'] == name), None)
+                        if not mochi_info:
+                            continue
+                        
+                        if remaining > 0:
+                            # Need to add more
+                            current = data['amount']
+                            max_allowed = mochi_info['max'] if mochi_info['max'] else float('inf')
+                            can_add = max_allowed - current
+                            
+                            if can_add > 0:
+                                to_add = min(remaining / mochi_info['rarity'], can_add)
+                                if to_add >= 0.1:
+                                    bundle[name]['amount'] += to_add
+                                    remaining -= to_add * mochi_info['rarity']
+                        
+                        elif remaining < 0:
+                            # Need to reduce
+                            current = data['amount']
+                            if current > 0.1:
+                                to_remove = min(-remaining / mochi_info['rarity'], current - 0.1)
+                                if to_remove >= 0.1:
+                                    bundle[name]['amount'] -= to_remove
+                                    remaining += to_remove * mochi_info['rarity']
+                
+                # Calculate final bundle value
+                total_value = 0
+                bundle_display = []
+                
+                for name, data in bundle.items():
+                    value = data['amount'] * data['rarity']
+                    total_value += value
+                    
+                    # Format amount
+                    if data['amount'] >= 1000:
+                        amount_str = f"{data['amount']:,.0f}"
+                    elif data['amount'] >= 10:
+                        amount_str = f"{data['amount']:.0f}"
+                    elif data['amount'] >= 1:
+                        amount_str = f"{data['amount']:.1f}"
+                    else:
+                        amount_str = f"{data['amount']:.2f}"
+                    
+                    bundle_display.append(f"**{amount_str} {name.title()}** (rarity {data['rarity']})")
                 
                 # Display bundle
-                if bundle:
-                    total_bundle_value = 0
-                    bundle_display = []
-                    
-                    for name, data in bundle.items():
-                        mochi_value = data['amount'] * data['value_per']
-                        total_bundle_value += mochi_value
-                        
-                        # Format amount nicely
-                        if data['amount'] >= 10:
-                            amount_str = f"{data['amount']:.0f}"
-                        elif data['amount'] >= 1:
-                            amount_str = f"{data['amount']:.1f}"
-                        else:
-                            amount_str = f"{data['amount']:.2f}"
-                        
-                        bundle_display.append(f"**{amount_str} {name.title()}** (rarity {data['rarity']})")
-                    
-                    st.write("**Bundle Contents:**")
-                    for item in bundle_display:
-                        st.write(f"- {item}")
-                    
+                st.write("**Bundle Contents:**")
+                for item in bundle_display:
+                    st.write(f"- {item}")
+                
+                st.write("")
+                st.write(f"**Total Bundle Value:** {total_value:,.0f}")
+                st.write(f"**Target Value:** {required_total:,.0f}")
+                st.write(f"**Difference:** {abs(total_value - required_total):,.0f} "
+                        f"({abs((total_value - required_total)/required_total*100):.1f}% off)")
+                
+                # Show calculation
+                with st.expander("🧮 Show Calculation"):
+                    st.write(f"**Formula for each mochi:** Amount = (Target Rarity × Multiplier) ÷ Base Rarity")
+                    st.write(f"**Base:** {base_name.title()} (rarity {base_rarity})")
+                    st.write(f"**Multiplier:** {multiplier}×")
+                    st.write(f"**Required total:** {base_rarity} × {multiplier} = {required_total:,.0f}")
                     st.write("")
-                    st.write(f"**Total Bundle Value:** {total_bundle_value:.4f}")
-                    st.write(f"**Target Shiny Value:** {shiny_value:.4f}")
-                    st.write(f"**Accuracy:** {(total_bundle_value/shiny_value*100):.1f}%")
-                    
-                    # Show calculation
-                    with st.expander("🧮 Show Calculation"):
-                        st.write(f"**Base mochi:** {base_name.title()} (rarity {base_rarity})")
-                        st.write(f"Value = 1/{base_rarity} = {base_value:.4f}")
-                        st.write(f"**{special_type} multiplier:** ×{multiplier}")
-                        st.write(f"**{special_type} value:** {base_value:.4f} × {multiplier} = {shiny_value:.4f}")
-                        st.write("")
-                        st.write("**Bundle calculation:**")
-                        for name, data in bundle.items():
-                            st.write(f"- {name.title()} (rarity {data['rarity']}):")
-                            st.write(f"  Value per 1 = 1/{data['rarity']} = {data['value_per']:.4f}")
-                            st.write(f"  Amount = {shiny_value:.4f} ÷ {data['value_per']:.4f} = {data['amount']:.1f}")
-                            st.write(f"  Contribution = {data['amount']:.1f} × {data['value_per']:.4f} = {data['amount'] * data['value_per']:.4f}")
+                    st.write("**Per mochi calculation:**")
+                    for name, data in bundle.items():
+                        mochi_info = next((m for m in mochi_data if m['name'] == name), None)
+                        if mochi_info:
+                            calc = f"{data['amount']:.1f} = ({mochi_info['rarity']} × {multiplier}) ÷ {base_rarity}"
+                            st.write(f"- {name.title()}: {calc}")
     
-    # Quick Direct Calculator
+    # Shiny ↔ 2P Trading Calculator
     st.markdown("---")
-    st.subheader("🧮 Quick Calculator")
-    
-    st.write("**Correct formula:** Amount = (Target Rarity × Multiplier) ÷ Base Rarity")
+    st.subheader("🔁 Shiny ↔ 2P Trading Calculator")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        calc_special = st.selectbox("Type:", ["Shiny", "2P"], key="calc_type")
-        calc_base = st.text_input("Base mochi:", placeholder="ukraine", key="calc_base")
+        st.write("**Convert Shiny to 2P**")
+        shiny_mochi = st.text_input("Shiny mochi:", placeholder="e.g. ukraine", key="shiny_input")
+        if shiny_mochi:
+            shiny_r = get_rarity_by_name(shiny_mochi, mochi_type.lower())
+            if shiny_r:
+                shiny_value = shiny_r * 2048
+                st.write(f"1 Shiny {shiny_mochi.title()} = {shiny_value:,.0f}")
     
     with col2:
-        calc_target = st.text_input("Target mochi:", placeholder="chibitalia", key="calc_target")
-        calc_mult = 2048 if calc_special == "Shiny" else 1000
+        st.write("**Convert 2P to Shiny**")
+        twop_mochi = st.text_input("2P mochi:", placeholder="e.g. russia", key="twop_input")
+        if twop_mochi:
+            twop_r = get_rarity_by_name(twop_mochi, mochi_type.lower())
+            if twop_r:
+                twop_value = twop_r * 1000
+                st.write(f"1 2P {twop_mochi.title()} = {twop_value:,.0f}")
     
-    if calc_base and calc_target:
-        base_r = get_rarity_by_name(calc_base, mochi_type.lower())
-        target_r = get_rarity_by_name(calc_target, mochi_type.lower())
+    # Calculate conversion
+    if 'shiny_r' in locals() and shiny_r and 'twop_r' in locals() and twop_r:
+        shiny_val = shiny_r * 2048
+        twop_val = twop_r * 1000
         
-        if base_r and target_r:
-            # CORRECT FORMULA: (target_r × multiplier) ÷ base_r
-            amount = (target_r * calc_mult) / base_r
-            
-            st.success(f"**1 {calc_special} {calc_base.title()} = {amount:,.1f} {calc_target.title()}**")
-            st.write(f"**Calculation:** ({target_r} × {calc_mult}) ÷ {base_r} = {amount:,.1f}")
-            
-            # Show step-by-step
-            with st.expander("Show step-by-step"):
-                st.write(f"1. Base {calc_base.title()} rarity: {base_r}")
-                st.write(f"2. Target {calc_target.title()} rarity: {target_r}")
-                st.write(f"3. {calc_special} multiplier: {calc_mult}")
-                st.write(f"4. Formula: (Target Rarity × Multiplier) ÷ Base Rarity")
-                st.write(f"5. Calculation: ({target_r} × {calc_mult}) ÷ {base_r}")
-                st.write(f"6. Result: {amount:,.1f}")
-            
-            # Verify common examples
-            if (calc_base.lower() == "ukraine" and calc_target.lower() == "chibitalia" 
-                and calc_special == "Shiny"):
-                st.info("✅ Verification: Shiny Ukraine = 1,024 Chibitalia")
-                st.info(f"Chibitalia rarity 45 × 2048 ÷ Ukraine rarity 90 = 1,024 ✓")
-            
-            elif (calc_base.lower() == "ukraine" and calc_target.lower() == "romania" 
-                  and calc_special == "Shiny"):
-                st.info("✅ Verification: Shiny Ukraine = 2,048 Romania")
-                st.info(f"Romania rarity 90 × 2048 ÷ Ukraine rarity 90 = 2,048 ✓")
+        if shiny_val >= twop_val:
+            ratio = shiny_val / twop_val
+            st.success(f"**1 Shiny {shiny_mochi.title()} ≈ {ratio:.3f} 2P {twop_mochi.title()}**")
+            st.write(f"Calculation: ({shiny_r} × 2048) ÷ ({twop_r} × 1000) = {ratio:.3f}")
+        else:
+            ratio = twop_val / shiny_val
+            st.success(f"**1 2P {twop_mochi.title()} ≈ {ratio:.3f} Shiny {shiny_mochi.title()}**")
+            st.write(f"Calculation: ({twop_r} × 1000) ÷ ({shiny_r} × 2048) = {ratio:.3f}")
     
-    # Examples with CORRECT formula
+    # Direct Shiny ↔ 2P calculator
     st.markdown("---")
-    st.subheader("📚 Examples (Correct Formula)")
+    st.subheader("⚡ Direct Shiny ↔ 2P Calculator")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        from_type = st.selectbox("From:", ["Shiny", "2P"], key="from_type")
+        from_mochi = st.text_input("Mochi:", placeholder="e.g. ukraine", key="from_mochi")
+    
+    with col2:
+        to_type = st.selectbox("To:", ["2P", "Shiny"], key="to_type")
+        to_mochi = st.text_input("Mochi:", placeholder="e.g. russia", key="to_mochi")
+    
+    with col3:
+        if st.button("Calculate Conversion", key="calc_conversion"):
+            if from_mochi and to_mochi:
+                from_r = get_rarity_by_name(from_mochi, mochi_type.lower())
+                to_r = get_rarity_by_name(to_mochi, mochi_type.lower())
+                
+                if from_r and to_r:
+                    # Calculate values
+                    if from_type == "Shiny":
+                        from_val = from_r * 2048
+                    else:
+                        from_val = from_r * 1000
+                    
+                    if to_type == "Shiny":
+                        to_val = to_r * 2048
+                    else:
+                        to_val = to_r * 1000
+                    
+                    ratio = from_val / to_val
+                    
+                    st.success(f"**1 {from_type} {from_mochi.title()} ≈ {ratio:.3f} {to_type} {to_mochi.title()}**")
+                    st.write(f"**Calculation:** ({from_r} × {2048 if from_type == 'Shiny' else 1000}) ÷ ({to_r} × {2048 if to_type == 'Shiny' else 1000})")
+    
+    # Examples
+    st.markdown("---")
+    st.subheader("📚 Examples")
     
     examples = [
-        ("Shiny Ukraine → Chibitalia", 
-         "Formula: (Target × 2048) ÷ Base",
-         "(45 × 2048) ÷ 90 = 1,024 Chibitalia"),
-        
-        ("Shiny Ukraine → Romania", 
-         "Formula: (Target × 2048) ÷ Base", 
-         "(90 × 2048) ÷ 90 = 2,048 Romania"),
-        
-        ("Shiny 5 → Ukraine", 
-         "Formula: (Target × 2048) ÷ Base",
-         "(90 × 2048) ÷ 5 = 36,864 Ukraine"),
-        
-        ("2P Russia → Belarus", 
-         "Formula: (Target × 1000) ÷ Base",
-         "(60 × 1000) ÷ 9 = 6,667 Belarus"),
-        
-        ("Shiny 1 → Rarity 100", 
-         "Formula: (Target × 2048) ÷ Base",
-         "(100 × 2048) ÷ 1 = 204,800 rarity 100 mochi"),
+        ("Shiny Ukraine → Chibitalia", "45 × 2048 ÷ 90 = 1,024 Chibitalia"),
+        ("Shiny Ukraine → 100 Ukraine", "100 Ukraine max → Not enough (need 2,048)"),
+        ("2P Russia → Belarus", "60 × 1000 ÷ 9 = 6,667 Belarus"),
+        ("Shiny 5 → 2P 10", "(5 × 2048) ÷ (10 × 1000) = 1.024 → 1 Shiny 5 ≈ 1.024 2P 10"),
     ]
     
-    for title, formula, calculation in examples:
-        with st.expander(f"🧮 {title}"):
-            st.write(f"**Formula:** {formula}")
-            st.write(f"**Calculation:** {calculation}")
+    for title, calc in examples:
+        with st.expander(title):
+            st.write(calc)
+            
         
         
     
