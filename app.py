@@ -493,8 +493,10 @@ def shiny_2p_simulator():
     st.subheader("✨ Shiny & 2P Trade Simulator")
     
     st.markdown("""
-    **CORRECT FORMULA:** 
-    Amount of Target Mochi = (Target Rarity × Multiplier) ÷ Base Rarity
+    **CORRECT CALCULATION:**
+    - 1 Normal Mochi value = Its Rarity (e.g., Ukraine = 90)
+    - 1 Shiny Mochi value = Base Rarity × 2048 (e.g., Shiny Ukraine = 90 × 2048 = 184,320)
+    - Amount needed = (Target Rarity × 2048) ÷ Base Rarity
     """)
     
     # Step 1: Base mochi
@@ -723,48 +725,49 @@ def shiny_2p_simulator():
                                 total_rounded_value = sum(rounded_amounts[name] * next(m['value_per_one'] for m in mochi_data if m['name'] == name)
                                                         for name in rounded_amounts)
                 
-                # Display results
-                if rounded_amounts:
-                    st.write("**Bundle Contents:**")
-                    
-                    # Sort by amount (largest first)
-                    sorted_items = sorted(rounded_amounts.items(), key=lambda x: x[1], reverse=True)
-                    
-                    for name, amount in sorted_items:
-                        mochi_info = next(m for m in mochi_data if m['name'] == name)
-                        item_value = amount * mochi_info['value_per_one']
-                        
-                        # Format amount
-                        if amount >= 1000:
-                            amount_str = f"{amount:,.0f}"
-                        elif amount >= 10:
-                            amount_str = f"{amount:.0f}"
-                        elif amount >= 1:
-                            amount_str = f"{amount:.1f}"
-                        else:
-                            amount_str = f"{amount:.2f}"
-                        
-                        st.write(f"- **{amount_str} {name.title()}** (rarity {mochi_info['rarity']})")
-                        st.write(f"  Value: {amount:,.1f} × 1/{mochi_info['rarity']} = {item_value:.2f}")
-                    
-                    st.write("")
-                    st.write(f"**Total Bundle Value:** {total_rounded_value:.2f}")
-                    st.write(f"**Target Value:** {target_value:.2f}")
-                    
-                    accuracy = 100 - (abs(total_rounded_value - target_value) / target_value * 100)
-                    st.write(f"**Accuracy:** {accuracy:.2f}%")
-                    
-                    if accuracy < 95:
-                        st.warning("⚠️ Could not reach optimal accuracy due to limits")
-                    
-                    # Show formula calculation
-                    with st.expander("🧮 Show Formula Calculation"):
-                        for name, amount in rounded_amounts.items():
-                            mochi_info = next(m for m in mochi_data if m['name'] == name)
-                            calc = f"{amount:.1f} = ({mochi_info['rarity']} × {multiplier}) ÷ {base_rarity}"
-                            st.write(f"- {name.title()}: {calc}")
-                else:
-                    st.warning("No valid bundle could be created with given limits")
+           
+    if rounded_amounts:
+        st.write("**Bundle Contents:**")
+        
+        # Sort by amount (largest first)
+        sorted_items = sorted(rounded_amounts.items(), key=lambda x: x[1], reverse=True)
+        
+        for name, amount in sorted_items:
+            mochi_info = next(m for m in mochi_data if m['name'] == name)
+            
+            # CORRECTED: Value = Amount × Rarity
+            item_value = amount * mochi_info['rarity']
+            
+            # Format amount
+            if amount >= 1000:
+                amount_str = f"{amount:,.0f}"
+            elif amount >= 10:
+                amount_str = f"{amount:.0f}"
+            elif amount >= 1:
+                amount_str = f"{amount:.1f}"
+            else:
+                amount_str = f"{amount:.2f}"
+            
+            st.write(f"- **{amount_str} {name.title()}** (rarity {mochi_info['rarity']})")
+            st.write(f"  Value: {amount:,.1f} × {mochi_info['rarity']} = {item_value:,.0f}")
+        
+        st.write("")
+        total_bundle_value = sum(rounded_amounts[name] * next(m['rarity'] for m in mochi_data if m['name'] == name)
+                               for name in rounded_amounts)
+        st.write(f"**Total Bundle Value:** {total_bundle_value:,.0f}")
+        st.write(f"**Target Value:** {target_value:,.0f}")
+        
+        accuracy = 100 - (abs(total_bundle_value - target_value) / target_value * 100)
+        st.write(f"**Accuracy:** {accuracy:.2f}%")
+        
+        # Verify with formula
+        with st.expander("✅ Verification", expanded=True):
+            st.write("**Formula check:** Amount = (Target Rarity × 2048) ÷ Base Rarity")
+            for name, amount in rounded_amounts.items():
+                mochi_info = next(m for m in mochi_data if m['name'] == name)
+                calculated = (mochi_info['rarity'] * multiplier) / base_rarity
+                st.write(f"- {name.title()}: ({mochi_info['rarity']} × {multiplier}) ÷ {base_rarity} = {calculated:,.0f}")
+                st.write(f"  Using: {amount:,.0f} (Difference: {abs(amount - calculated):,.0f})")
     
     # Quick Calculator
     st.markdown("---")
