@@ -212,6 +212,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
+    {"date": "2026-1-25", "changes": "Added shiny/2p to normal calculation"},
     {"date": "2025-12-26", "changes": "Updated new rarity"},
     {"date": "2025-12-13", "changes": "Added disclaimer part"}, 
     {"date": "2025-11-18", "changes": "Added Kitty-Chan"}, 
