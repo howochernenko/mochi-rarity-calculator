@@ -498,7 +498,7 @@ def shiny_2p_simulator():
     - **Base equivalents = Amount × (Base Rarity ÷ Target Rarity)**
     """)
     
-      "tempovary off because I'm thinking about a more fair value, give me suggestions in comment section if u have any idea :)"
+    "tempovary off because I'm thinking about a more fair value, give me suggestions in comment section if u have any idea :)"
     # Shiny ↔ 2P Converter
     st.markdown("---")
  
