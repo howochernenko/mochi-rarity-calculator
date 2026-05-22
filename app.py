@@ -7,6 +7,94 @@ import os
 import random
 import math
 
+def show_birthday_message():
+    birthday_data = {
+        "01-08": {"name": "Monaco", "flag": "🇲🇨", "message": "Happy Birthday Monaco! 🎂"},
+        "01-18": {"name": "Prussia", "flag": "🏳️", "message": "Happy Birthday Prussia! 🎂"},
+        "01-26": {"name": "Australia", "flag": "🇦🇺", "message": "Happy Birthday Australia! 🎂"},
+        "02-11": {"name": "Japan", "flag": "🇯🇵", "message": "Happy Birthday Japan! 🎂"},
+        "02-12": {"name": "Spain", "flag": "🇪🇸", "message": "Happy Birthday Spain! 🎂"},
+        "02-16": {"name": "Lithuania", "flag": "🇱🇹", "message": "Happy Birthday Lithuania! 🎂"},
+        "02-24": {"name": "Estonia", "flag": "🇪🇪", "message": "Happy Birthday Estonia! 🎂"},
+        "02-26": {"name": "Egypt", "flag": "🇪🇬", "message": "Happy Birthday Egypt! 🎂"},
+        "03-17": {"name": "Italy", "flag": "🇮🇹", "message": "Happy Birthday Italy! 🎂"},
+        "03-25": {"name": "Greece", "flag": "🇬🇷", "message": "Happy Birthday Greece! 🎂"},
+        "04-23": {"name": "England", "flag": "🏳️", "message": "Happy Birthday England! 🎂"},
+        "05-17": {"name": "Norway", "flag": "🇳🇴", "message": "Happy Birthday Norway! 🎂"},
+        "05-20": {"name": "Cuba", "flag": "🇨🇺", "message": "Happy Birthday Cuba! 🎂"},
+        "06-05": {"name": "Denmark", "flag": "🇩🇰", "message": "Happy Birthday Denmark! 🎂"},
+        "06-06": {"name": "Sweden", "flag": "🇸🇪", "message": "Happy Birthday Sweden! 🎂"},
+        "06-08": {"name": "Hungary", "flag": "🇭🇺", "message": "Happy Birthday Hungary! 🎂"},
+        "06-17": {"name": "Iceland", "flag": "🇮🇸", "message": "Happy Birthday Iceland! 🎂"},
+        "06-29": {"name": "Seychelles", "flag": "🇸🇨", "message": "Happy Birthday Seychelles! 🎂"},
+        "07-01": {"name": "Canada", "flag": "🇨🇦", "message": "Happy Birthday Canada! 🎂"},
+        "07-01": {"name": "Hong Kong", "flag": "🇭🇰", "message": "Happy Birthday Hong Kong! 🎂"},
+        "07-04": {"name": "America", "flag": "🇺🇸", "message": "Happy Birthday America! 🎂"},
+        "07-12": {"name": "Liechtenstein", "flag": "🇱🇮", "message": "Happy Birthday Liechtenstein! 🎂"},
+        "07-14": {"name": "France", "flag": "🇫🇷", "message": "Happy Birthday France! 🎂"},
+        "07-21": {"name": "Belgium", "flag": "🇧🇪", "message": "Happy Birthday Belgium! 🎂"},
+        "07-22": {"name": "Poland", "flag": "🇵🇱", "message": "Happy Birthday Poland! 🎂"},
+        "08-01": {"name": "Switzerland", "flag": "🇨🇭", "message": "Happy Birthday Switzerland! 🎂"},
+        "08-15": {"name": "South Korea", "flag": "🇰🇷", "message": "Happy Birthday South Korea! 🎂"},
+        "08-24": {"name": "Ukraine", "flag": "🇺🇦", "message": "Happy Birthday Ukraine! 🎂"},
+        "08-25": {"name": "Belarus", "flag": "🇧🇾", "message": "Happy Birthday Belarus! 🎂"},
+        "09-02": {"name": "Vietnam", "flag": "🇻🇳", "message": "Happy Birthday Vietnam! 🎂"},
+        "09-02": {"name": "Sealand", "flag": "🏳️", "message": "Happy Birthday Sealand! 🎂"},
+        "10-03": {"name": "Germany", "flag": "🇩🇪", "message": "Happy Birthday Germany! 🎂"},
+        "10-10": {"name": "China", "flag": "🇨🇳", "message": "Happy Birthday China! 🎂"},
+        "10-25": {"name": "Taiwan", "flag": "🇹🇼", "message": "Happy Birthday Taiwan! 🎂"},
+        "10-26": {"name": "Austria", "flag": "🇦🇹", "message": "Happy Birthday Austria! 🎂"},
+        "10-29": {"name": "Turkey", "flag": "🇹🇷", "message": "Happy Birthday Turkey! 🎂"},
+        "11-15": {"name": "Wy", "flag": "🏳️", "message": "Happy Birthday Wy! 🎂"},
+        "11-18": {"name": "Latvia", "flag": "🇱🇻", "message": "Happy Birthday Latvia! 🎂"},
+        "12-06": {"name": "Finland", "flag": "🇫🇮", "message": "Happy Birthday Finland! 🎂"},
+        "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
+    }
+    
+    # FOR TESTING - change this to any birthday date
+    today = "07-04"  # America's birthday (July 4th)
+    # today = datetime.now().strftime("%m-%d")  # Uncomment for live use
+    
+    if today in birthday_data:
+        birthday = birthday_data[today]
+        
+        party_poppers = ["🎉", "🎊", "✨", "🎈", "🎆", "🎇", "🥳"]
+        random_poppers = " ".join(random.sample(party_poppers, 3))
+        
+        st.markdown(f"""
+        <style>
+        @keyframes pop {{
+            0% {{ transform: scale(0); opacity: 0; }}
+            50% {{ transform: scale(1.2); }}
+            100% {{ transform: scale(1); opacity: 1; }}
+        }}
+        .birthday-box {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+            animation: pop 0.5s ease-out;
+        }}
+        .birthday-text {{
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            margin: 10px 0;
+        }}
+        .birthday-flag {{
+            font-size: 4em;
+            animation: pop 0.5s ease-out;
+        }}
+        </style>
+        
+        <div class="birthday-box">
+            <div class="birthday-flag">{birthday['flag']}</div>
+            <div class="birthday-text">{random_poppers}</div>
+            <div class="birthday-text">{birthday['message']}</div>
+            <div class="birthday-text">{random_poppers}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 def mandatory_popup():
@@ -121,96 +209,6 @@ st.title("🌟 Mochis Trade Calculator")
 mandatory_popup()  
 show_birthday_message()
 show_owner_messages() 
-
-def show_birthday_message():
-    birthday_data = {
-        "01-08": {"name": "Monaco", "flag": "🇲🇨", "message": "Happy Birthday Monaco! 🎂"},
-        "01-18": {"name": "Prussia", "flag": "🏳️", "message": "Happy Birthday Prussia! 🎂"},
-        "01-26": {"name": "Australia", "flag": "🇦🇺", "message": "Happy Birthday Australia! 🎂"},
-        "02-11": {"name": "Japan", "flag": "🇯🇵", "message": "Happy Birthday Japan! 🎂"},
-        "02-12": {"name": "Spain", "flag": "🇪🇸", "message": "Happy Birthday Spain! 🎂"},
-        "02-16": {"name": "Lithuania", "flag": "🇱🇹", "message": "Happy Birthday Lithuania! 🎂"},
-        "02-24": {"name": "Estonia", "flag": "🇪🇪", "message": "Happy Birthday Estonia! 🎂"},
-        "02-26": {"name": "Egypt", "flag": "🇪🇬", "message": "Happy Birthday Egypt! 🎂"},
-        "03-17": {"name": "Italy", "flag": "🇮🇹", "message": "Happy Birthday Italy! 🎂"},
-        "03-25": {"name": "Greece", "flag": "🇬🇷", "message": "Happy Birthday Greece! 🎂"},
-        "04-23": {"name": "England", "flag": "🏳️", "message": "Happy Birthday England! 🎂"},
-        "05-17": {"name": "Norway", "flag": "🇳🇴", "message": "Happy Birthday Norway! 🎂"},
-        "05-20": {"name": "Cuba", "flag": "🇨🇺", "message": "Happy Birthday Cuba! 🎂"},
-        "06-05": {"name": "Denmark", "flag": "🇩🇰", "message": "Happy Birthday Denmark! 🎂"},
-        "06-06": {"name": "Sweden", "flag": "🇸🇪", "message": "Happy Birthday Sweden! 🎂"},
-        "06-08": {"name": "Hungary", "flag": "🇭🇺", "message": "Happy Birthday Hungary! 🎂"},
-        "06-17": {"name": "Iceland", "flag": "🇮🇸", "message": "Happy Birthday Iceland! 🎂"},
-        "06-29": {"name": "Seychelles", "flag": "🇸🇨", "message": "Happy Birthday Seychelles! 🎂"},
-        "07-01": {"name": "Canada", "flag": "🇨🇦", "message": "Happy Birthday Canada! 🎂"},
-        "07-01": {"name": "Hong Kong", "flag": "🇭🇰", "message": "Happy Birthday Hong Kong! 🎂"},
-        "07-04": {"name": "America", "flag": "🇺🇸", "message": "Happy Birthday America! 🎂"},
-        "07-12": {"name": "Liechtenstein", "flag": "🇱🇮", "message": "Happy Birthday Liechtenstein! 🎂"},
-        "07-14": {"name": "France", "flag": "🇫🇷", "message": "Happy Birthday France! 🎂"},
-        "07-21": {"name": "Belgium", "flag": "🇧🇪", "message": "Happy Birthday Belgium! 🎂"},
-        "07-22": {"name": "Poland", "flag": "🇵🇱", "message": "Happy Birthday Poland! 🎂"},
-        "08-01": {"name": "Switzerland", "flag": "🇨🇭", "message": "Happy Birthday Switzerland! 🎂"},
-        "08-15": {"name": "South Korea", "flag": "🇰🇷", "message": "Happy Birthday South Korea! 🎂"},
-        "08-24": {"name": "Ukraine", "flag": "🇺🇦", "message": "Happy Birthday Ukraine! 🎂"},
-        "08-25": {"name": "Belarus", "flag": "🇧🇾", "message": "Happy Birthday Belarus! 🎂"},
-        "09-02": {"name": "Vietnam", "flag": "🇻🇳", "message": "Happy Birthday Vietnam! 🎂"},
-        "09-02": {"name": "Sealand", "flag": "🏳️", "message": "Happy Birthday Sealand! 🎂"},
-        "10-03": {"name": "Germany", "flag": "🇩🇪", "message": "Happy Birthday Germany! 🎂"},
-        "10-10": {"name": "China", "flag": "🇨🇳", "message": "Happy Birthday China! 🎂"},
-        "10-25": {"name": "Taiwan", "flag": "🇹🇼", "message": "Happy Birthday Taiwan! 🎂"},
-        "10-26": {"name": "Austria", "flag": "🇦🇹", "message": "Happy Birthday Austria! 🎂"},
-        "10-29": {"name": "Turkey", "flag": "🇹🇷", "message": "Happy Birthday Turkey! 🎂"},
-        "11-15": {"name": "Wy", "flag": "🏳️", "message": "Happy Birthday Wy! 🎂"},
-        "11-18": {"name": "Latvia", "flag": "🇱🇻", "message": "Happy Birthday Latvia! 🎂"},
-        "12-06": {"name": "Finland", "flag": "🇫🇮", "message": "Happy Birthday Finland! 🎂"},
-        "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
-    }
-    
-    import random
-    from datetime import datetime
-    
-    today = "07-04"
-    
-    if today in birthday_data:
-        birthday = birthday_data[today]
-        
-        party_poppers = ["🎉", "🎊", "✨", "🎈", "🎆", "🎇", "🥳"]
-        random_poppers = " ".join(random.sample(party_poppers, 3))
-        
-        st.markdown(f"""
-        <style>
-        @keyframes pop {{
-            0% {{ transform: scale(0); opacity: 0; }}
-            50% {{ transform: scale(1.2); }}
-            100% {{ transform: scale(1); opacity: 1; }}
-        }}
-        .birthday-box {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 10px 0;
-            text-align: center;
-            animation: pop 0.5s ease-out;
-        }}
-        .birthday-text {{
-            font-size: 2em;
-            font-weight: bold;
-            color: white;
-            margin: 10px 0;
-        }}
-        .birthday-flag {{
-            font-size: 4em;
-            animation: pop 0.5s ease-out;
-        }}
-        </style>
-        
-        <div class="birthday-box">
-            <div class="birthday-flag">{birthday['flag']}</div>
-            <div class="birthday-text">{random_poppers}</div>
-            <div class="birthday-text">{birthday['message']}</div>
-            <div class="birthday-text">{random_poppers}</div>
-        </div>
-        """, unsafe_allow_html=True)
 
 
 
