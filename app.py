@@ -746,10 +746,9 @@ def mini_features():
     with tab2:
         st.info("✨ More mini features coming soon!")
         st.markdown("""
-        - 📊 **Trade History Tracker** - Keep track of your past trades
-        - 💰 **Value Trends** - See how mochi values change over time
-        - 🎲 **Random Trade Generator** - Get random fair trade suggestions
-        - 📝 **Trade Notes** - Save notes about your trades
+        - Heta-wordle
+        - guess the mochi!
+        - feel free to give ideas in the comment section/dm me
         """)
         
         
