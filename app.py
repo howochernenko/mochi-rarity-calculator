@@ -46,16 +46,13 @@ def mandatory_popup():
 
 
 def show_owner_messages():
-    """Show popup messages from the owner when the app starts"""
-    
-
-        if 'message_index' not in st.session_state:
+    if 'message_index' not in st.session_state:
         st.session_state.message_index = 0
     if 'show_messages' not in st.session_state:
         st.session_state.show_messages = True
     
     OWNER_MESSAGES = [
-        "🌟 Hai Welcome to Mochis Trade Calculator! I just updated it so it shows detailed calculation",
+        "🌟 Hai Welcome to Mochis Trade Calculator!",
         "This calculator helps you calculate fair trades between different mochis.",
         "Remember about demand and stuff, some mochis like russia/Japan are worth more due to popularity BUT I DON'T CHANGE THE RARITY BASED ON DEMAND plz stop spreadng misinformation ty......don't get scammed",
         "Found a bug? Use the comments section or tell me on discord",
