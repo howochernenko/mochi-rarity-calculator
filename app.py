@@ -9,54 +9,53 @@ import math
 
 def show_birthday_message():
     birthday_data = {
-        "01-08": {"name": "Monaco", "flag": "🇲🇨", "message": "Happy Birthday Monaco! 🎂"},
-        "01-18": {"name": "Prussia", "flag": "🏳️", "message": "Happy Birthday Prussia! 🎂"},
-        "01-26": {"name": "Australia", "flag": "🇦🇺", "message": "Happy Birthday Australia! 🎂"},
-        "02-11": {"name": "Japan", "flag": "🇯🇵", "message": "Happy Birthday Japan! 🎂"},
-        "02-12": {"name": "Spain", "flag": "🇪🇸", "message": "Happy Birthday Spain! 🎂"},
-        "02-16": {"name": "Lithuania", "flag": "🇱🇹", "message": "Happy Birthday Lithuania! 🎂"},
-        "02-24": {"name": "Estonia", "flag": "🇪🇪", "message": "Happy Birthday Estonia! 🎂"},
-        "02-26": {"name": "Egypt", "flag": "🇪🇬", "message": "Happy Birthday Egypt! 🎂"},
-        "03-17": {"name": "Italy", "flag": "🇮🇹", "message": "Happy Birthday Italy! 🎂"},
-        "03-25": {"name": "Greece", "flag": "🇬🇷", "message": "Happy Birthday Greece! 🎂"},
-        "04-23": {"name": "England", "flag": "🏳️", "message": "Happy Birthday England! 🎂"},
-        "05-17": {"name": "Norway", "flag": "🇳🇴", "message": "Happy Birthday Norway! 🎂"},
-        "05-20": {"name": "Cuba", "flag": "🇨🇺", "message": "Happy Birthday Cuba! 🎂"},
-        "06-05": {"name": "Denmark", "flag": "🇩🇰", "message": "Happy Birthday Denmark! 🎂"},
-        "06-06": {"name": "Sweden", "flag": "🇸🇪", "message": "Happy Birthday Sweden! 🎂"},
-        "06-08": {"name": "Hungary", "flag": "🇭🇺", "message": "Happy Birthday Hungary! 🎂"},
-        "06-17": {"name": "Iceland", "flag": "🇮🇸", "message": "Happy Birthday Iceland! 🎂"},
-        "06-29": {"name": "Seychelles", "flag": "🇸🇨", "message": "Happy Birthday Seychelles! 🎂"},
-        "07-01": {"name": "Canada", "flag": "🇨🇦", "message": "Happy Birthday Canada! 🎂"},
-        "07-01": {"name": "Hong Kong", "flag": "🇭🇰", "message": "Happy Birthday Hong Kong! 🎂"},
-        "07-04": {"name": "America", "flag": "🇺🇸", "message": "Happy Birthday America! 🎂"},
-        "07-12": {"name": "Liechtenstein", "flag": "🇱🇮", "message": "Happy Birthday Liechtenstein! 🎂"},
-        "07-14": {"name": "France", "flag": "🇫🇷", "message": "Happy Birthday France! 🎂"},
-        "07-21": {"name": "Belgium", "flag": "🇧🇪", "message": "Happy Birthday Belgium! 🎂"},
-        "07-22": {"name": "Poland", "flag": "🇵🇱", "message": "Happy Birthday Poland! 🎂"},
-        "08-01": {"name": "Switzerland", "flag": "🇨🇭", "message": "Happy Birthday Switzerland! 🎂"},
-        "08-15": {"name": "South Korea", "flag": "🇰🇷", "message": "Happy Birthday South Korea! 🎂"},
-        "08-24": {"name": "Ukraine", "flag": "🇺🇦", "message": "Happy Birthday Ukraine! 🎂"},
-        "08-25": {"name": "Belarus", "flag": "🇧🇾", "message": "Happy Birthday Belarus! 🎂"},
-        "09-02": {"name": "Vietnam", "flag": "🇻🇳", "message": "Happy Birthday Vietnam! 🎂"},
-        "09-02": {"name": "Sealand", "flag": "🏳️", "message": "Happy Birthday Sealand! 🎂"},
-        "10-03": {"name": "Germany", "flag": "🇩🇪", "message": "Happy Birthday Germany! 🎂"},
-        "10-10": {"name": "China", "flag": "🇨🇳", "message": "Happy Birthday China! 🎂"},
-        "10-25": {"name": "Taiwan", "flag": "🇹🇼", "message": "Happy Birthday Taiwan! 🎂"},
-        "10-26": {"name": "Austria", "flag": "🇦🇹", "message": "Happy Birthday Austria! 🎂"},
-        "10-29": {"name": "Turkey", "flag": "🇹🇷", "message": "Happy Birthday Turkey! 🎂"},
-        "11-15": {"name": "Wy", "flag": "🏳️", "message": "Happy Birthday Wy! 🎂"},
-        "11-18": {"name": "Latvia", "flag": "🇱🇻", "message": "Happy Birthday Latvia! 🎂"},
-        "12-06": {"name": "Finland", "flag": "🇫🇮", "message": "Happy Birthday Finland! 🎂"},
-        "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
+        "01-08": {"name": "Monaco", "flag": "🇲🇨", "color1": "#CE1126", "color2": "#FFFFFF", "message": "Happy Birthday Monaco! 🎂"},
+        "01-18": {"name": "Prussia", "flag": "🏳️", "color1": "#000000", "color2": "#FFFFFF", "message": "Happy Birthday Prussia! 🎂"},
+        "01-26": {"name": "Australia", "flag": "🇦🇺", "color1": "#00008B", "color2": "#FF0000", "message": "Happy Birthday Australia! 🎂"},
+        "02-11": {"name": "Japan", "flag": "🇯🇵", "color1": "#BC002D", "color2": "#FFFFFF", "message": "Happy Birthday Japan! 🎂"},
+        "02-12": {"name": "Spain", "flag": "🇪🇸", "color1": "#AA151B", "color2": "#F1BF00", "message": "Happy Birthday Spain! 🎂"},
+        "02-16": {"name": "Lithuania", "flag": "🇱🇹", "color1": "#006A44", "color2": "#C1272D", "message": "Happy Birthday Lithuania! 🎂"},
+        "02-24": {"name": "Estonia", "flag": "🇪🇪", "color1": "#0072CE", "color2": "#000000", "message": "Happy Birthday Estonia! 🎂"},
+        "02-26": {"name": "Egypt", "flag": "🇪🇬", "color1": "#CE1126", "color2": "#000000", "message": "Happy Birthday Egypt! 🎂"},
+        "03-17": {"name": "Italy", "flag": "🇮🇹", "color1": "#009246", "color2": "#FFFFFF", "message": "Happy Birthday Italy! 🎂"},
+        "03-25": {"name": "Greece", "flag": "🇬🇷", "color1": "#0D5EAF", "color2": "#FFFFFF", "message": "Happy Birthday Greece! 🎂"},
+        "04-23": {"name": "England", "flag": "🏳️", "color1": "#CE1126", "color2": "#FFFFFF", "message": "Happy Birthday England! 🎂"},
+        "05-17": {"name": "Norway", "flag": "🇳🇴", "color1": "#EF2B2D", "color2": "#002868", "message": "Happy Birthday Norway! 🎂"},
+        "05-20": {"name": "Cuba", "flag": "🇨🇺", "color1": "#002A8F", "color2": "#FFFFFF", "message": "Happy Birthday Cuba! 🎂"},
+        "06-05": {"name": "Denmark", "flag": "🇩🇰", "color1": "#C60C30", "color2": "#FFFFFF", "message": "Happy Birthday Denmark! 🎂"},
+        "06-06": {"name": "Sweden", "flag": "🇸🇪", "color1": "#005B99", "color2": "#FECC02", "message": "Happy Birthday Sweden! 🎂"},
+        "06-08": {"name": "Hungary", "flag": "🇭🇺", "color1": "#CD2A3E", "color2": "#FFFFFF", "message": "Happy Birthday Hungary! 🎂"},
+        "06-17": {"name": "Iceland", "flag": "🇮🇸", "color1": "#00205B", "color2": "#DC1E35", "message": "Happy Birthday Iceland! 🎂"},
+        "06-29": {"name": "Seychelles", "flag": "🇸🇨", "color1": "#003F87", "color2": "#FCD116", "message": "Happy Birthday Seychelles! 🎂"},
+        "07-01": {"name": "Canada", "flag": "🇨🇦", "color1": "#FF0000", "color2": "#FFFFFF", "message": "Happy Birthday Canada! 🎂"},
+        "07-01": {"name": "Hong Kong", "flag": "🇭🇰", "color1": "#FF0000", "color2": "#FFFFFF", "message": "Happy Birthday Hong Kong! 🎂"},
+        "07-04": {"name": "America", "flag": "🇺🇸", "color1": "#002868", "color2": "#BF0A30", "message": "Happy Birthday America! 🎂"},
+        "07-12": {"name": "Liechtenstein", "flag": "🇱🇮", "color1": "#002B7F", "color2": "#CE1126", "message": "Happy Birthday Liechtenstein! 🎂"},
+        "07-14": {"name": "France", "flag": "🇫🇷", "color1": "#002395", "color2": "#FFFFFF", "message": "Happy Birthday France! 🎂"},
+        "07-21": {"name": "Belgium", "flag": "🇧🇪", "color1": "#000000", "color2": "#FDDA24", "message": "Happy Birthday Belgium! 🎂"},
+        "07-22": {"name": "Poland", "flag": "🇵🇱", "color1": "#DC143C", "color2": "#FFFFFF", "message": "Happy Birthday Poland! 🎂"},
+        "08-01": {"name": "Switzerland", "flag": "🇨🇭", "color1": "#FF0000", "color2": "#FFFFFF", "message": "Happy Birthday Switzerland! 🎂"},
+        "08-15": {"name": "South Korea", "flag": "🇰🇷", "color1": "#CD2E3A", "color2": "#0047A0", "message": "Happy Birthday South Korea! 🎂"},
+        "08-24": {"name": "Ukraine", "flag": "🇺🇦", "color1": "#005BBB", "color2": "#FFD500", "message": "Happy Birthday Ukraine! 🎂"},
+        "08-25": {"name": "Belarus", "flag": "🇧🇾", "color1": "#00A651", "color2": "#CE1126", "message": "Happy Birthday Belarus! 🎂"},
+        "09-02": {"name": "Vietnam", "flag": "🇻🇳", "color1": "#DA251D", "color2": "#FFFF00", "message": "Happy Birthday Vietnam! 🎂"},
+        "09-02": {"name": "Sealand", "flag": "🏳️", "color1": "#CE1126", "color2": "#000000", "message": "Happy Birthday Sealand! 🎂"},
+        "10-03": {"name": "Germany", "flag": "🇩🇪", "color1": "#000000", "color2": "#DD0000", "message": "Happy Birthday Germany! 🎂"},
+        "10-10": {"name": "China", "flag": "🇨🇳", "color1": "#DE2910", "color2": "#FFDE00", "message": "Happy Birthday China! 🎂"},
+        "10-25": {"name": "Taiwan", "flag": "🇹🇼", "color1": "#000095", "color2": "#FE0000", "message": "Happy Birthday Taiwan! 🎂"},
+        "10-26": {"name": "Austria", "flag": "🇦🇹", "color1": "#ED2939", "color2": "#FFFFFF", "message": "Happy Birthday Austria! 🎂"},
+        "10-29": {"name": "Turkey", "flag": "🇹🇷", "color1": "#E30A17", "color2": "#FFFFFF", "message": "Happy Birthday Turkey! 🎂"},
+        "11-15": {"name": "Wy", "flag": "🏳️", "color1": "#D00F31", "color2": "#006600", "message": "Happy Birthday Wy! 🎂"},
+        "11-18": {"name": "Latvia", "flag": "🇱🇻", "color1": "#9E3039", "color2": "#FFFFFF", "message": "Happy Birthday Latvia! 🎂"},
+        "12-06": {"name": "Finland", "flag": "🇫🇮", "color1": "#002F6C", "color2": "#FFFFFF", "message": "Happy Birthday Finland! 🎂"},
+        "12-30": {"name": "Russia", "flag": "🇷🇺", "color1": "#0033A0", "color2": "#DA291C", "message": "Happy Birthday Russia! 🎂"},
     }
     
-    today = "11-15"
+    today = "07-04"
     
     if today in birthday_data:
         birthday = birthday_data[today]
         
-        # Generate random positions for floating emojis
         import random
         positions = [random.randint(5, 95) for _ in range(8)]
         delays = [random.uniform(0, 3) for _ in range(8)]
@@ -77,26 +76,28 @@ def show_birthday_message():
             animation: gentleFloat linear infinite;
         }}
         .birthday-box {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, {birthday['color1']} 0%, {birthday['color2']} 100%);
             border-radius: 15px;
             padding: 20px;
             margin: 10px 0;
             text-align: center;
-            border: 2px solid gold;
+            border: 3px solid gold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }}
         .birthday-text {{
             font-size: 1.5em;
             font-weight: bold;
             color: white;
             margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }}
         .birthday-flag {{
             font-size: 3em;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
         }}
         </style>
         """, unsafe_allow_html=True)
         
-        # Add floating emojis
         emojis = ["🎉", "🎊", "✨", "🎈", "🎆", "🥳"]
         floating_html = ""
         for i in range(12):
@@ -108,7 +109,6 @@ def show_birthday_message():
         
         st.markdown(floating_html, unsafe_allow_html=True)
         
-        # Birthday message box
         st.markdown(f"""
         <div class="birthday-box">
             <div class="birthday-flag">{birthday['flag']}</div>
