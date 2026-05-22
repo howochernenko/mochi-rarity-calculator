@@ -118,7 +118,6 @@ def show_owner_messages():
 
 st.title("🌟 Mochis Trade Calculator")
 mandatory_popup()  
-check_todays_birthday()
 show_owner_messages() 
 
 def check_todays_birthday():
