@@ -151,7 +151,6 @@ with st.expander("📖 How the Calculator Works", expanded=False):
     - 1 2P = 1,000 × (1 normal of same mochi)
     """)
 
-show_owner_messages()
 
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
