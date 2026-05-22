@@ -122,9 +122,6 @@ mandatory_popup()
 show_birthday_message()
 show_owner_messages() 
 
-import random
-from datetime import datetime
-
 def show_birthday_message():
     birthday_data = {
         "01-08": {"name": "Monaco", "flag": "🇲🇨", "message": "Happy Birthday Monaco! 🎂"},
@@ -169,9 +166,10 @@ def show_birthday_message():
         "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
     }
     
-    # FOR TESTING - change this to any birthday date
-    today = "07-04"  # America's birthday (July 4th)
-    # today = datetime.now().strftime("%m-%d")  # Uncomment for live use
+    import random
+    from datetime import datetime
+    
+    today = "07-04"
     
     if today in birthday_data:
         birthday = birthday_data[today]
