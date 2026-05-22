@@ -135,6 +135,7 @@ def check_todays_birthday():
         "04-23": {"name": "England", "flag": "🏳️", "color1": "#CE1126", "color2": "#FFFFFF", "message": "Happy Birthday England! 🎂"},
         "05-17": {"name": "Norway", "flag": "🇳🇴", "color1": "#EF2B2D", "color2": "#002868", "message": "Happy Birthday Norway! 🎂"},
         "05-20": {"name": "Cuba", "flag": "🇨🇺", "color1": "#002A8F", "color2": "#FFFFFF", "message": "Happy Birthday Cuba! 🎂"},
+        "05-20": {"name": "test", "flag": "🇨🇺", "color1": "#002A8F", "color2": "#FFFFFF", "message": "Happy Birthday test! 🎂"},
         "06-05": {"name": "Denmark", "flag": "🇩🇰", "color1": "#C60C30", "color2": "#FFFFFF", "message": "Happy Birthday Denmark! 🎂"},
         "06-06": {"name": "Sweden", "flag": "🇸🇪", "color1": "#005B99", "color2": "#FECC02", "message": "Happy Birthday Sweden! 🎂"},
         "06-08": {"name": "Hungary", "flag": "🇭🇺", "color1": "#CD2A3E", "color2": "#FFFFFF", "message": "Happy Birthday Hungary! 🎂"},
