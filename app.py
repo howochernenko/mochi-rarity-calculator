@@ -400,7 +400,7 @@ def parse_entry(entry: str, mochi_type="common"):
     return None, None, None
 
 def show_detailed_calculation(entries, target_mochi, target_rarity, mochi_type="common"):
-    """Show detailed calculation breakdown"""
+    """Show detailed calculation breakdown using the ratio method"""
     st.subheader("🧮 Detailed Calculation")
     
     total_value = 0
@@ -428,6 +428,81 @@ def show_detailed_calculation(entries, target_mochi, target_rarity, mochi_type="
         st.write(f"{total_value:.4f} ÷ {1/target_rarity:.4f} = {total_value * target_rarity:.2f}")
         st.write("")
         st.success(f"**Result: {total_value * target_rarity:.2f} {target_mochi.title()}**")
+
+def compare_two_mochis_detailed(have_entry, want_entry, mochi_type="common"):
+    """Show detailed comparison using the ratio method"""
+    val_have, amount_have, rarity_have = parse_entry(have_entry, mochi_type)
+    val_want, amount_want, rarity_want = parse_entry(want_entry, mochi_type)
+    
+    if val_have is not None and val_want is not None and val_have != 0:
+        ratio = val_want / val_have
+        
+        st.subheader("🧮 Detailed Comparison")
+        st.write("**Method: Compare using rarity ratios**")
+        
+        have_name = have_entry.split(' ', 1)[1] if ' ' in have_entry else have_entry
+        want_name = want_entry.split(' ', 1)[1] if ' ' in want_entry else want_entry
+        
+        # Show the simpler ratio method
+        st.write("**Step 1: Find the ratio between rarities**")
+        
+        # Determine which is rarer (lower number)
+        if rarity_have < rarity_want:
+            # have is rarer
+            st.write(f"{have_name.title()} (rarity {rarity_have}) is rarer than {want_name.title()} (rarity {rarity_want})")
+            st.write(f"Each 1 {have_name.title()} = {rarity_want / rarity_have:.2f} {want_name.title()}")
+            st.write(f"Because: {rarity_want} ÷ {rarity_have} = {rarity_want / rarity_have:.2f}")
+        elif rarity_want < rarity_have:
+            # want is rarer
+            st.write(f"{want_name.title()} (rarity {rarity_want}) is rarer than {have_name.title()} (rarity {rarity_have})")
+            st.write(f"Each 1 {want_name.title()} = {rarity_have / rarity_want:.2f} {have_name.title()}")
+            st.write(f"Because: {rarity_have} ÷ {rarity_want} = {rarity_have / rarity_want:.2f}")
+        else:
+            # Same rarity
+            st.write(f"Both have the same rarity ({rarity_have})")
+            st.write(f"1 {have_name.title()} = 1 {want_name.title()}")
+        
+        st.write("")
+        st.write("**Step 2: Calculate with amounts**")
+        
+        # Calculate using the simple ratio method
+        have_value_in_want = (amount_have * rarity_want) / rarity_have
+        want_value_in_have = (amount_want * rarity_have) / rarity_want
+        
+        st.write(f"Your {have_entry}:")
+        st.write(f"  = {amount_have} × ({rarity_want} ÷ {rarity_have})")
+        st.write(f"  = {amount_have} × {rarity_want / rarity_have:.2f} = {have_value_in_want:.2f} {want_name.title()}")
+        
+        st.write(f"Their {want_entry}:")
+        st.write(f"  = {amount_want} × ({rarity_have} ÷ {rarity_want})")
+        st.write(f"  = {amount_want} × {rarity_have / rarity_want:.2f} = {want_value_in_have:.2f} {have_name.title()}")
+        
+        st.write("")
+        st.write("**Step 3: Fair trade calculation**")
+        
+        if have_value_in_want > amount_want:
+            # You have more
+            extra = have_value_in_want / amount_want
+            st.success(f"You have {extra:.2f}× more value")
+            st.write(f"They need to add {extra - 1:.2f}× of their mochi")
+        elif have_value_in_want < amount_want:
+            # They have more
+            extra = amount_want / have_value_in_want
+            st.success(f"They have {extra:.2f}× more value")
+            st.write(f"You need to add {extra - 1:.2f}× of your mochi")
+        else:
+            st.success("Equal value! Fair trade!")
+
+def round_to_nearest_custom(n):
+    """Rounds to nearest 0.1 if below 1, else nearest 0.5."""
+    if n < 1:
+        return round(n, 1)
+    else:
+        return round(n * 2) / 2
+
+def get_closest_rarity(target, data):
+    """Find closest rarity key to target in data dictionary."""
+    return min(data.keys(), key=lambda r: abs(r - target))
 
 
 def round_to_nearest_custom(n):
@@ -689,11 +764,12 @@ elif mode == "Compare two mochis":
         have = st.text_input("Your mochi:", placeholder="e.g. '3 russia'")
     with col2:
         want = st.text_input("Their mochi:", placeholder="e.g. '5 ukraine'")
-
+    
     if have and want:
+        # Parse using the new method
         val_have, amount_have, rarity_have = parse_entry(have, mochi_type.lower())
         val_want, amount_want, rarity_want = parse_entry(want, mochi_type.lower())
-
+        
         if val_have is None:
             name_part = have.split(' ', 1)[1] if ' ' in have else have
             suggestions = suggest_similar_mochis(name_part, current_data)
@@ -705,16 +781,31 @@ elif mode == "Compare two mochis":
             suggestions = suggest_similar_mochis(name_part, current_data)
             if suggestions:
                 st.warning(f"Couldn't find '{want}'. Did you mean: {', '.join(suggestions)}?")
-
-        if val_have is not None and val_want is not None and val_have != 0:
-            ratio = val_want / val_have
-            if ratio < 1:
-                st.success(f"They need {1/ratio:.2f}× of theirs for a fair trade")
-            else:
-                st.success(f"You need {ratio:.2f}× of yours for a fair trade")
+        
+        if rarity_have and rarity_want:
+            # Calculate using the simpler ratio method
+            have_name = have.split(' ', 1)[1] if ' ' in have else have
+            want_name = want.split(' ', 1)[1] if ' ' in want else want
             
-            # Show detailed comparison
-            with st.expander("📊 Show Detailed Calculation"):
+            # Convert both to a common base
+            have_value = amount_have * rarity_want / rarity_have
+            want_value = amount_want * rarity_have / rarity_want
+            
+            st.subheader("📊 Quick Comparison")
+            st.write(f"**Your {have_name.title()}: {amount_have} × (rarity {rarity_want} ÷ rarity {rarity_have}) = {have_value:.2f} {want_name.title()}**")
+            st.write(f"**Their {want_name.title()}: {amount_want} × (rarity {rarity_have} ÷ rarity {rarity_want}) = {want_value:.2f} {have_name.title()}**")
+            
+            if have_value > amount_want:
+                ratio = have_value / amount_want
+                st.success(f"You have {ratio:.2f}× more value! They need to add {ratio - 1:.2f}× of their mochi.")
+            elif have_value < amount_want:
+                ratio = amount_want / have_value
+                st.success(f"They have {ratio:.2f}× more value! You need to add {ratio - 1:.2f}× of your mochi.")
+            else:
+                st.success("🎉 Equal value! Fair trade!")
+            
+            # Show detailed comparison in expander
+            with st.expander("📊 Show Detailed Step-by-Step"):
                 compare_two_mochis_detailed(have, want, mochi_type.lower())
 
 elif mode == "Value from Counts":
