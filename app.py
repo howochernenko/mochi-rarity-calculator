@@ -60,7 +60,7 @@ def show_owner_messages():
         "🎉 ok that's all ty -Howo (me the awesome owner of this site)"
     ]
     
-   if st.session_state.show_messages and st.session_state.message_index < len(OWNER_MESSAGES):
+       if st.session_state.show_messages and st.session_state.message_index < len(OWNER_MESSAGES):
         with st.container():
             st.markdown("""
                 <style>
