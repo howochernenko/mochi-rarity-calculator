@@ -16,7 +16,6 @@ def mandatory_popup():
         st.session_state.popup_accepted = False
     
     if not st.session_state.popup_accepted:
-        # Create a warning container
         with st.container():
             st.markdown("---")
             st.error("""
@@ -49,13 +48,12 @@ def mandatory_popup():
 def show_owner_messages():
     """Show popup messages from the owner when the app starts"""
     
-    # Initialize session state for messages
-    if 'message_index' not in st.session_state:
+
+        if 'message_index' not in st.session_state:
         st.session_state.message_index = 0
     if 'show_messages' not in st.session_state:
         st.session_state.show_messages = True
     
-    # Messages from the owner
     OWNER_MESSAGES = [
         "🌟 Hai Welcome to Mochis Trade Calculator! I just updated it so it shows detailed calculation",
         "This calculator helps you calculate fair trades between different mochis.",
@@ -68,7 +66,6 @@ def show_owner_messages():
     ]
     
     if st.session_state.show_messages and st.session_state.message_index < len(OWNER_MESSAGES):
-        # Create a popup-like container
         with st.container():
             st.markdown("""
                 <style>
@@ -89,7 +86,6 @@ def show_owner_messages():
                 </style>
             """, unsafe_allow_html=True)
             
-            # Message content
             st.markdown(f"""
                 <div class="owner-message">
                     <div class="owner-header">💌 Message from Howo (me the awesome owner)</div>
@@ -97,7 +93,6 @@ def show_owner_messages():
                 </div>
             """, unsafe_allow_html=True)
             
-            # Navigation buttons
             col1, col2, col3 = st.columns([1, 1, 1])
             
             with col1:
@@ -121,14 +116,45 @@ def show_owner_messages():
                     st.session_state.show_messages = False
                     st.rerun()
             
-            # Progress indicator
             progress = (st.session_state.message_index + 1) / len(OWNER_MESSAGES)
             st.progress(progress)
             st.caption(f"Message {st.session_state.message_index + 1} of {len(OWNER_MESSAGES)}")
 
 st.title("🌟 Mochis Trade Calculator")
-mandatory_popup()  # Add this line
-show_owner_messages()  # Your existing welcome messages
+mandatory_popup()  
+show_owner_messages() 
+
+with st.expander("📖 How the Calculator Works", expanded=False):
+    st.markdown("""
+    ### 📐 Calculation Method
+    
+    **Step 1: Convert each mochi to its base value**
+    - Base Value = 1 ÷ Rarity
+    - Example: Ukraine (rarity 90) = 1/90 = 0.01111
+    - Example: Chibitalia (rarity 45) = 1/45 = 0.02222
+    
+    **Step 2: Multiply by amount**
+    - Total Value = Amount × (1 ÷ Rarity)
+    - Example: 3 Ukraine = 3 × 0.01111 = 0.03333
+    
+    **Step 3: Sum all values**
+    - Add up the total value of all mochis
+    
+    **Step 4: Convert to target mochi**
+    - Target Amount = Total Value ÷ (1 ÷ Target Rarity)
+    - Simplified: Target Amount = Total Value × Target Rarity
+    
+    **Alternative method (ratio method):**
+    - If Rarity A > Rarity B (A is more common), then:
+    - 1 of B = Rarity A ÷ Rarity B of A
+    - Example: Rarity 25 mochi is worth 2 of Rarity 50 mochi (50 ÷ 25 = 2)
+    
+    **For Shiny/2P:**
+    - 1 Shiny = 2,048 × (1 normal of same mochi)
+    - 1 2P = 1,000 × (1 normal of same mochi)
+    """)
+
+show_owner_messages()
 
 MOCHI_DATA = {
     0.1: ["god", "fairy king of the mochi", "fairy king", "fkm"],
@@ -265,10 +291,8 @@ def comments_section():
     st.sidebar.markdown("---")
     st.sidebar.subheader("💬 Comments & Feedback")
     
-    # Load comments from file
     comments = load_comments()
     
-    # Comment input form
     with st.sidebar.form("comment_form", clear_on_submit=True):
         name = st.text_input("Your name:", placeholder="Anonymous")
         comment = st.text_area("Your comment:", placeholder="Share your thoughts, bug reports, or suggestions...", height=100)
@@ -291,28 +315,24 @@ def comments_section():
             else:
                 st.sidebar.warning("⚠️ Please write a comment before posting")
     
-    # Display comments
-    if comments:
+
+        if comments:
         st.sidebar.markdown(f"### 📝 Recent Comments ({len(comments)} total)")
         
-        # Show last 10 comments (newest first)
         recent_comments = list(reversed(comments[-10:]))
         
         for i, comment in enumerate(recent_comments):
             st.sidebar.markdown(f"**{comment['name']}** *({comment['timestamp']})*")
             st.sidebar.write(comment['comment'])
             
-            # Add separator between comments (but not after the last one)
             if i < len(recent_comments) - 1:
                 st.sidebar.markdown("---")
     else:
         st.sidebar.info("💡 No comments yet. Be the first to share your thoughts!")
     
-    # Clear comments button with password protection
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 🔒 Moderator Tools")
     
-    # Initialize session state for password
     if 'show_password_field' not in st.session_state:
         st.session_state.show_password_field = False
     
@@ -366,7 +386,6 @@ def parse_entry(entry: str, mochi_type="common"):
     """Parse a single entry like '3 russia' and return float value (amount / rarity)."""
     entry = entry.strip().lower()
     
-    # Only handle format: "3 russia"
     if re.match(r"^\d+", entry):
         parts = re.split(r"\s+", entry, 1)
         if len(parts) == 2:
@@ -384,7 +403,6 @@ def parse_entry(entry: str, mochi_type="common"):
             except:
                 return None, None, None
     
-    # Handle single number or name without amount
     if re.match(r"^\d+(\.\d+)?$", entry):
         try:
             rarity = float(entry)
@@ -392,7 +410,6 @@ def parse_entry(entry: str, mochi_type="common"):
         except:
             return None, None, None
     
-    # Handle just mochi name (default amount = 1)
     rarity = get_rarity_by_name(entry, mochi_type)
     if rarity:
         return 1 / rarity, 1, rarity
@@ -443,29 +460,23 @@ def compare_two_mochis_detailed(have_entry, want_entry, mochi_type="common"):
         have_name = have_entry.split(' ', 1)[1] if ' ' in have_entry else have_entry
         want_name = want_entry.split(' ', 1)[1] if ' ' in want_entry else want_entry
         
-        # Show the simpler ratio method
         st.write("**Step 1: Find the ratio between rarities**")
         
-        # Determine which is rarer (lower number)
         if rarity_have < rarity_want:
-            # have is rarer
             st.write(f"{have_name.title()} (rarity {rarity_have}) is rarer than {want_name.title()} (rarity {rarity_want})")
             st.write(f"Each 1 {have_name.title()} = {rarity_want / rarity_have:.2f} {want_name.title()}")
             st.write(f"Because: {rarity_want} ÷ {rarity_have} = {rarity_want / rarity_have:.2f}")
         elif rarity_want < rarity_have:
-            # want is rarer
             st.write(f"{want_name.title()} (rarity {rarity_want}) is rarer than {have_name.title()} (rarity {rarity_have})")
             st.write(f"Each 1 {want_name.title()} = {rarity_have / rarity_want:.2f} {have_name.title()}")
             st.write(f"Because: {rarity_have} ÷ {rarity_want} = {rarity_have / rarity_want:.2f}")
         else:
-            # Same rarity
             st.write(f"Both have the same rarity ({rarity_have})")
             st.write(f"1 {have_name.title()} = 1 {want_name.title()}")
         
         st.write("")
         st.write("**Step 2: Calculate with amounts**")
         
-        # Calculate using the simple ratio method
         have_value_in_want = (amount_have * rarity_want) / rarity_have
         want_value_in_have = (amount_want * rarity_have) / rarity_want
         
@@ -481,12 +492,10 @@ def compare_two_mochis_detailed(have_entry, want_entry, mochi_type="common"):
         st.write("**Step 3: Fair trade calculation**")
         
         if have_value_in_want > amount_want:
-            # You have more
             extra = have_value_in_want / amount_want
             st.success(f"You have {extra:.2f}× more value")
             st.write(f"They need to add {extra - 1:.2f}× of their mochi")
         elif have_value_in_want < amount_want:
-            # They have more
             extra = amount_want / have_value_in_want
             st.success(f"They have {extra:.2f}× more value")
             st.write(f"You need to add {extra - 1:.2f}× of your mochi")
@@ -574,7 +583,6 @@ def shiny_2p_simulator():
     """)
     
     "tempovary off because I'm thinking about a more fair value, give me suggestions in comment section if u have any idea :)"
-    # Shiny ↔ 2P Converter
     st.markdown("---")
  
             
@@ -597,7 +605,6 @@ def mochi_value_converter(current_data_flat):
         )
     
     if input_mochis and target_mochi:
-        # Get target mochi value
         target_norm = normalize_name(target_mochi)
         if target_norm not in current_data_flat:
             st.error(f"Target mochi '{target_mochi}' not found in database")
@@ -605,7 +612,6 @@ def mochi_value_converter(current_data_flat):
         
         target_rarity = current_data_flat[target_norm]
         
-        # Parse input mochis
         entries = [x.strip() for x in re.split(r'[,\n]', input_mochis) if x.strip()]
         total_value = 0
         invalid_entries = []
@@ -633,7 +639,6 @@ def mochi_value_converter(current_data_flat):
                 {input_mochis} ≈ **{equivalent_amount:.2f} {target_mochi.title()}**
             """)
 
-            # Show detailed calculation
             with st.expander("📊 Show Detailed Calculation"):
                 show_detailed_calculation(entries, target_mochi, target_rarity, mochi_type.lower())
 
@@ -680,7 +685,6 @@ def show_update_history():
         with st.sidebar.expander(f"📅 {update['date']}"):
             st.write(update['changes'])
             
-# Sidebar features
 show_update_history()
 comments_section()
 
@@ -766,7 +770,6 @@ elif mode == "Compare two mochis":
         want = st.text_input("Their mochi:", placeholder="e.g. '5 ukraine'")
     
     if have and want:
-        # Parse using the new method
         val_have, amount_have, rarity_have = parse_entry(have, mochi_type.lower())
         val_want, amount_want, rarity_want = parse_entry(want, mochi_type.lower())
         
@@ -783,11 +786,9 @@ elif mode == "Compare two mochis":
                 st.warning(f"Couldn't find '{want}'. Did you mean: {', '.join(suggestions)}?")
         
         if rarity_have and rarity_want:
-            # Calculate using the simpler ratio method
             have_name = have.split(' ', 1)[1] if ' ' in have else have
             want_name = want.split(' ', 1)[1] if ' ' in want else want
             
-            # Convert both to a common base
             have_value = amount_have * rarity_want / rarity_have
             want_value = amount_want * rarity_have / rarity_want
             
@@ -804,7 +805,6 @@ elif mode == "Compare two mochis":
             else:
                 st.success("🎉 Equal value! Fair trade!")
             
-            # Show detailed comparison in expander
             with st.expander("📊 Show Detailed Step-by-Step"):
                 compare_two_mochis_detailed(have, want, mochi_type.lower())
 
@@ -844,7 +844,6 @@ elif mode == "Value from Counts":
             st.success(f"Total value: {total_value:.2f} (1 mochi of rarity ~{exact_rarity:.2f})")
             st.markdown(f"Rounded to: {rounded_rarity}")
 
-            # Show detailed calculation
             with st.expander("📊 Show Detailed Calculation"):
                 st.write("**Step-by-step calculation:**")
                 for step in calculation_steps:
