@@ -730,6 +730,36 @@ def mini_features():
         if preview_country:
             for date, data in birthday_data.items():
                 if data['name'] == preview_country:
+                    # Add floating animation for preview
+                    import random
+                    emojis = ["🎉", "🎊", "✨", "🎈", "🎆", "🥳"]
+                    floating_html = ""
+                    for i in range(8):
+                        emoji = random.choice(emojis)
+                        left = random.randint(0, 95)
+                        duration = random.uniform(5, 10)
+                        delay = random.uniform(0, 3)
+                        floating_html += f'<div class="floating-emoji-preview" style="left: {left}%; animation-duration: {duration}s; animation-delay: {delay}s;">{emoji}</div>'
+                    
+                    st.markdown(f"""
+                    <style>
+                    @keyframes gentleFloatPreview {{
+                        0% {{ transform: translateY(-100px) rotate(0deg); opacity: 1; }}
+                        100% {{ transform: translateY(500px) rotate(360deg); opacity: 0; }}
+                    }}
+                    .floating-emoji-preview {{
+                        position: fixed;
+                        top: -50px;
+                        font-size: 1.5em;
+                        pointer-events: none;
+                        z-index: 9998;
+                        animation: gentleFloatPreview linear infinite;
+                    }}
+                    </style>
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown(floating_html, unsafe_allow_html=True)
+                    
                     st.markdown(f"""
                     <div style="background: linear-gradient(135deg, {data['color1']} 0%, {data['color2']} 100%); 
                                 border-radius: 15px; 
@@ -737,7 +767,9 @@ def mini_features():
                                 margin: 10px 0; 
                                 text-align: center;
                                 border: 3px solid gold;
-                                box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                                position: relative;
+                                z-index: 1;">
                         <div style="font-size: 3em;">{data['flag']}</div>
                         <div style="font-size: 1.5em; font-weight: bold; color: white; margin: 10px 0;">{data['message']}</div>
                         <div style="font-size: 1em; color: white;">Birthday: {date}</div>
