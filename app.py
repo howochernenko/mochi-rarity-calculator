@@ -169,7 +169,7 @@ def show_birthday_message():
         "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
     }
     
-    today = datetime.now().strftime("%m-%d")
+    today = "07-04"
     
     if today in birthday_data:
         birthday = birthday_data[today]
