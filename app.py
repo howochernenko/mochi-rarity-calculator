@@ -138,7 +138,7 @@ def show_birthday_message():
         "03-25": {"name": "Greece", "flag": "🇬🇷", "message": "Happy Birthday Greece! 🎂"},
         "04-23": {"name": "England", "flag": "🏳️", "message": "Happy Birthday England! 🎂"},
         "05-17": {"name": "Norway", "flag": "🇳🇴", "message": "Happy Birthday Norway! 🎂"},
-        "05-21": {"name": "Test", "flag": "🇳🇴", "message": "Happy Birthday Test! 🎂"},
+        "05-22": {"name": "Test", "flag": "🇳🇴", "message": "Happy Birthday Test! 🎂"},
         "05-20": {"name": "Cuba", "flag": "🇨🇺", "message": "Happy Birthday Cuba! 🎂"},
         "06-05": {"name": "Denmark", "flag": "🇩🇰", "message": "Happy Birthday Denmark! 🎂"},
         "06-06": {"name": "Sweden", "flag": "🇸🇪", "message": "Happy Birthday Sweden! 🎂"},
