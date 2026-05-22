@@ -774,8 +774,9 @@ def show_update_history():
 show_update_history()
 comments_section()
 
-mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Shiny/2P Simulator", "Tag Search"])
-        
+mode = st.radio("Choose mode:", ["Name ↔ Rarity Lookup", "Compare two mochis", "Value from Counts", "Value Converter", "Shiny/2P Simulator", "Mini Features", "Tag Search"])
+
+
     
 def show_update_history():
     st.sidebar.markdown("---")
@@ -847,6 +848,9 @@ if mode == "Name ↔ Rarity Lookup":
 
 elif mode == "Shiny/2P Simulator":
     shiny_2p_simulator()
+
+elif mode == "Mini Features":
+    mini_features()
 
 elif mode == "Compare two mochis":
     col1, col2 = st.columns(2)
