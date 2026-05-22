@@ -119,15 +119,13 @@ def show_owner_messages():
 
 st.title("🌟 Mochis Trade Calculator")
 mandatory_popup()  
+show_birthday_message()
 show_owner_messages() 
-
-import random
-from datetime import datetime
 
 def show_birthday_message():
     birthday_data = {
         "01-08": {"name": "Monaco", "flag": "🇲🇨", "message": "Happy Birthday Monaco! 🎂"},
-        "01-18": {"name": "Prussia", "flag": "🇩🇪", "message": "Happy Birthday Prussia! 🎂"},
+        "01-18": {"name": "Prussia", "flag": "🏳️", "message": "Happy Birthday Prussia! 🎂"},
         "01-26": {"name": "Australia", "flag": "🇦🇺", "message": "Happy Birthday Australia! 🎂"},
         "02-11": {"name": "Japan", "flag": "🇯🇵", "message": "Happy Birthday Japan! 🎂"},
         "02-12": {"name": "Spain", "flag": "🇪🇸", "message": "Happy Birthday Spain! 🎂"},
@@ -138,7 +136,6 @@ def show_birthday_message():
         "03-25": {"name": "Greece", "flag": "🇬🇷", "message": "Happy Birthday Greece! 🎂"},
         "04-23": {"name": "England", "flag": "🏳️", "message": "Happy Birthday England! 🎂"},
         "05-17": {"name": "Norway", "flag": "🇳🇴", "message": "Happy Birthday Norway! 🎂"},
-        "05-22": {"name": "Test", "flag": "🇳🇴", "message": "Happy Birthday Test! 🎂"},
         "05-20": {"name": "Cuba", "flag": "🇨🇺", "message": "Happy Birthday Cuba! 🎂"},
         "06-05": {"name": "Denmark", "flag": "🇩🇰", "message": "Happy Birthday Denmark! 🎂"},
         "06-06": {"name": "Sweden", "flag": "🇸🇪", "message": "Happy Birthday Sweden! 🎂"},
@@ -169,7 +166,9 @@ def show_birthday_message():
         "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
     }
     
-    today = "07-04"
+    # FOR TESTING - change this to any birthday date
+    today = "07-04"  # America's birthday (July 4th)
+    # today = datetime.now().strftime("%m-%d")  # Uncomment for live use
     
     if today in birthday_data:
         birthday = birthday_data[today]
@@ -211,7 +210,6 @@ def show_birthday_message():
             <div class="birthday-text">{random_poppers}</div>
         </div>
         """, unsafe_allow_html=True)
-
 
 
 
