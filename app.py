@@ -52,12 +52,11 @@ def show_owner_messages():
     
     OWNER_MESSAGES = [
         "🌟 Hai Welcome to Mochis Trade Calculator!",
-        "This calculator helps you calculate fair trades between different mochis.",
-        "Remember about demand and stuff, some mochis like russia/Japan are worth more due to popularity BUT I DON'T CHANGE THE RARITY BASED ON DEMAND plz stop spreadng misinformation ty......don't get scammed",
+        "This calculator helps you calculate fair trades between different mochis, theres also some mini features that you might like!.",
+        "Remember about demand and stuff, some mochis like Japan are worth more due to popularity BUT I DON'T CHANGE THE RARITY BASED ON DEMAND plz stop spreadng misinformation ty......don't get scammed",
         "Found a bug? Use the comments section or tell me on discord",
-        "Make sure to scroll down and check the disclaimer and tutorial part.....it's important oaky?",
-        "u can also suggest new features and stuff okay??okay???...plz leave some comment if u like this calculator i need motive",
-        "bro i'm lowkey crashing out ugh if u have any problem with this calculator tell me in comment section or just tell in on discord plz don't hate me...",
+        "you can also suggest new features and stuff...plz leave some comment if u like this calculator i need motive",
+        "if u have any problem with this calculator tell me in comment section or just tell in on discord plz...",
         "🎉 ok that's all ty -Howo (me the awesome owner of this site)"
     ]
     
@@ -66,18 +65,23 @@ def show_owner_messages():
             st.markdown("""
                 <style>
                 .owner-message {
-                    background-color: #f0f2f6;
+                    background-color: #1e1e2e;
                     padding: 20px;
                     border-radius: 10px;
                     border-left: 5px solid #ff4b4b;
                     margin: 10px 0px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
                 }
                 .owner-header {
-                    color: #ff4b4b;
+                    color: #ff6b6b;
                     font-weight: bold;
                     font-size: 1.2em;
                     margin-bottom: 10px;
+                }
+                .owner-content {
+                    color: #e0e0e0;
+                    font-size: 1em;
+                    line-height: 1.5;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -85,7 +89,7 @@ def show_owner_messages():
             st.markdown(f"""
                 <div class="owner-message">
                     <div class="owner-header">💌 Message from Howo (me the awesome owner)</div>
-                    {OWNER_MESSAGES[st.session_state.message_index]}
+                    <div class="owner-content">{OWNER_MESSAGES[st.session_state.message_index]}</div>
                 </div>
             """, unsafe_allow_html=True)
             
@@ -322,7 +326,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
-    {"date": "2026-5-22", "changes": "Added birthday feature"},
+    {"date": "2026-5-22", "changes": "Added birthday feature + fixed the 'owner message' background color for dark mode users"},
     {"date": "2026-5-21", "changes": "Fixed some small errors, changed how 'detailed calculations' are calculated + added 'how the calculator works'section"},
     {"date": "2026-1-25", "changes": "Added shiny/2p to normal calculation"},
     {"date": "2025-12-26", "changes": "Updated new rarity"},
