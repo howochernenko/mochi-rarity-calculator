@@ -124,6 +124,7 @@ def check_todays_birthday():
     birthday_data = {
         "01-08": {"name": "Monaco", "flag": "🇲🇨", "color1": "#CE1126", "color2": "#FFFFFF", "message": "Happy Birthday Monaco! 🎂"},
         "01-18": {"name": "Prussia", "flag": "🏳️", "color1": "#000000", "color2": "#FFFFFF", "message": "Happy Birthday Prussia! 🎂"},
+        "01-28": {"name": "Howo!!!", "flag": "🏳️", "color1": "##a2bbde", "color2": "##a2bbde", "message": "Happy Birthday TO THE CALCULATOR'S CREATER HOWO!!! 🎂"},
         "01-26": {"name": "Australia", "flag": "🇦🇺", "color1": "#00008B", "color2": "#FF0000", "message": "Happy Birthday Australia! 🎂"},
         "02-11": {"name": "Japan", "flag": "🇯🇵", "color1": "#BC002D", "color2": "#FFFFFF", "message": "Happy Birthday Japan! 🎂"},
         "02-12": {"name": "Spain", "flag": "🇪🇸", "color1": "#AA151B", "color2": "#F1BF00", "message": "Happy Birthday Spain! 🎂"},
@@ -135,7 +136,6 @@ def check_todays_birthday():
         "04-23": {"name": "England", "flag": "🏳️", "color1": "#CE1126", "color2": "#FFFFFF", "message": "Happy Birthday England! 🎂"},
         "05-17": {"name": "Norway", "flag": "🇳🇴", "color1": "#EF2B2D", "color2": "#002868", "message": "Happy Birthday Norway! 🎂"},
         "05-20": {"name": "Cuba", "flag": "🇨🇺", "color1": "#002A8F", "color2": "#FFFFFF", "message": "Happy Birthday Cuba! 🎂"},
-        "05-22": {"name": "test", "flag": "🇨🇺", "color1": "#002A8F", "color2": "#FFFFFF", "message": "Happy Birthday test! 🎂"},
         "06-05": {"name": "Denmark", "flag": "🇩🇰", "color1": "#C60C30", "color2": "#FFFFFF", "message": "Happy Birthday Denmark! 🎂"},
         "06-06": {"name": "Sweden", "flag": "🇸🇪", "color1": "#005B99", "color2": "#FECC02", "message": "Happy Birthday Sweden! 🎂"},
         "06-08": {"name": "Hungary", "flag": "🇭🇺", "color1": "#CD2A3E", "color2": "#FFFFFF", "message": "Happy Birthday Hungary! 🎂"},
@@ -322,6 +322,7 @@ LATVIAVERSE_DATA = {
 }
 
 UPDATE_HISTORY = [
+    {"date": "2026-5-22", "changes": "Added birthday feature"},
     {"date": "2026-5-21", "changes": "Fixed some small errors, changed how 'detailed calculations' are calculated + added 'how the calculator works'section"},
     {"date": "2026-1-25", "changes": "Added shiny/2p to normal calculation"},
     {"date": "2025-12-26", "changes": "Updated new rarity"},
