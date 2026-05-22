@@ -122,6 +122,9 @@ mandatory_popup()
 show_birthday_message()
 show_owner_messages() 
 
+import random
+from datetime import datetime
+
 def show_birthday_message():
     birthday_data = {
         "01-08": {"name": "Monaco", "flag": "🇲🇨", "message": "Happy Birthday Monaco! 🎂"},
