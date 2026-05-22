@@ -51,35 +51,47 @@ def show_birthday_message():
         "12-30": {"name": "Russia", "flag": "🇷🇺", "color1": "#0033A0", "color2": "#DA291C", "message": "Happy Birthday Russia! 🎂"},
     }
     
+    # Preview feature
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("🎂 Birthday Preview")
+    
+    country_names = sorted([data['name'] for data in birthday_data.values()])
+    preview_country = st.sidebar.selectbox("Preview birthday for:", ["None"] + country_names)
+    
+    if preview_country != "None":
+        # Find the birthday data for selected country
+        for date, data in birthday_data.items():
+            if data['name'] == preview_country:
+                st.sidebar.markdown(f"""
+                <div style="background: linear-gradient(135deg, {data['color1']} 0%, {data['color2']} 100%); 
+                            border-radius: 10px; 
+                            padding: 10px; 
+                            margin: 10px 0; 
+                            text-align: center;
+                            border: 2px solid gold;">
+                    <div style="font-size: 2em;">{data['flag']}</div>
+                    <div style="font-size: 1.2em; font-weight: bold; color: white;">{data['message']}</div>
+                    <div style="font-size: 0.9em; color: white;">Birthday: {date}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                break
+    
+    # Today's birthday check
     today = datetime.now().strftime("%m-%d")
     
     if today in birthday_data:
-        display_birthday_card(birthday_data[today], with_animation=True)
-    
-    # Birthday Preview Feature (add this to your sidebar)
-    with st.sidebar:
-        st.markdown("---")
-        st.markdown("### 🎂 Birthday Card Preview")
-        st.markdown("See what the birthday message looks like for any character:")
+        birthday = birthday_data[today]
         
-        preview_name = st.text_input("Enter character name:", placeholder="e.g. America, Japan, Ukraine")
+        import random
+        emojis = ["🎉", "🎊", "✨", "🎈", "🎆", "🥳"]
+        floating_html = ""
+        for i in range(12):
+            emoji = random.choice(emojis)
+            left = random.randint(0, 95)
+            duration = random.uniform(5, 10)
+            delay = random.uniform(0, 5)
+            floating_html += f'<div class="floating-emoji" style="left: {left}%; animation-duration: {duration}s; animation-delay: {delay}s;">{emoji}</div>'
         
-        if preview_name:
-            found = False
-            for date, data in birthday_data.items():
-                if data['name'].lower() == preview_name.lower():
-                    display_birthday_card(data, with_animation=False)
-                    found = True
-                    break
-            
-            if not found:
-                st.warning(f"Could not find {preview_name}. Try: America, Japan, Ukraine, Russia, Germany, France, Italy, etc.")
-
-def display_birthday_card(birthday, with_animation=True):
-    """Helper function to display a birthday card"""
-    import random
-    
-    if with_animation:
         st.markdown(f"""
         <style>
         @keyframes gentleFloat {{
@@ -94,51 +106,41 @@ def display_birthday_card(birthday, with_animation=True):
             z-index: 9999;
             animation: gentleFloat linear infinite;
         }}
+        .birthday-box {{
+            background: linear-gradient(135deg, {birthday['color1']} 0%, {birthday['color2']} 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+            border: 3px solid gold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }}
+        .birthday-text {{
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }}
+        .birthday-flag {{
+            font-size: 3em;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }}
         </style>
         """, unsafe_allow_html=True)
         
-        emojis = ["🎉", "🎊", "✨", "🎈", "🎆", "🥳"]
-        floating_html = ""
-        for i in range(12):
-            emoji = random.choice(emojis)
-            left = random.randint(0, 95)
-            duration = random.uniform(5, 10)
-            delay = random.uniform(0, 5)
-            floating_html += f'<div class="floating-emoji" style="left: {left}%; animation-duration: {duration}s; animation-delay: {delay}s;">{emoji}</div>'
-        
         st.markdown(floating_html, unsafe_allow_html=True)
-    
-    st.markdown(f"""
-    <style>
-    .birthday-box-{birthday['name'].lower()} {{
-        background: linear-gradient(135deg, {birthday['color1']} 0%, {birthday['color2']} 100%);
-        border-radius: 15px;
-        padding: 20px;
-        margin: 10px 0;
-        text-align: center;
-        border: 3px solid gold;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }}
-    .birthday-text-{birthday['name'].lower()} {{
-        font-size: 1.5em;
-        font-weight: bold;
-        color: white;
-        margin: 10px 0;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }}
-    .birthday-flag-{birthday['name'].lower()} {{
-        font-size: 3em;
-        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-    }}
-    </style>
-    
-    <div class="birthday-box-{birthday['name'].lower()}">
-        <div class="birthday-flag-{birthday['name'].lower()}">{birthday['flag']}</div>
-        <div class="birthday-text-{birthday['name'].lower()}">🎈 🎉 🎊 ✨ 🎂</div>
-        <div class="birthday-text-{birthday['name'].lower()}">{birthday['message']}</div>
-        <div class="birthday-text-{birthday['name'].lower()}">🎈 🎉 🎊 ✨ 🎂</div>
-    </div>
-    """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div class="birthday-box">
+            <div class="birthday-flag">{birthday['flag']}</div>
+            <div class="birthday-text">🎈 🎉 🎊 ✨ 🎂</div>
+            <div class="birthday-text">{birthday['message']}</div>
+            <div class="birthday-text">🎈 🎉 🎊 ✨ 🎂</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.sidebar.info("No birthdays today! Check the preview to see what each birthday looks like.")
 
 
 def mandatory_popup():
