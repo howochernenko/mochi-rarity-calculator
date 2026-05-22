@@ -51,22 +51,30 @@ def show_birthday_message():
         "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
     }
     
-    # FOR TESTING - change this to any birthday date
-    today = "07-04"  # America's birthday (July 4th)
-    # today = datetime.now().strftime("%m-%d")  # Uncomment for live use
+    today = "07-04"
     
     if today in birthday_data:
         birthday = birthday_data[today]
         
-        party_poppers = ["🎉", "🎊", "✨", "🎈", "🎆", "🎇", "🥳"]
-        random_poppers = " ".join(random.sample(party_poppers, 3))
+        # Generate random positions for floating emojis
+        import random
+        positions = [random.randint(5, 95) for _ in range(8)]
+        delays = [random.uniform(0, 3) for _ in range(8)]
+        durations = [random.uniform(4, 8) for _ in range(8)]
         
         st.markdown(f"""
         <style>
-        @keyframes pop {{
-            0% {{ transform: scale(0); opacity: 0; }}
-            50% {{ transform: scale(1.2); }}
-            100% {{ transform: scale(1); opacity: 1; }}
+        @keyframes gentleFloat {{
+            0% {{ transform: translateY(-100px) rotate(0deg); opacity: 1; }}
+            100% {{ transform: translateY(800px) rotate(360deg); opacity: 0; }}
+        }}
+        .floating-emoji {{
+            position: fixed;
+            top: -50px;
+            font-size: 2em;
+            pointer-events: none;
+            z-index: 9999;
+            animation: gentleFloat linear infinite;
         }}
         .birthday-box {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -74,25 +82,39 @@ def show_birthday_message():
             padding: 20px;
             margin: 10px 0;
             text-align: center;
-            animation: pop 0.5s ease-out;
+            border: 2px solid gold;
         }}
         .birthday-text {{
-            font-size: 2em;
+            font-size: 1.5em;
             font-weight: bold;
             color: white;
             margin: 10px 0;
         }}
         .birthday-flag {{
-            font-size: 4em;
-            animation: pop 0.5s ease-out;
+            font-size: 3em;
         }}
         </style>
+        """, unsafe_allow_html=True)
         
+        # Add floating emojis
+        emojis = ["🎉", "🎊", "✨", "🎈", "🎆", "🥳"]
+        floating_html = ""
+        for i in range(12):
+            emoji = random.choice(emojis)
+            left = random.randint(0, 95)
+            duration = random.uniform(5, 10)
+            delay = random.uniform(0, 5)
+            floating_html += f'<div class="floating-emoji" style="left: {left}%; animation-duration: {duration}s; animation-delay: {delay}s;">{emoji}</div>'
+        
+        st.markdown(floating_html, unsafe_allow_html=True)
+        
+        # Birthday message box
+        st.markdown(f"""
         <div class="birthday-box">
             <div class="birthday-flag">{birthday['flag']}</div>
-            <div class="birthday-text">{random_poppers}</div>
+            <div class="birthday-text">🎈 🎉 🎊 ✨ 🎂</div>
             <div class="birthday-text">{birthday['message']}</div>
-            <div class="birthday-text">{random_poppers}</div>
+            <div class="birthday-text">🎈 🎉 🎊 ✨ 🎂</div>
         </div>
         """, unsafe_allow_html=True)
 
