@@ -124,7 +124,7 @@ def check_todays_birthday():
     birthday_data = {
         "01-08": {"name": "Monaco", "flag": "🇲🇨", "color1": "#CE1126", "color2": "#FFFFFF", "message": "Happy Birthday Monaco! 🎂"},
         "01-18": {"name": "Prussia", "flag": "🏳️", "color1": "#000000", "color2": "#FFFFFF", "message": "Happy Birthday Prussia! 🎂"},
-        "01-28": {"name": "Howo!!!", "flag": "🏳️", "color1": "##a2bbde", "color2": "##a2bbde", "message": "Happy Birthday TO THE CALCULATOR'S CREATER HOWO!!! 🎂"},
+        "01-28": {"name": "Howo", "flag": "🏳️", "color1": "##a2bbde", "color2": "##a2bbde", "message": "Happy Birthday TO THE CALCULATOR'S CREATER HOWO!!! 🎂"},
         "01-26": {"name": "Australia", "flag": "🇦🇺", "color1": "#00008B", "color2": "#FF0000", "message": "Happy Birthday Australia! 🎂"},
         "02-11": {"name": "Japan", "flag": "🇯🇵", "color1": "#BC002D", "color2": "#FFFFFF", "message": "Happy Birthday Japan! 🎂"},
         "02-12": {"name": "Spain", "flag": "🇪🇸", "color1": "#AA151B", "color2": "#F1BF00", "message": "Happy Birthday Spain! 🎂"},
