@@ -60,26 +60,26 @@ def show_owner_messages():
         "🎉 ok that's all ty -Howo (me the awesome owner of this site)"
     ]
     
-    if st.session_state.show_messages and st.session_state.message_index < len(OWNER_MESSAGES):
+   if st.session_state.show_messages and st.session_state.message_index < len(OWNER_MESSAGES):
         with st.container():
             st.markdown("""
                 <style>
                 .owner-message {
-                    background-color: #1e1e2e;
+                    background-color: var(--secondary-background-color);
                     padding: 20px;
                     border-radius: 10px;
                     border-left: 5px solid #ff4b4b;
                     margin: 10px 0px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
                 .owner-header {
-                    color: #ff6b6b;
+                    color: #ff4b4b;
                     font-weight: bold;
                     font-size: 1.2em;
                     margin-bottom: 10px;
                 }
                 .owner-content {
-                    color: #e0e0e0;
+                    color: var(--text-color);
                     font-size: 1em;
                     line-height: 1.5;
                 }
