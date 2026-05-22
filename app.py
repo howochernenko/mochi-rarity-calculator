@@ -312,10 +312,8 @@ def comments_section():
             else:
                 st.sidebar.warning("⚠️ Please write a comment before posting")
     
-
-        if comments:
+    if comments:
         st.sidebar.markdown(f"### 📝 Recent Comments ({len(comments)} total)")
-        
         recent_comments = list(reversed(comments[-10:]))
         
         for i, comment in enumerate(recent_comments):
