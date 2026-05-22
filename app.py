@@ -51,7 +51,7 @@ def show_birthday_message():
         "12-30": {"name": "Russia", "flag": "🇷🇺", "message": "Happy Birthday Russia! 🎂"},
     }
     
-    today = "07-04"
+    today = "11-15"
     
     if today in birthday_data:
         birthday = birthday_data[today]
