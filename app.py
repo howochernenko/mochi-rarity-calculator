@@ -828,7 +828,10 @@ def heta_wordle():
         col1, col2 = st.columns(2)
         with col1:
             if st.button("📝 GUESS", key="wordle_guess_btn", use_container_width=True):
-                if guess and len(guess) >= 3:
+                if guess and len(guess) >= 3 and len(guess) <= len(today_word) + 2:
+                    if len(guess) != len(today_word):
+                        st.warning(f"Word must be exactly {len(today_word)} letters long!")
+                        st.rerun()
                     if guess in word_list:
                         st.session_state.wordle_guesses.append(guess)
                         if guess == today_word:
