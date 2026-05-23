@@ -679,7 +679,7 @@ def shiny_2p_simulator():
     
     "tempovary off because I'm thinking about a more fair value, give me suggestions in comment section if u have any idea :)"
     st.markdown("---")
- import random
+import random
 import hashlib
 from datetime import datetime, timedelta
 
