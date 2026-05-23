@@ -692,7 +692,7 @@ def heta_wordle():
         "greece", "prussia", "poland", "russia", "italy", "germany", "spain",
         "france", "romano", "canada", "china", "austria", "sweden", "hungary",
         "finland", "turkey", "netherlands", "belgium", "norway", "philippines",
-        "belarus", "iceland", "latvia", "scotland", "singapore", ",
+        "belarus", "iceland", "latvia", "scotland", "singapore", 
         "taiwan", "ireland", "croatia", "switzerland", "ukraine", "romania",
         "seborga", "moldova", "luxembourg", "molossia", "indonesia", "slovakia",
         "wy", "denmark", "newzealand", "aotearoa", "australia", "ladonia",
