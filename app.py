@@ -845,8 +845,8 @@ def heta_wordle():
     - ⬜ **GRAY** = Letter not in the word
     
     **📝 VALID WORDS:**
-    - Country names (Italy, Germany, Japan, America)
-    - Mochi names (Chibitalia, Seborga, Gilbird)
+    - Characters names (Italy, Germany, Japan, America)
+    - Mochi names (Pochi, Gilbird)
     - Human names (Feliciano, Ludwig, Arthur, Vargas)
     
     **📅 RULES:**
