@@ -821,8 +821,8 @@ def heta_wordle():
     
     if not st.session_state.wordle_game_over and len(st.session_state.wordle_guesses) < 6:
         if st.session_state.wordle_game_over:
-    st.warning("Game already finished today! Come back tomorrow for a new word!")
-    st.stop()
+            st.warning("Game already finished today! Come back tomorrow for a new word!")
+            st.stop()
         guess = st.text_input("", max_chars=20, placeholder="Type your guess here...", key="wordle_input").strip().lower()
         
         col1, col2 = st.columns(2)
