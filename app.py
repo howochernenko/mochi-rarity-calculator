@@ -789,7 +789,7 @@ def heta_wordle():
         st.metric("⏰ Reset", f"{hours}h {minutes}m")
     with col4:
         if st.button("🏆 Leaderboard"):
-    st.session_state.show_leaderboard = True
+        st.session_state.show_leaderboard = True
 
     if st.button("Hide Leaderboard"):
     st.session_state.show_leaderboard = False
