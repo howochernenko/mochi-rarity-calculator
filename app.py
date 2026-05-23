@@ -854,9 +854,9 @@ def heta_wordle():
                                     st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
                                     st.rerun()
                         elif len(st.session_state.wordle_guesses) >= 6:
-    st.session_state.wordle_game_over = True
-    show_win_animation("fail")
-    st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
+                            st.session_state.wordle_game_over = True
+                            show_win_animation("fail")
+                            st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
                         st.rerun()
                     else:
                         st.error("❌ Not a valid Hetalia character or mochi name!")
