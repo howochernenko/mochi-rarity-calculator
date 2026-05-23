@@ -679,11 +679,167 @@ def shiny_2p_simulator():
     
     "tempovary off because I'm thinking about a more fair value, give me suggestions in comment section if u have any idea :)"
     st.markdown("---")
- 
+ import random
+import hashlib
+from datetime import datetime, timedelta
+
+def heta_wordle():
+    st.subheader("📝 Heta-Wordle")
+    
+    word_list = [
+        "god", "fairyking", "ussr", "allies", "axis", "america", "holyrome",
+        "ottoman", "rome", "england", "tibet", "japan", "knights", "habsburg",
+        "greece", "prussia", "poland", "russia", "italy", "germany", "spain",
+        "france", "romano", "canada", "china", "austria", "sweden", "hungary",
+        "finland", "turkey", "netherlands", "belgium", "norway", "philippines",
+        "belarus", "iceland", "latvia", "scotland", "singapore", "liechtenstein",
+        "taiwan", "ireland", "croatia", "switzerland", "ukraine", "romania",
+        "seborga", "moldova", "luxembourg", "molossia", "indonesia", "slovakia",
+        "wy", "denmark", "newzealand", "aotearoa", "australia", "ladonia",
+        "bulgaria", "macau", "vietnam", "kugelmugel", "india", "monaco", "egypt",
+        "thailand", "cuba", "cameroon", "davie", "stomaria", "cyprus", "trnc",
+        "sealand", "korea", "portugal", "quebec", "serbia", "wales", "mongolia",
+        "persia", "tonga", "whale", "chibitalia", "genoa", "gilbird", "pierre",
+        "estonia", "czechia", "czechoslovakia", "finland", "benelux", "greenland",
+        "hanatamago", "kyoto", "teutonic", "ecuador", "osaka", "pochi", "pontus",
+        "puffin", "pookie", "picardy", "shujinko", "nikojr", "nikoniko",
+        "niko", "scotland", "england", "wales", "northernireland", "feliciano",
+        "vargas", "ludwig", "kiku", "alfred", "arthur", "francis", "ivan", "yao",
+        "roderich", "matthew", "toris", "feliks", "gilbert", "lovino", "peter"
+    ]
+    
+    word_list = list(set(word_list))
+    word_list.sort()
+    
+    seed = datetime.now().strftime("%Y-%m-%d")
+    random.seed(seed)
+    today_word = random.choice(word_list)
+    random.seed()
+    
+    if 'wordle_guesses' not in st.session_state:
+        st.session_state.wordle_guesses = []
+    if 'wordle_game_over' not in st.session_state:
+        st.session_state.wordle_game_over = False
+    if 'wordle_leaderboard' not in st.session_state:
+        st.session_state.wordle_leaderboard = []
+    if 'wordle_last_word' not in st.session_state:
+        st.session_state.wordle_last_word = today_word
+    
+    if st.session_state.wordle_last_word != today_word:
+        st.session_state.wordle_guesses = []
+        st.session_state.wordle_game_over = False
+        st.session_state.wordle_last_word = today_word
+    
+    next_reset = (datetime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0)
+    time_left = next_reset - datetime.now()
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("🎯 Word Length", len(today_word))
+    with col2:
+        st.metric("📊 Guesses", f"{len(st.session_state.wordle_guesses)}/6")
+    with col3:
+        hours = time_left.seconds // 3600
+        minutes = (time_left.seconds % 3600) // 60
+        st.metric("⏰ Reset In", f"{hours}h {minutes}m")
+    with col4:
+        if st.button("🏆 Leaderboard"):
+            st.session_state.show_leaderboard = not st.session_state.get('show_leaderboard', False)
+            st.rerun()
+    
+    if not st.session_state.wordle_game_over and len(st.session_state.wordle_guesses) < 6:
+        guess = st.text_input("Enter your guess:", max_chars=20, key="wordle_input").strip().lower()
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Guess", key="wordle_guess_btn"):
+                if guess and len(guess) >= 3:
+                    if guess in word_list:
+                        st.session_state.wordle_guesses.append(guess)
+                        if guess == today_word:
+                            st.session_state.wordle_game_over = True
+                            st.balloons()
+                            st.success(f"🎉 Correct! You got it in {len(st.session_state.wordle_guesses)} guesses!")
+                            
+                            with st.form(key="score_form"):
+                                name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous")
+                                if st.form_submit_button("Save Score"):
+                                    st.session_state.wordle_leaderboard.append({
+                                        "name": name or "Anonymous",
+                                        "guesses": len(st.session_state.wordle_guesses),
+                                        "date": datetime.now().strftime("%Y-%m-%d")
+                                    })
+                                    st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
+                                    st.rerun()
+                        elif len(st.session_state.wordle_guesses) >= 6:
+                            st.session_state.wordle_game_over = True
+                            st.error(f"Game over! The word was: {today_word.upper()}")
+                        st.rerun()
+                    else:
+                        st.error("Not a valid Hetalia character or mochi name!")
+                else:
+                    st.warning("Please enter a valid guess (min 3 letters)")
+        
+        with col2:
+            if st.button("New Game"):
+                st.session_state.wordle_guesses = []
+                st.session_state.wordle_game_over = False
+                st.rerun()
+    
+    for i, guess in enumerate(st.session_state.wordle_guesses):
+        display = ""
+        for j, letter in enumerate(guess):
+            if j < len(today_word):
+                if letter == today_word[j]:
+                    display += f"🟩 {letter.upper()} 🟩  "
+                elif letter in today_word:
+                    display += f"🟨 {letter.upper()} 🟨  "
+                else:
+                    display += f"⬜ {letter.upper()} ⬜  "
+            else:
+                display += f"⬜ {letter.upper()} ⬜  "
+        st.write(f"**Guess {i+1}:** {display}")
+    
+    if st.session_state.get('show_leaderboard', False):
+        st.subheader("🏆 Leaderboard")
+        if st.session_state.wordle_leaderboard:
+            for i, entry in enumerate(st.session_state.wordle_leaderboard[:10]):
+                st.write(f"{i+1}. **{entry['name']}** - {entry['guesses']} guesses ({entry['date']})")
+        else:
+            st.info("No scores yet! Be the first to win!")
+    
+    st.markdown("---")
+    st.markdown("💡 **Tutorial by Italy (Feliciano Vargas):**")
+    st.info("""
+    Ciao! 🍝 Let me explain how to play Heta-Wordle!
+    
+    **How to play:**
+    1. Guess the secret Hetalia character or mochi name
+    2. You have 6 tries to guess correctly
+    3. After each guess, the letters will show:
+       - 🟩 **GREEN** = Correct letter, correct position!
+       - 🟨 **YELLOW** = Correct letter, wrong position
+       - ⬜ **GRAY** = Letter not in the word
+    
+    **What words work?**
+    - Country names (Italy, Germany, Japan, America, etc.)
+    - Mochi names (Chibitalia, Seborga, Gilbird, etc.)
+    - Human names (Feliciano, Ludwig, Arthur, Alfred, etc.)
+    - Nicknames (Vargas, Kiku, Yao, etc.)
+    
+    **Rules:**
+    - One word per day for everyone!
+    - Words rotate at midnight
+    - Every name appears once before repeating
+    
+    **Buona fortuna!** (Good luck!) - Ve~ 🍕
+    """)
+
+
 def mini_features():
     st.subheader("🎨 Mini Features")
     
-    tab1, tab2 = st.tabs(["🎂 Birthday Preview", "✨ More Coming Soon"])
+    tab1, tab2, tab3 = st.tabs(["🎂 Birthday Preview", "📝 Heta-Wordle", "✨ More Coming Soon"])
     
     with tab1:
         birthday_data = {
@@ -786,11 +942,13 @@ def mini_features():
                     </div>
                     """, unsafe_allow_html=True)
                     break
-    
+
     with tab2:
+        heta_wordle()
+    
+    with tab3:
         st.info("✨ More mini features coming soon!")
         st.markdown("""
-        - Heta-wordle
         - guess the mochi!
         - feel free to give ideas in the comment section/dm me
         """)
