@@ -724,6 +724,8 @@ def heta_wordle():
         st.session_state.wordle_leaderboard = []
     if 'wordle_last_word' not in st.session_state:
         st.session_state.wordle_last_word = today_word
+    if 'show_leaderboard' not in st.session_state:
+        st.session_state.show_leaderboard = False
     
     if st.session_state.wordle_last_word != today_word:
         st.session_state.wordle_guesses = []
@@ -735,34 +737,56 @@ def heta_wordle():
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("🎯 Word Length", len(today_word))
+        st.metric("📏 Word Length", len(today_word))
     with col2:
-        st.metric("📊 Guesses", f"{len(st.session_state.wordle_guesses)}/6")
+        st.metric("🎯 Guesses", f"{len(st.session_state.wordle_guesses)}/6")
     with col3:
         hours = time_left.seconds // 3600
         minutes = (time_left.seconds % 3600) // 60
-        st.metric("⏰ Reset In", f"{hours}h {minutes}m")
+        st.metric("⏰ Reset", f"{hours}h {minutes}m")
     with col4:
-        if st.button("🏆 Leaderboard"):
-            st.session_state.show_leaderboard = not st.session_state.get('show_leaderboard', False)
+        if st.button("🏆 Scores"):
+            st.session_state.show_leaderboard = not st.session_state.show_leaderboard
             st.rerun()
     
+    st.markdown("---")
+    
+    for guess in st.session_state.wordle_guesses:
+        cols = st.columns(len(today_word))
+        for j, letter in enumerate(guess):
+            if j < len(today_word):
+                if letter == today_word[j]:
+                    cols[j].markdown(f"<div style='background-color: #6aaa64; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
+                elif letter in today_word:
+                    cols[j].markdown(f"<div style='background-color: #c9b458; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
+                else:
+                    cols[j].markdown(f"<div style='background-color: #787c7e; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
+            else:
+                cols[j].markdown(f"<div style='background-color: #787c7e; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
+    
+    empty_rows = 6 - len(st.session_state.wordle_guesses)
+    for i in range(empty_rows):
+        cols = st.columns(len(today_word))
+        for j in range(len(today_word)):
+            cols[j].markdown(f"<div style='background-color: #3a3a3c; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px; border: 1px solid #565758;'>?</div>", unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
     if not st.session_state.wordle_game_over and len(st.session_state.wordle_guesses) < 6:
-        guess = st.text_input("Enter your guess:", max_chars=20, key="wordle_input").strip().lower()
+        guess = st.text_input("", max_chars=20, placeholder="Type your guess here...", key="wordle_input").strip().lower()
         
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Guess", key="wordle_guess_btn"):
+            if st.button("📝 GUESS", key="wordle_guess_btn", use_container_width=True):
                 if guess and len(guess) >= 3:
                     if guess in word_list:
                         st.session_state.wordle_guesses.append(guess)
                         if guess == today_word:
                             st.session_state.wordle_game_over = True
                             st.balloons()
-                            st.success(f"🎉 Correct! You got it in {len(st.session_state.wordle_guesses)} guesses!")
-                            
+                            st.success(f"🎉 PERFECT! You got it in {len(st.session_state.wordle_guesses)} guesses!")
                             with st.form(key="score_form"):
-                                name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous")
+                                name = st.text_input("Enter your name:", placeholder="Anonymous")
                                 if st.form_submit_button("Save Score"):
                                     st.session_state.wordle_leaderboard.append({
                                         "name": name or "Anonymous",
@@ -773,66 +797,64 @@ def heta_wordle():
                                     st.rerun()
                         elif len(st.session_state.wordle_guesses) >= 6:
                             st.session_state.wordle_game_over = True
-                            st.error(f"Game over! The word was: {today_word.upper()}")
+                            st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
                         st.rerun()
                     else:
-                        st.error("Not a valid Hetalia character or mochi name!")
+                        st.error("❌ Not a valid Hetalia character or mochi name!")
                 else:
-                    st.warning("Please enter a valid guess (min 3 letters)")
+                    st.warning("⚠️ Please enter a valid guess (min 3 letters)")
         
         with col2:
-            if st.button("New Game"):
+            if st.button("🔄 New Game", use_container_width=True):
                 st.session_state.wordle_guesses = []
                 st.session_state.wordle_game_over = False
                 st.rerun()
     
-    for i, guess in enumerate(st.session_state.wordle_guesses):
-        display = ""
-        for j, letter in enumerate(guess):
-            if j < len(today_word):
-                if letter == today_word[j]:
-                    display += f"🟩 {letter.upper()} 🟩  "
-                elif letter in today_word:
-                    display += f"🟨 {letter.upper()} 🟨  "
-                else:
-                    display += f"⬜ {letter.upper()} ⬜  "
-            else:
-                display += f"⬜ {letter.upper()} ⬜  "
-        st.write(f"**Guess {i+1}:** {display}")
+    if st.session_state.wordle_game_over and len(st.session_state.wordle_guesses) >= 6 and st.session_state.wordle_guesses[-1] != today_word:
+        st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
     
-    if st.session_state.get('show_leaderboard', False):
-        st.subheader("🏆 Leaderboard")
+    if st.session_state.show_leaderboard:
+        st.markdown("---")
+        st.subheader("🏆 LEADERBOARD")
         if st.session_state.wordle_leaderboard:
             for i, entry in enumerate(st.session_state.wordle_leaderboard[:10]):
-                st.write(f"{i+1}. **{entry['name']}** - {entry['guesses']} guesses ({entry['date']})")
+                if entry['guesses'] == 1:
+                    medal = "👑"
+                elif entry['guesses'] == 2:
+                    medal = "🥈"
+                elif entry['guesses'] == 3:
+                    medal = "🥉"
+                else:
+                    medal = "📝"
+                st.write(f"{medal} {i+1}. **{entry['name']}** - {entry['guesses']} guesses ({entry['date']})")
         else:
             st.info("No scores yet! Be the first to win!")
     
     st.markdown("---")
-    st.markdown("💡 **Tutorial by Italy (Feliciano Vargas):**")
+    st.markdown("💡 **TUTORIAL by Italy (Feliciano Vargas):**")
     st.info("""
-    Ciao! 🍝 Let me explain how to play Heta-Wordle!
+    🍝 **Ciao! Let me explain Heta-Wordle!**
     
-    **How to play:**
-    1. Guess the secret Hetalia character or mochi name
-    2. You have 6 tries to guess correctly
-    3. After each guess, the letters will show:
-       - 🟩 **GREEN** = Correct letter, correct position!
-       - 🟨 **YELLOW** = Correct letter, wrong position
-       - ⬜ **GRAY** = Letter not in the word
+    **🎮 HOW TO PLAY:**
+    - Guess the secret Hetalia character or mochi name
+    - You have **6 tries** to guess correctly
     
-    **What words work?**
-    - Country names (Italy, Germany, Japan, America, etc.)
-    - Mochi names (Chibitalia, Seborga, Gilbird, etc.)
-    - Human names (Feliciano, Ludwig, Arthur, Alfred, etc.)
-    - Nicknames (Vargas, Kiku, Yao, etc.)
+    **🎨 COLOR MEANING:**
+    - 🟩 **GREEN** = Correct letter, correct position!
+    - 🟨 **YELLOW** = Correct letter, wrong position
+    - ⬜ **GRAY** = Letter not in the word
     
-    **Rules:**
+    **📝 VALID WORDS:**
+    - Country names (Italy, Germany, Japan, America)
+    - Mochi names (Chibitalia, Seborga, Gilbird)
+    - Human names (Feliciano, Ludwig, Arthur, Vargas)
+    
+    **📅 RULES:**
     - One word per day for everyone!
-    - Words rotate at midnight
+    - Words reset at midnight
     - Every name appears once before repeating
     
-    **Buona fortuna!** (Good luck!) - Ve~ 🍕
+    **🇮🇹 Buona fortuna!** (Good luck!) - Ve~ 🍕
     """)
 
 
