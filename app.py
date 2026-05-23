@@ -800,8 +800,9 @@ def heta_wordle():
     
     for guess in st.session_state.wordle_guesses:
         cols = st.columns(len(today_word))
-        for j, letter in enumerate(guess):
-            if j < len(today_word):
+        for j in range(len(today_word)):
+            if j < len(guess):
+                letter = guess[j]
                 if letter == today_word[j]:
                     cols[j].markdown(f"<div style='background-color: #6aaa64; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
                 elif letter in today_word:
@@ -809,8 +810,7 @@ def heta_wordle():
                 else:
                     cols[j].markdown(f"<div style='background-color: #787c7e; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
             else:
-                cols[j].markdown(f"<div style='background-color: #787c7e; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
-    
+                cols[j].markdown(f"<div style='background-color: #3a3a3c; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px; border: 1px solid #565758;'>?</div>", unsafe_allow_html=True)
     empty_rows = 6 - len(st.session_state.wordle_guesses)
     for i in range(empty_rows):
         cols = st.columns(len(today_word))
