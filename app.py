@@ -836,16 +836,16 @@ def heta_wordle():
                             show_win_animation(len(st.session_state.wordle_guesses))
                             st.success(f"🎉 PERFECT! You got it in {len(st.session_state.wordle_guesses)} guesses!")
                             name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
-if st.button("Save Score", key="save_score_btn"):
-    if name.strip():
-        st.session_state.wordle_leaderboard.append({
-            "name": name.strip(),
-            "guesses": len(st.session_state.wordle_guesses),
-            "date": datetime.now().strftime("%Y-%m-%d")
-        })
-        st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
-        st.success("Score saved!")
-        st.rerun()
+                            if st.button("Save Score", key="save_score_btn"):
+                                if name.strip():
+                                    st.session_state.wordle_leaderboard.append({
+                                        "name": name.strip(),
+                                        "guesses": len(st.session_state.wordle_guesses),
+                                        "date": datetime.now().strftime("%Y-%m-%d")
+                                    })
+                                    st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
+                                    st.success("Score saved!")
+                                    st.rerun()
                                     st.session_state.wordle_leaderboard.append({
                                         "name": name or "Anonymous",
                                         "guesses": len(st.session_state.wordle_guesses),
