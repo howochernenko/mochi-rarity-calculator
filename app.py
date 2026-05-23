@@ -754,7 +754,13 @@ def heta_wordle():
     random.seed(seed)
     today_word = random.choice(word_list)
     random.seed()
-    
+    if 'wordle_completed_today' not in st.session_state:
+        st.session_state.wordle_completed_today = False
+
+    if st.session_state.wordle_completed_today:
+        st.warning("You already completed today's wordle! Come back tomorrow for a new word!")
+        st.stop()
+        
     if 'wordle_guesses' not in st.session_state:
         st.session_state.wordle_guesses = []
     if 'wordle_game_over' not in st.session_state:
@@ -828,11 +834,13 @@ def heta_wordle():
                     elif guess in word_list:
                         st.session_state.wordle_guesses.append(guess)
                         if guess == today_word:
+                            st.session_state.wordle_completed_today = True
                             st.session_state.wordle_game_over = True
+                            st.session_state.just_won = True
+                            st.session_state.win_guesses = len(st.session_state.wordle_guesses)
                             show_win_animation(len(st.session_state.wordle_guesses))
                             st.success(f"🎉 PERFECT! You got it in {len(st.session_state.wordle_guesses)} guesses!")
-                            name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
-                            if st.button("Save Score", key="save_score_btn"):
+                            st.rerun()
                                 if name.strip():
                                     st.session_state.wordle_leaderboard.append({
                                         "name": name.strip(),
@@ -843,6 +851,7 @@ def heta_wordle():
                                     st.success("Score saved!")
                                     st.rerun()
                         elif len(st.session_state.wordle_guesses) >= 6:
+                            st.session_state.wordle_completed_today = True
                             st.session_state.wordle_game_over = True
                             show_win_animation("fail")
                             st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
@@ -851,6 +860,20 @@ def heta_wordle():
                         st.error("❌ Not a valid input!")
                 else:
                     st.warning("⚠️ Please enter a valid guess (min 3 letters)")
+
+        if st.session_state.get('just_won', False):
+            name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
+            if st.button("Save Score", key="save_score_btn"):
+                if name.strip():
+                    st.session_state.wordle_leaderboard.append({
+                        "name": name.strip(),
+                        "guesses": st.session_state.win_guesses,
+                        "date": datetime.now().strftime("%Y-%m-%d")
+                    })
+                    st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
+                    st.session_state.just_won = False
+                    st.success("Score saved!")
+                    st.rerun()
         
         with col2:
             if st.button("🔄 New Game", use_container_width=True):
