@@ -701,7 +701,7 @@ def heta_wordle():
         "sealand", "korea", "portugal", "quebec", "serbia", "wales", "mongolia",
         "persia", "tonga", "whale", "chibitalia", "genoa", "gilbird", "pierre",
         "estonia", "czechia", "finland", "benelux", "greenland",
-        , "kyoto", "teutonic", "ecuador", "osaka", "pochi", "pontus",
+        "kyoto", "teutonic", "ecuador", "osaka", "pochi", "pontus",
         "puffin", "pookie", "picardy", "shujinko", "nikojr", "nikoniko",
         "niko", "scotland", "england", "wales", "northernireland", "feliciano",
         "vargas", "ludwig", "kiku", "alfred", "arthur", "francis", "ivan", "yao",
