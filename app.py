@@ -722,10 +722,6 @@ def show_win_animation(tries):
     st.markdown(floating_html, unsafe_allow_html=True)
 
 
-import random
-import hashlib
-from datetime import datetime, timedelta
-
 def heta_wordle():
     st.subheader("📝 Heta-Wordle")
     
@@ -811,6 +807,7 @@ def heta_wordle():
                     cols[j].markdown(f"<div style='background-color: #787c7e; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px;'>{letter.upper()}</div>", unsafe_allow_html=True)
             else:
                 cols[j].markdown(f"<div style='background-color: #3a3a3c; color: white; text-align: center; padding: 15px; font-size: 24px; font-weight: bold; border-radius: 5px; border: 1px solid #565758;'>?</div>", unsafe_allow_html=True)
+    
     empty_rows = 6 - len(st.session_state.wordle_guesses)
     for i in range(empty_rows):
         cols = st.columns(len(today_word))
@@ -820,43 +817,40 @@ def heta_wordle():
     st.markdown("---")
     
     if not st.session_state.wordle_game_over and len(st.session_state.wordle_guesses) < 6:
-        if st.session_state.wordle_game_over:
-            st.warning("Game already finished today! Come back tomorrow for a new word!")
-            st.stop()
         guess = st.text_input("", max_chars=20, placeholder="Type your guess here...", key="wordle_input").strip().lower()
-
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("📝 GUESS", key="wordle_guess_btn", use_container_width=True):
-        if guess and len(guess) >= 3:
-            if len(guess) != len(today_word):
-                st.error(f"Word must be exactly {len(today_word)} letters long!")
-            elif guess in word_list:
-                st.session_state.wordle_guesses.append(guess)
-                if guess == today_word:
-                    st.session_state.wordle_game_over = True
-                    show_win_animation(len(st.session_state.wordle_guesses))
-                    st.success(f"🎉 PERFECT! You got it in {len(st.session_state.wordle_guesses)} guesses!")
-                    name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
-                    if st.button("Save Score", key="save_score_btn"):
-                        if name.strip():
-                            st.session_state.wordle_leaderboard.append({
-                                "name": name.strip(),
-                                "guesses": len(st.session_state.wordle_guesses),
-                                "date": datetime.now().strftime("%Y-%m-%d")
-                            })
-                            st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
-                            st.success("Score saved!")
-                            st.rerun()
-                elif len(st.session_state.wordle_guesses) >= 6:
-                    st.session_state.wordle_game_over = True
-                    show_win_animation("fail")
-                    st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
-                st.rerun()
-            else:
-                st.error("❌ Not a valid input!")
-        else:
-            st.warning("⚠️ Please enter a valid guess (min 3 letters)")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📝 GUESS", key="wordle_guess_btn", use_container_width=True):
+                if guess and len(guess) >= 3:
+                    if len(guess) != len(today_word):
+                        st.error(f"Word must be exactly {len(today_word)} letters long!")
+                    elif guess in word_list:
+                        st.session_state.wordle_guesses.append(guess)
+                        if guess == today_word:
+                            st.session_state.wordle_game_over = True
+                            show_win_animation(len(st.session_state.wordle_guesses))
+                            st.success(f"🎉 PERFECT! You got it in {len(st.session_state.wordle_guesses)} guesses!")
+                            name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
+                            if st.button("Save Score", key="save_score_btn"):
+                                if name.strip():
+                                    st.session_state.wordle_leaderboard.append({
+                                        "name": name.strip(),
+                                        "guesses": len(st.session_state.wordle_guesses),
+                                        "date": datetime.now().strftime("%Y-%m-%d")
+                                    })
+                                    st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
+                                    st.success("Score saved!")
+                                    st.rerun()
+                        elif len(st.session_state.wordle_guesses) >= 6:
+                            st.session_state.wordle_game_over = True
+                            show_win_animation("fail")
+                            st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
+                        st.rerun()
+                    else:
+                        st.error("❌ Not a valid input!")
+                else:
+                    st.warning("⚠️ Please enter a valid guess (min 3 letters)")
         
         with col2:
             if st.button("🔄 New Game", use_container_width=True):
@@ -899,9 +893,8 @@ with col1:
     - ⬜ **GRAY** = Letter not in the word
     
     **📝 VALID WORDS:**
-    - Characters names (Italy, Germany, Japan, America)
-    - Mochi names (Pochi, Gilbird)
-    - Human names (Feliciano, Ludwig, Arthur, Vargas)
+    - Mochi names (Chibitalia, Seborga, Gilbird)
+    - Human names (Feliciano, Alfred, Vargas, Kiku)
     
     **📅 RULES:**
     - One word per day for everyone!
@@ -910,7 +903,6 @@ with col1:
     
     **🇮🇹 Buona fortuna!** (Good luck!) - Ve~ 🍕
     """)
-
 
 def mini_features():
     st.subheader("🎨 Mini Features")
