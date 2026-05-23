@@ -861,19 +861,19 @@ def heta_wordle():
                 else:
                     st.warning("⚠️ Please enter a valid guess (min 3 letters)")
 
-    if st.session_state.get('just_won', False):
-        name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
-        if st.button("Save Score", key="save_score_btn"):
-            if name.strip():
-                st.session_state.wordle_leaderboard.append({
-                    "name": name.strip(),
-                    "guesses": st.session_state.win_guesses,
-                    "date": datetime.now().strftime("%Y-%m-%d")
-                })
-                st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
-                st.session_state.just_won = False
-                st.success("Score saved!")
-                st.rerun()
+if st.session_state.get('just_won', False):
+    name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
+    if st.button("Save Score", key="save_score_btn"):
+        if name.strip():
+            st.session_state.wordle_leaderboard.append({
+                "name": name.strip(),
+                "guesses": st.session_state.win_guesses,
+                "date": datetime.now().strftime("%Y-%m-%d")
+            })
+            st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
+            st.session_state.just_won = False
+            st.success("Score saved!")
+            st.rerun()
         
         with col2:
             if st.button("🔄 New Game", use_container_width=True):
