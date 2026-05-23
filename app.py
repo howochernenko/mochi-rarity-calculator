@@ -679,6 +679,49 @@ def shiny_2p_simulator():
     
     "tempovary off because I'm thinking about a more fair value, give me suggestions in comment section if u have any idea :)"
     st.markdown("---")
+
+
+def show_win_animation(tries):
+    emojis = {
+        1: ["👑", "🏆", "⭐", "🎯", "💯", "🔥"],
+        2: ["🎉", "🎊", "✨", "⭐", "🌟", "💫"],
+        3: ["🎈", "🎉", "🎊", "✨", "🌸", "🌺"],
+        4: ["👍", "🎈", "🎉", "📝", "💪", "✨"],
+        5: ["📝", "👍", "🎈", "✨", "⭐", "🌿"],
+        6: ["✅", "📝", "🎈", "✨", "🌿", "🍀"],
+        "fail": ["💀", "😭", "📝", "🌧️", "🍂", "💔"]
+    }
+    
+    chosen = emojis.get(tries, emojis["fail"])
+    random.shuffle(chosen)
+    
+    floating_html = ""
+    for i in range(15):
+        left = random.randint(0, 95)
+        duration = random.uniform(3, 7)
+        delay = random.uniform(0, 2)
+        floating_html += f'<div class="win-emoji" style="left: {left}%; animation-duration: {duration}s; animation-delay: {delay}s;">{chosen[i % len(chosen)]}</div>'
+    
+    st.markdown(f"""
+    <style>
+    @keyframes winFloat {{
+        0% {{ transform: translateY(-100px) rotate(0deg); opacity: 1; }}
+        100% {{ transform: translateY(600px) rotate(360deg); opacity: 0; }}
+    }}
+    .win-emoji {{
+        position: fixed;
+        top: -50px;
+        font-size: 2.5em;
+        pointer-events: none;
+        z-index: 9999;
+        animation: winFloat linear infinite;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown(floating_html, unsafe_allow_html=True)
+
+
 import random
 import hashlib
 from datetime import datetime, timedelta
@@ -695,15 +738,15 @@ def heta_wordle():
         "belarus", "iceland", "latvia", "scotland", "singapore", 
         "taiwan", "ireland", "croatia", "switzerland", "ukraine", "romania",
         "seborga", "moldova", "luxembourg", "molossia", "indonesia", "slovakia",
-        "wy", "denmark", "newzealand", "aotearoa", "australia", "ladonia",
+        "wy", "denmark", "newzealand", "australia", "ladonia",
         "bulgaria", "macau", "vietnam", "kugelmugel", "india", "monaco", "egypt",
         "thailand", "cuba", "cameroon", "davie", "stomaria", "cyprus", "trnc",
         "sealand", "korea", "portugal", "quebec", "serbia", "wales", "mongolia",
         "persia", "tonga", "whale", "chibitalia", "genoa", "gilbird", "pierre",
         "estonia", "czechia", "finland", "benelux", "greenland",
         "kyoto", "teutonic", "ecuador", "osaka", "pochi", "pontus",
-        "puffin", "pookie", "picardy", "shujinko", "nikojr", "nikoniko",
-        "niko", "scotland", "england", "wales", "northernireland", "feliciano",
+        "puffin", "pookie", "picardy", "nikojr", "nikoniko",
+        "niko", "scotland", "england", "wales", "ireland", "feliciano",
         "vargas", "ludwig", "kiku", "alfred", "arthur", "francis", "ivan", "yao",
         "roderich", "matthew", "toris", "feliks", "gilbert", "lovino", "peter"
     ]
@@ -745,9 +788,12 @@ def heta_wordle():
         minutes = (time_left.seconds % 3600) // 60
         st.metric("⏰ Reset", f"{hours}h {minutes}m")
     with col4:
-        if st.button("🏆 Scores"):
-            st.session_state.show_leaderboard = not st.session_state.show_leaderboard
-            st.rerun()
+        if st.button("🏆 Leaderboard"):
+    st.session_state.show_leaderboard = True
+
+    if st.button("Hide Leaderboard"):
+    st.session_state.show_leaderboard = False
+    st.rerun()
     
     st.markdown("---")
     
@@ -773,6 +819,9 @@ def heta_wordle():
     st.markdown("---")
     
     if not st.session_state.wordle_game_over and len(st.session_state.wordle_guesses) < 6:
+        if st.session_state.wordle_game_over:
+    st.warning("Game already finished today! Come back tomorrow for a new word!")
+    st.stop()
         guess = st.text_input("", max_chars=20, placeholder="Type your guess here...", key="wordle_input").strip().lower()
         
         col1, col2 = st.columns(2)
@@ -782,12 +831,20 @@ def heta_wordle():
                     if guess in word_list:
                         st.session_state.wordle_guesses.append(guess)
                         if guess == today_word:
-                            st.session_state.wordle_game_over = True
-                            st.balloons()
-                            st.success(f"🎉 PERFECT! You got it in {len(st.session_state.wordle_guesses)} guesses!")
-                            with st.form(key="score_form"):
-                                name = st.text_input("Enter your name:", placeholder="Anonymous")
-                                if st.form_submit_button("Save Score"):
+    st.session_state.wordle_game_over = True
+    show_win_animation(len(st.session_state.wordle_guesses))
+    st.success(f"🎉 PERFECT! You got it in {len(st.session_state.wordle_guesses)} guesses!")
+                            name = st.text_input("Enter your name for leaderboard:", placeholder="Anonymous", key="winner_name")
+if st.button("Save Score", key="save_score_btn"):
+    if name.strip():
+        st.session_state.wordle_leaderboard.append({
+            "name": name.strip(),
+            "guesses": len(st.session_state.wordle_guesses),
+            "date": datetime.now().strftime("%Y-%m-%d")
+        })
+        st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
+        st.success("Score saved!")
+        st.rerun()
                                     st.session_state.wordle_leaderboard.append({
                                         "name": name or "Anonymous",
                                         "guesses": len(st.session_state.wordle_guesses),
@@ -796,8 +853,9 @@ def heta_wordle():
                                     st.session_state.wordle_leaderboard.sort(key=lambda x: x["guesses"])
                                     st.rerun()
                         elif len(st.session_state.wordle_guesses) >= 6:
-                            st.session_state.wordle_game_over = True
-                            st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
+    st.session_state.wordle_game_over = True
+    show_win_animation("fail")
+    st.error(f"💀 GAME OVER! The word was: {today_word.upper()} 💀")
                         st.rerun()
                     else:
                         st.error("❌ Not a valid Hetalia character or mochi name!")
