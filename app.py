@@ -278,7 +278,7 @@ MOCHI_DATA = {
     12: ["wales", "germania", "germanic tribes", "canada", "nyo prussia"],
     13: ["nyo lithuania", "china", "nyo england", "serbia"],
     14: ["neko austria", "ancient egypt", "mama egypt", "kemet", "czechoslovakia", "waiter"],
-    15: ["sweden", "nyo belarus", "nyo germany"],
+    15: ["sweden", "nyo belarus", "nyo germany","zimbabwe"],
     16: ["quebec"],
     17: ["nyo italy"],
     18: ["nyo finland"],
